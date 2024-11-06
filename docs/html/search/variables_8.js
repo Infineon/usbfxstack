@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['index_0',['index',['../group__group__usbfxstack__fx__utils__structs.html#a93a41def1627b3b03cbb4b3354518924',1,'cy_stc_usb_setup_pkt_t']]],
+  ['inep0dmausb3ch_1',['inEp0DmaUsb3Ch',['../group__group__usbfxstack__usb__common__structs.html#ac95440b0899b22af4548dc053438ffc2',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['inep0scratchbuffer_2',['inEp0ScratchBuffer',['../group__group__usbfxstack__usb__common__structs.html#a069a90dccf629fbdcfb164be25627545',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['inprogress_3',['inProgress',['../group__group__usbfxstack__fx__utils__structs.html#a16bc385bb7abe1c80b01d2a1850ce9fb',1,'cy_stc_debug_context_t']]],
+  ['interfaceclock_4',['interfaceClock',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a439e7ae7c43cce71e371f1e0c9546805',1,'cy_stc_lvds_phy_config_t']]],
+  ['interval_5',['interval',['../group__group__usbfxstack__usb__common__structs.html#a39e05ec171a943e79ef9678dd6ed63db',1,'cy_stc_usb_endp_config_t']]],
+  ['intfc_6',['intfc',['../group__group__usbfxstack__fx__utils__structs.html#acd30e6974359fd83c45a8b2f4a9984ea',1,'cy_stc_debug_context_t']]],
+  ['intfremotewakeenabled_7',['intfRemoteWakeEnabled',['../group__group__usbfxstack__usb__common__structs.html#a460f77c7b178d60be64b33ed190633b1',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['intrcallback_8',['intrCallback',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a8375aa17e4a8eb5763c79f60a2f89334',1,'cy_stc_lvds_context_t::intrCallback()'],['../group__group__usbfxstack__hb__dma__structs.html#a16d74a4caea334795a4c52ae4bf44b51',1,'cy_stc_hbdma_context_t::intrCallback()']]],
+  ['intrenable_9',['intrEnable',['../group__group__usbfxstack__hb__dma__structs.html#a51f4ce1fb322bb92c7520da288564500',1,'cy_stc_hbdma_chn_config_t']]],
+  ['intrmask_10',['intrMask',['../group__group__usbfxstack__hb__dma__structs.html#a6652db9dfd5c78d94d3610cc197747cb',1,'cy_stc_hbdma_sock_t::intrMask()'],['../group__group__usbfxstack__hb__dma__structs.html#aee9cb20a285d87814ab5f2b44ec966a2',1,'cy_stc_hbdma_sockconfig_t::intrMask()']]],
+  ['intrstatus_11',['intrStatus',['../group__group__usbfxstack__hb__dma__structs.html#aa1e17653e22c331450f9f5bd0d52fba8',1,'cy_stc_hbdma_sock_t']]],
+  ['intrtype_12',['intrType',['../group__group__usbfxstack__hb__dma__structs.html#a0b8ff0a342f3ce5b87d27bc263452400',1,'cy_stc_hbdma_intr_msg_t']]],
+  ['is_5fout_13',['is_out',['../group__group__usbfxstack__fx__utils__structs.html#a966f9ea6b5a92fc496723d6c28664aeb',1,'cy_stc_usbfs_epinfo_t']]],
+  ['ishsenabled_14',['isHsEnabled',['../group__group__usbfxstack__usb__common__structs.html#abed6e5579f47512b4d7159324d38b4a1',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['isopkts_15',['isoPkts',['../group__group__usbfxstack__usb__common__structs.html#ac16ac255f8bb65961b929fe9c6556b1c',1,'cy_stc_usb_endp_config_t']]],
+  ['isputloopbackmode_16',['isPutLoopbackMode',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ad20b8bbd3e709c6e38bbe4ef7951cb04',1,'cy_stc_lvds_phy_config_t']]]
+];
