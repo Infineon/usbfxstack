@@ -130,6 +130,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>InitializeWDT</b> (ui
 <tr class="memitem:ga0c1debcb881e7e2e1847fcf87b0f6e63"><td class="memItemLeft" align="right" valign="top"><a id="ga0c1debcb881e7e2e1847fcf87b0f6e63" name="ga0c1debcb881e7e2e1847fcf87b0f6e63"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</td></tr>
 <tr class="separator:ga0c1debcb881e7e2e1847fcf87b0f6e63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga44fad4fa0169297eab0cb06b26e3f3de"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga44fad4fa0169297eab0cb06b26e3f3de">Cy_UsbFx_SelectDFTFunctions</a> (uint32_t dft0_func, uint32_t dft1_func, uint32_t usbdft0_func, uint32_t usbdft1_func)</td></tr>
+<tr class="memdesc:ga44fad4fa0169297eab0cb06b26e3f3de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used to select the Design-For-Test debug functions which are to be driven on to the P11.0, P11.1, P9.2 and P9.3 pins of the EZ-USB FX device.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga44fad4fa0169297eab0cb06b26e3f3de">More...</a><br /></td></tr>
+<tr class="separator:ga44fad4fa0169297eab0cb06b26e3f3de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5cf44d5bab64a8f284e97950b8ceee34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga5cf44d5bab64a8f284e97950b8ceee34">Cy_UsbFx_MemSetDword</a> (uint32_t *pBuffer, uint32_t value, uint32_t byteCount)</td></tr>
+<tr class="memdesc:ga5cf44d5bab64a8f284e97950b8ceee34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a memory buffer with the specified 4-byte value.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga5cf44d5bab64a8f284e97950b8ceee34">More...</a><br /></td></tr>
+<tr class="separator:ga5cf44d5bab64a8f284e97950b8ceee34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4831d3912d3593c289182b2d55918c2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga4831d3912d3593c289182b2d55918c2a">Cy_UsbFx_MemCpyDword</a> (uint32_t *pDst, const uint32_t *pSrc, uint32_t byteCount)</td></tr>
+<tr class="memdesc:ga4831d3912d3593c289182b2d55918c2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy data from source to destination buffer using 4-byte words.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga4831d3912d3593c289182b2d55918c2a">More...</a><br /></td></tr>
+<tr class="separator:ga4831d3912d3593c289182b2d55918c2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5378b6dd6cdd12e65998a389f47597ed"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga5378b6dd6cdd12e65998a389f47597ed">CyUsbFsCdc_Init</a> (void)</td></tr>
 <tr class="memdesc:ga5378b6dd6cdd12e65998a389f47597ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The API initializes the USB interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga5378b6dd6cdd12e65998a389f47597ed">More...</a><br /></td></tr>
 <tr class="separator:ga5378b6dd6cdd12e65998a389f47597ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -486,6 +495,146 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
   <table class="params">
     <tr><td class="paramname">bitPos</td><td>Bit position of the fuse to be written. Valid values are in the range of 0 to 7</td></tr>
     <tr><td class="paramname">offset</td><td>Byte offset of the fuse to be written. Valid values are in the range of 0x52 to 0x7F </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga44fad4fa0169297eab0cb06b26e3f3de" name="ga44fad4fa0169297eab0cb06b26e3f3de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga44fad4fa0169297eab0cb06b26e3f3de">&#9670;&nbsp;</a></span>Cy_UsbFx_SelectDFTFunctions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_UsbFx_SelectDFTFunctions </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>dft0_func</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>dft1_func</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>usbdft0_func</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>usbdft1_func</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function used to select the Design-For-Test debug functions which are to be driven on to the P11.0, P11.1, P9.2 and P9.3 pins of the EZ-USB FX device. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dft0_func</td><td>Select the debug function to be driven on the P11.0 pin. Any USB/LVDS function is supported. </td></tr>
+    <tr><td class="paramname">dft1_func</td><td>Select the debug function to be driven on the P11.1 pin. Any USB/LVDS function is supported. </td></tr>
+    <tr><td class="paramname">usbdft0_func</td><td>Select the debug function to be driven on the P9.2 pin. Only USB functions are supported. </td></tr>
+    <tr><td class="paramname">usbdft1_func</td><td>Select the debug function to be driven on the P9.3 pin. Only USB functions are supported.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if DFT configuration is done, false in case of error. </dd></dl>
+
+</div>
+</div>
+<a id="ga5cf44d5bab64a8f284e97950b8ceee34" name="ga5cf44d5bab64a8f284e97950b8ceee34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5cf44d5bab64a8f284e97950b8ceee34">&#9670;&nbsp;</a></span>Cy_UsbFx_MemSetDword()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_UsbFx_MemSetDword </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>pBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>byteCount</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize a memory buffer with the specified 4-byte value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pBuffer</td><td>Pointer to buffer to be initialized.</td></tr>
+    <tr><td class="paramname">value</td><td>Value to initialize the memory buffer with.</td></tr>
+    <tr><td class="paramname">byteCount</td><td>Size of the buffer in bytes. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga4831d3912d3593c289182b2d55918c2a" name="ga4831d3912d3593c289182b2d55918c2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4831d3912d3593c289182b2d55918c2a">&#9670;&nbsp;</a></span>Cy_UsbFx_MemCpyDword()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_UsbFx_MemCpyDword </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>pDst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint32_t *&#160;</td>
+          <td class="paramname"><em>pSrc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>byteCount</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy data from source to destination buffer using 4-byte words. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDst</td><td>Pointer to destination buffer.</td></tr>
+    <tr><td class="paramname">pSrc</td><td>Pointer to source buffer.</td></tr>
+    <tr><td class="paramname">byteCount</td><td>Size of the buffer in bytes. </td></tr>
   </table>
   </dd>
 </dl>

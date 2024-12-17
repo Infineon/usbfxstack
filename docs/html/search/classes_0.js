@@ -35,5 +35,6 @@ var searchData=
   ['cy_5fstc_5fusbd_5fapp_5fmsg_5ft_32',['cy_stc_usbd_app_msg_t',['../group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbd__app__msg__t',1,'']]],
   ['cy_5fstc_5fusbfs_5fepinfo_5ft_33',['cy_stc_usbfs_epinfo_t',['../group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usbfs__epinfo__t',1,'']]],
   ['cy_5fstc_5fusbhs_5fdma_5fdesc_5ft_34',['cy_stc_usbhs_dma_desc_t',['../group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usbhs__dma__desc__t',1,'']]],
-  ['cy_5fusbfs_5fdevhandle_5ft_35',['cy_usbfs_devhandle_t',['../group__group__usbfxstack__fx__utils__structs.html#structcy__usbfs__devhandle__t',1,'']]]
+  ['cy_5fstc_5fusbss_5fcal_5fctxt_5ft_35',['cy_stc_usbss_cal_ctxt_t',['../group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t',1,'']]],
+  ['cy_5fusbfs_5fdevhandle_5ft_36',['cy_usbfs_devhandle_t',['../group__group__usbfxstack__fx__utils__structs.html#structcy__usbfs__devhandle__t',1,'']]]
 ];

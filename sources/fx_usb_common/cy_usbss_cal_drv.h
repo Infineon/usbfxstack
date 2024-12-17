@@ -29,8 +29,6 @@
  * \{
  */
 
-#ifndef DOXYGEN
-
 /* This header is not to be documented for FX2G3 */
 
 /**
@@ -52,6 +50,11 @@ extern "C" {
 #endif
 
 #ifndef DOXYGEN
+/* Some sections of the code are intentionally not documented.
+ * Definitions in these sections of code are only used internally
+ * within the USBFXStack library. We don't need to document them
+ * for end users.
+ */
 
 #define CY_USB32DEV_PROT_LMP_OVERRIDE_LMP_SEND \
             ((uint32_t)0x01 << USB32DEV_PROT_LMP_OVERRIDE_LMP_SEND_Pos)
@@ -1570,7 +1573,7 @@ Cy_USBSS_Cal_DisableLPMDeviceExit(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool devExi
  * be disabled.
  *
  * \param evtLogSize
- * Size of RAM buffer in bytes.
+ * Size of RAM buffer in 32-bit words.
  *
  * \return
  * The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
@@ -1591,8 +1594,6 @@ void Cy_USBSS_Cal_PrintCtleResults(cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t ph
 #endif
 
 #endif /* CY_USBSS_CAL_DRV_H */
-
-#endif /* DOXYGEN */
 
 /** \} group_usbfxstack_usb_common */
 

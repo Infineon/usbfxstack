@@ -6,6 +6,6 @@ var searchData=
   ['metadatatype_3',['metadataType',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ae8121699b9d08f0cfe3d6da18040be97',1,'cy_stc_lvds_md_config_t']]],
   ['metadatavalue_4',['metadataValue',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a475ddfe1b569ad2cc4d4778d5f70fcef',1,'cy_stc_lvds_md_config_t']]],
   ['modeselect_5',['modeSelect',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a274f8fd40bcd39422f1a5228b84b2527',1,'cy_stc_lvds_phy_config_t']]],
-  ['msgcb_6',['msgCb',['../group__group__usbfxstack__usb__common__structs.html#a07c07357ff39e5c220a3519dbff4b77f',1,'cy_stc_usb_cal_ctxt_t']]],
+  ['msgcb_6',['msgCb',['../group__group__usbfxstack__usb__common__structs.html#a07c07357ff39e5c220a3519dbff4b77f',1,'cy_stc_usb_cal_ctxt_t::msgCb()'],['../group__group__usbfxstack__usb__common__structs.html#af405fbc7dd3636a24556513748a73942',1,'cy_stc_usbss_cal_ctxt_t::msgCb()']]],
   ['mult_7',['mult',['../group__group__usbfxstack__usb__common__structs.html#a3ac584556eec86646259e0bbc0887dc3',1,'cy_stc_usb_endp_info_t']]]
 ];

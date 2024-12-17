@@ -794,7 +794,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa3067d5701f5fc27993a5c580d5f1b6ea7a5a017661d4f308740f4f12f29b50dc">USB2REF_CLK_SRC_NA</a> = 0xFF
 <br />
  }</td></tr>
-<tr class="memdesc:gaa3067d5701f5fc27993a5c580d5f1b6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of possible clock sources for USB2 PLL REFCLK.  <a href="group__group__usbfxstack__usb__common__enums.html#gaa3067d5701f5fc27993a5c580d5f1b6e">More...</a><br /></td></tr>
+<tr class="memdesc:gaa3067d5701f5fc27993a5c580d5f1b6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of clock sources which can possibly be used as reference for the USB High-Speed PLL.  <a href="group__group__usbfxstack__usb__common__enums.html#gaa3067d5701f5fc27993a5c580d5f1b6e">More...</a><br /></td></tr>
 <tr class="separator:gaa3067d5701f5fc27993a5c580d5f1b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaca7d219d5830d2365bfc9523d1a3cd0e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gaca7d219d5830d2365bfc9523d1a3cd0e">cy_en_usbhs_cal_test_mode_t</a> { <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaca7d219d5830d2365bfc9523d1a3cd0eaf4b1bf8837608746d8628720f6a6d15a">CY_USBHS_CAL_TEST_MODE_NORMAL</a> =0
@@ -812,6 +812,116 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaca7d219d5830d2365bfc9523d1a3cd0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of USB 2.x electrical test modes.  <a href="group__group__usbfxstack__usb__common__enums.html#gaca7d219d5830d2365bfc9523d1a3cd0e">More...</a><br /></td></tr>
 <tr class="separator:gaca7d219d5830d2365bfc9523d1a3cd0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6457203982abaf9b4464967fc666d5ef"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6457203982abaf9b4464967fc666d5ef">cy_en_usbss_pkt_type_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga6457203982abaf9b4464967fc666d5efafee16c761277d278df0db163d7e420e7">CY_USBSS_PKT_TYPE_LMP</a> = 0x00
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga6457203982abaf9b4464967fc666d5efa85390c29d3877d2ff24134422ad13a82">CY_USBSS_PKT_TYPE_TP</a> = 0x04
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga6457203982abaf9b4464967fc666d5efa3a5f795edb7c9c31c7f578fd976d60f4">CY_USBSS_PKT_TYPE_DPH</a> = 0x08
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga6457203982abaf9b4464967fc666d5efa20e6a75444e1b385e266c10ca0323ad8">CY_USBSS_TP_PKT_TYPE_ITP</a> = 0x0C
+<br />
+ }</td></tr>
+<tr class="memdesc:ga6457203982abaf9b4464967fc666d5ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of USB 3.2 protocol layer packets.  <a href="group__group__usbfxstack__usb__common__enums.html#ga6457203982abaf9b4464967fc666d5ef">More...</a><br /></td></tr>
+<tr class="separator:ga6457203982abaf9b4464967fc666d5ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga953336fe6e77b965a7d4dd020fcf3826"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga953336fe6e77b965a7d4dd020fcf3826">cy_en_usbss_tp_pkt_subtype_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a350c0af537eafd03ea543a849433d313">CY_USBSS_TP_SUBTYPE_RES</a> = 0
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a592d7e0a9b007324fbbda6577e0f5f55">CY_USBSS_TP_SUBTYPE_ACK</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826ade9ff7b9e639c37c984dd03826e01768">CY_USBSS_TP_SUBTYPE_NRDY</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826ac719711e28913ccee9aa87e7170f25a1">CY_USBSS_TP_SUBTYPE_ERDY</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a053a6a74b19c845c752041f66d4d01c4">CY_USBSS_TP_SUBTYPE_STATUS</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826af77c8a0a8cc558979962c03583064246">CY_USBSS_TP_SUBTYPE_STALL</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a8c14097b80c514b62b36f11fbeb44217">CY_USBSS_TP_SUBTYPE_NOTICE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a99cb5e2c8e9045b78467ee53aa56efa2">CY_USBSS_TP_SUBTYPE_PING</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga953336fe6e77b965a7d4dd020fcf3826a066c3ac905831dc90865ae5516907896">CY_USBSS_TP_SUBTYPE_PINGRSP</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ga953336fe6e77b965a7d4dd020fcf3826"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of USB 3.2 transaction packets.  <a href="group__group__usbfxstack__usb__common__enums.html#ga953336fe6e77b965a7d4dd020fcf3826">More...</a><br /></td></tr>
+<tr class="separator:ga953336fe6e77b965a7d4dd020fcf3826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7794923562e5d39acc130621025255e1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga7794923562e5d39acc130621025255e1">cy_en_usbss_link_state_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a2258e2f2e909822fa066ce91ea96951a">CY_USBSS_LNK_STATE_SSDISABLED</a> = 0x00
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a6df2788bb2fd71aa786fe56581564d3e">CY_USBSS_LNK_STATE_RXDETECT_RES</a> = 0x01
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a684165eb1a6211fd4c38cd07a69e0794">CY_USBSS_LNK_STATE_RXDETECT_ACT</a> = 0x02
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a911b1cd2a439473d36f871230a97a117">CY_USBSS_LNK_STATE_RXDETECT_QUT</a> = 0x03
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a2eaec739628cafcf0434558e1d90182e">CY_USBSS_LNK_STATE_SSINACT_QUT</a> = 0x04
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1aace6d9d744bff4c40e5c0a857965cf40">CY_USBSS_LNK_STATE_SSINACT_DET</a> = 0x05
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1aec94487ea080dd96993c4b59a9129126">CY_USBSS_LNK_STATE_POLLING_LFPS</a> = 0x08
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1aff0de51f9eb1033347270970699b2943">CY_USBSS_LNK_STATE_POLLING_RxEQ</a> = 0x09
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1aedb0d0e4eec2ee35a94760a1bdb92e8b">CY_USBSS_LNK_STATE_POLLING_ACT</a> = 0x0A
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1ad3376d3dc8fc347f83e0cb296718bccc">CY_USBSS_LNK_STATE_POLLING_CFG</a> = 0x0B
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a2e23abb324a3d80fc385732ebdf33b51">CY_USBSS_LNK_STATE_POLLING_IDLE</a> = 0x0C
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a1146db4b0da7ee24068a4ecc25b84117">CY_USBSS_LNK_STATE_POLLING_LFPSPLUS</a> = 0x0D
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a4f1f9730235e3b845093864b54fe2ac5">CY_USBSS_LNK_STATE_POLLING_PORTMATCH</a> = 0x0E
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a95e2c0aee13f101fdc5b96c82d30ed1e">CY_USBSS_LNK_STATE_POLLING_PORTCONF</a> = 0x0F
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1ab35c49cd1ac3b108127cc4dfd5d0353b">CY_USBSS_LNK_STATE_U0</a> = 0x10
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a416e61fe230a8c6da382a0ce6c9ef428">CY_USBSS_LNK_STATE_U1</a> = 0x11
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a2f1e6230c6680e85ce1e62765c94f37e">CY_USBSS_LNK_STATE_U2</a> = 0x12
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a080be8e43892e94b0bbca69803ea0013">CY_USBSS_LNK_STATE_U3</a> = 0x13
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a789b3b682012c7c9e321d3aca783c53f">CY_USBSS_LNK_STATE_LPBK_ACTV</a> = 0x14
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1ab0071be9a7d90a6aabc02967cf9248d8">CY_USBSS_LNK_STATE_COMP</a> = 0x17
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1aa877d01c4ff1abda18933186313938b7">CY_USBSS_LNK_STATE_RECOV_ACT</a> = 0x18
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1ab653aeef67b97e6d9f65311d7db341a2">CY_USBSS_LNK_STATE_RECOV_CNFG</a> = 0x19
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga7794923562e5d39acc130621025255e1a5040a3d6c4f1f21cbc1bff84f911bd10">CY_USBSS_LNK_STATE_RECOV_IDLE</a> = 0x1A
+<br />
+ }</td></tr>
+<tr class="memdesc:ga7794923562e5d39acc130621025255e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of USB 3.2 link states.  <a href="group__group__usbfxstack__usb__common__enums.html#ga7794923562e5d39acc130621025255e1">More...</a><br /></td></tr>
+<tr class="separator:ga7794923562e5d39acc130621025255e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga35921cf9e1a183014cfa7f5ca2e705bf"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga35921cf9e1a183014cfa7f5ca2e705bf">cy_en_usbss_lnk_power_mode_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfaaae060cf7942cb1a72bd6a13cf94fdef">CY_USBSS_LPM_U0</a> = 0
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bface9865cb144949907d2bff68d0f869d5">CY_USBSS_LPM_U1</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa4dbc89d6daf1a52c167c66df78abe57a">CY_USBSS_LPM_U2</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfab45463f9b55b75591edc67f591280ce3">CY_USBSS_LPM_U3</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa20561cf3a444e63c6cea3148820a57c5">CY_USBSS_LPM_COMP</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa02cbba72e71da4515ea8a86d9667f563">CY_USBSS_LPM_UNKNOWN</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ga35921cf9e1a183014cfa7f5ca2e705bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of USB 3.2 link power modes.  <a href="group__group__usbfxstack__usb__common__enums.html#ga35921cf9e1a183014cfa7f5ca2e705bf">More...</a><br /></td></tr>
+<tr class="separator:ga35921cf9e1a183014cfa7f5ca2e705bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafec5dbb1978a2908ff200ba695074467"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467">cy_en_usbss_cal_lpm_cfg_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a232a3e9210685f1b73ca52c7dd750f79">CY_SSCAL_LPM_DISABLED</a> = 0
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea">CY_SSCAL_LPM_DELAYED</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24">CY_SSCAL_LPM_ENABLED</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gafec5dbb1978a2908ff200ba695074467"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of possible USB 3.x LPM accept configurations.  <a href="group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467">More...</a><br /></td></tr>
+<tr class="separator:gafec5dbb1978a2908ff200ba695074467"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga0d79c3063de7043b78fe79bae1e9278a" name="ga0d79c3063de7043b78fe79bae1e9278a"></a>
@@ -1766,7 +1876,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Enumeration of possible clock sources for USB2 PLL REFCLK. </p>
+<p>Enumeration of clock sources which can possibly be used as reference for the USB High-Speed PLL. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa3067d5701f5fc27993a5c580d5f1b6ea692f6faf19a1852641f9b46f27509185" name="ggaa3067d5701f5fc27993a5c580d5f1b6ea692f6faf19a1852641f9b46f27509185"></a>USB2REF_CLK_SRC_ECO&#160;</td><td class="fielddoc"><p >Clock generated by External Crystal Oscillator (ECO) </p>
 </td></tr>
@@ -1803,6 +1913,188 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="ggaca7d219d5830d2365bfc9523d1a3cd0ea6eaa4a165585a3cf7ca86c31cf71c039" name="ggaca7d219d5830d2365bfc9523d1a3cd0ea6eaa4a165585a3cf7ca86c31cf71c039"></a>CY_USBHS_CAL_TEST_MODE_TEST_PACKET&#160;</td><td class="fielddoc"><p >TEST_Packet mode. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggaca7d219d5830d2365bfc9523d1a3cd0ea1558754c25623e5d379d0507cb424cc1" name="ggaca7d219d5830d2365bfc9523d1a3cd0ea1558754c25623e5d379d0507cb424cc1"></a>CY_USBHS_CAL_TEST_MODE_TEST_RESERVED&#160;</td><td class="fielddoc"><p >Invalid test selection. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga6457203982abaf9b4464967fc666d5ef" name="ga6457203982abaf9b4464967fc666d5ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6457203982abaf9b4464967fc666d5ef">&#9670;&nbsp;</a></span>cy_en_usbss_pkt_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6457203982abaf9b4464967fc666d5ef">cy_en_usbss_pkt_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Types of USB 3.2 protocol layer packets. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga6457203982abaf9b4464967fc666d5efafee16c761277d278df0db163d7e420e7" name="gga6457203982abaf9b4464967fc666d5efafee16c761277d278df0db163d7e420e7"></a>CY_USBSS_PKT_TYPE_LMP&#160;</td><td class="fielddoc"><p >Link Management Packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6457203982abaf9b4464967fc666d5efa85390c29d3877d2ff24134422ad13a82" name="gga6457203982abaf9b4464967fc666d5efa85390c29d3877d2ff24134422ad13a82"></a>CY_USBSS_PKT_TYPE_TP&#160;</td><td class="fielddoc"><p >Transaction Packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6457203982abaf9b4464967fc666d5efa3a5f795edb7c9c31c7f578fd976d60f4" name="gga6457203982abaf9b4464967fc666d5efa3a5f795edb7c9c31c7f578fd976d60f4"></a>CY_USBSS_PKT_TYPE_DPH&#160;</td><td class="fielddoc"><p >Data Packet Header. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga6457203982abaf9b4464967fc666d5efa20e6a75444e1b385e266c10ca0323ad8" name="gga6457203982abaf9b4464967fc666d5efa20e6a75444e1b385e266c10ca0323ad8"></a>CY_USBSS_TP_PKT_TYPE_ITP&#160;</td><td class="fielddoc"><p >Isochronous Timestamp Packet. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga953336fe6e77b965a7d4dd020fcf3826" name="ga953336fe6e77b965a7d4dd020fcf3826"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga953336fe6e77b965a7d4dd020fcf3826">&#9670;&nbsp;</a></span>cy_en_usbss_tp_pkt_subtype_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga953336fe6e77b965a7d4dd020fcf3826">cy_en_usbss_tp_pkt_subtype_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Types of USB 3.2 transaction packets. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a350c0af537eafd03ea543a849433d313" name="gga953336fe6e77b965a7d4dd020fcf3826a350c0af537eafd03ea543a849433d313"></a>CY_USBSS_TP_SUBTYPE_RES&#160;</td><td class="fielddoc"><p >Reserved. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a592d7e0a9b007324fbbda6577e0f5f55" name="gga953336fe6e77b965a7d4dd020fcf3826a592d7e0a9b007324fbbda6577e0f5f55"></a>CY_USBSS_TP_SUBTYPE_ACK&#160;</td><td class="fielddoc"><p >ACK TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826ade9ff7b9e639c37c984dd03826e01768" name="gga953336fe6e77b965a7d4dd020fcf3826ade9ff7b9e639c37c984dd03826e01768"></a>CY_USBSS_TP_SUBTYPE_NRDY&#160;</td><td class="fielddoc"><p >NRDY TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826ac719711e28913ccee9aa87e7170f25a1" name="gga953336fe6e77b965a7d4dd020fcf3826ac719711e28913ccee9aa87e7170f25a1"></a>CY_USBSS_TP_SUBTYPE_ERDY&#160;</td><td class="fielddoc"><p >ERDY TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a053a6a74b19c845c752041f66d4d01c4" name="gga953336fe6e77b965a7d4dd020fcf3826a053a6a74b19c845c752041f66d4d01c4"></a>CY_USBSS_TP_SUBTYPE_STATUS&#160;</td><td class="fielddoc"><p >STATUS TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826af77c8a0a8cc558979962c03583064246" name="gga953336fe6e77b965a7d4dd020fcf3826af77c8a0a8cc558979962c03583064246"></a>CY_USBSS_TP_SUBTYPE_STALL&#160;</td><td class="fielddoc"><p >STALL TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a8c14097b80c514b62b36f11fbeb44217" name="gga953336fe6e77b965a7d4dd020fcf3826a8c14097b80c514b62b36f11fbeb44217"></a>CY_USBSS_TP_SUBTYPE_NOTICE&#160;</td><td class="fielddoc"><p >DEV_NOTIFICATION TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a99cb5e2c8e9045b78467ee53aa56efa2" name="gga953336fe6e77b965a7d4dd020fcf3826a99cb5e2c8e9045b78467ee53aa56efa2"></a>CY_USBSS_TP_SUBTYPE_PING&#160;</td><td class="fielddoc"><p >PING TP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga953336fe6e77b965a7d4dd020fcf3826a066c3ac905831dc90865ae5516907896" name="gga953336fe6e77b965a7d4dd020fcf3826a066c3ac905831dc90865ae5516907896"></a>CY_USBSS_TP_SUBTYPE_PINGRSP&#160;</td><td class="fielddoc"><p >PING RESPONSE TP. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga7794923562e5d39acc130621025255e1" name="ga7794923562e5d39acc130621025255e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7794923562e5d39acc130621025255e1">&#9670;&nbsp;</a></span>cy_en_usbss_link_state_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga7794923562e5d39acc130621025255e1">cy_en_usbss_link_state_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List of USB 3.2 link states. </p>
+<p >This list is non-exhaustive and covers only states of interest. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a2258e2f2e909822fa066ce91ea96951a" name="gga7794923562e5d39acc130621025255e1a2258e2f2e909822fa066ce91ea96951a"></a>CY_USBSS_LNK_STATE_SSDISABLED&#160;</td><td class="fielddoc"><p >SS.Disabled. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a6df2788bb2fd71aa786fe56581564d3e" name="gga7794923562e5d39acc130621025255e1a6df2788bb2fd71aa786fe56581564d3e"></a>CY_USBSS_LNK_STATE_RXDETECT_RES&#160;</td><td class="fielddoc"><p >Rx.Detect.Reset. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a684165eb1a6211fd4c38cd07a69e0794" name="gga7794923562e5d39acc130621025255e1a684165eb1a6211fd4c38cd07a69e0794"></a>CY_USBSS_LNK_STATE_RXDETECT_ACT&#160;</td><td class="fielddoc"><p >Rx.Detect.Active. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a911b1cd2a439473d36f871230a97a117" name="gga7794923562e5d39acc130621025255e1a911b1cd2a439473d36f871230a97a117"></a>CY_USBSS_LNK_STATE_RXDETECT_QUT&#160;</td><td class="fielddoc"><p >Rx.Detect.Quiet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a2eaec739628cafcf0434558e1d90182e" name="gga7794923562e5d39acc130621025255e1a2eaec739628cafcf0434558e1d90182e"></a>CY_USBSS_LNK_STATE_SSINACT_QUT&#160;</td><td class="fielddoc"><p >SS.Inactive.Quiet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1aace6d9d744bff4c40e5c0a857965cf40" name="gga7794923562e5d39acc130621025255e1aace6d9d744bff4c40e5c0a857965cf40"></a>CY_USBSS_LNK_STATE_SSINACT_DET&#160;</td><td class="fielddoc"><p >SS.Inactive.Disconnect.Detect. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1aec94487ea080dd96993c4b59a9129126" name="gga7794923562e5d39acc130621025255e1aec94487ea080dd96993c4b59a9129126"></a>CY_USBSS_LNK_STATE_POLLING_LFPS&#160;</td><td class="fielddoc"><p >Polling.LFPS. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1aff0de51f9eb1033347270970699b2943" name="gga7794923562e5d39acc130621025255e1aff0de51f9eb1033347270970699b2943"></a>CY_USBSS_LNK_STATE_POLLING_RxEQ&#160;</td><td class="fielddoc"><p >Polling.RxEq. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1aedb0d0e4eec2ee35a94760a1bdb92e8b" name="gga7794923562e5d39acc130621025255e1aedb0d0e4eec2ee35a94760a1bdb92e8b"></a>CY_USBSS_LNK_STATE_POLLING_ACT&#160;</td><td class="fielddoc"><p >Polling.Active. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1ad3376d3dc8fc347f83e0cb296718bccc" name="gga7794923562e5d39acc130621025255e1ad3376d3dc8fc347f83e0cb296718bccc"></a>CY_USBSS_LNK_STATE_POLLING_CFG&#160;</td><td class="fielddoc"><p >Polling.Configuration. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a2e23abb324a3d80fc385732ebdf33b51" name="gga7794923562e5d39acc130621025255e1a2e23abb324a3d80fc385732ebdf33b51"></a>CY_USBSS_LNK_STATE_POLLING_IDLE&#160;</td><td class="fielddoc"><p >Polling.Idle. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a1146db4b0da7ee24068a4ecc25b84117" name="gga7794923562e5d39acc130621025255e1a1146db4b0da7ee24068a4ecc25b84117"></a>CY_USBSS_LNK_STATE_POLLING_LFPSPLUS&#160;</td><td class="fielddoc"><p >Polling.LfpsPlus. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a4f1f9730235e3b845093864b54fe2ac5" name="gga7794923562e5d39acc130621025255e1a4f1f9730235e3b845093864b54fe2ac5"></a>CY_USBSS_LNK_STATE_POLLING_PORTMATCH&#160;</td><td class="fielddoc"><p >Polling.PortMatch. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a95e2c0aee13f101fdc5b96c82d30ed1e" name="gga7794923562e5d39acc130621025255e1a95e2c0aee13f101fdc5b96c82d30ed1e"></a>CY_USBSS_LNK_STATE_POLLING_PORTCONF&#160;</td><td class="fielddoc"><p >Polling.PortConfig. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1ab35c49cd1ac3b108127cc4dfd5d0353b" name="gga7794923562e5d39acc130621025255e1ab35c49cd1ac3b108127cc4dfd5d0353b"></a>CY_USBSS_LNK_STATE_U0&#160;</td><td class="fielddoc"><p >U0 - Active state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a416e61fe230a8c6da382a0ce6c9ef428" name="gga7794923562e5d39acc130621025255e1a416e61fe230a8c6da382a0ce6c9ef428"></a>CY_USBSS_LNK_STATE_U1&#160;</td><td class="fielddoc"><p >U1. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a2f1e6230c6680e85ce1e62765c94f37e" name="gga7794923562e5d39acc130621025255e1a2f1e6230c6680e85ce1e62765c94f37e"></a>CY_USBSS_LNK_STATE_U2&#160;</td><td class="fielddoc"><p >U2. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a080be8e43892e94b0bbca69803ea0013" name="gga7794923562e5d39acc130621025255e1a080be8e43892e94b0bbca69803ea0013"></a>CY_USBSS_LNK_STATE_U3&#160;</td><td class="fielddoc"><p >U3 - Suspend state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a789b3b682012c7c9e321d3aca783c53f" name="gga7794923562e5d39acc130621025255e1a789b3b682012c7c9e321d3aca783c53f"></a>CY_USBSS_LNK_STATE_LPBK_ACTV&#160;</td><td class="fielddoc"><p >Loopback.Active state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1ab0071be9a7d90a6aabc02967cf9248d8" name="gga7794923562e5d39acc130621025255e1ab0071be9a7d90a6aabc02967cf9248d8"></a>CY_USBSS_LNK_STATE_COMP&#160;</td><td class="fielddoc"><p >Compliance. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1aa877d01c4ff1abda18933186313938b7" name="gga7794923562e5d39acc130621025255e1aa877d01c4ff1abda18933186313938b7"></a>CY_USBSS_LNK_STATE_RECOV_ACT&#160;</td><td class="fielddoc"><p >Recovery.Active. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1ab653aeef67b97e6d9f65311d7db341a2" name="gga7794923562e5d39acc130621025255e1ab653aeef67b97e6d9f65311d7db341a2"></a>CY_USBSS_LNK_STATE_RECOV_CNFG&#160;</td><td class="fielddoc"><p >Recovery.Configuration. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga7794923562e5d39acc130621025255e1a5040a3d6c4f1f21cbc1bff84f911bd10" name="gga7794923562e5d39acc130621025255e1a5040a3d6c4f1f21cbc1bff84f911bd10"></a>CY_USBSS_LNK_STATE_RECOV_IDLE&#160;</td><td class="fielddoc"><p >Recovery.Idle. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga35921cf9e1a183014cfa7f5ca2e705bf" name="ga35921cf9e1a183014cfa7f5ca2e705bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga35921cf9e1a183014cfa7f5ca2e705bf">&#9670;&nbsp;</a></span>cy_en_usbss_lnk_power_mode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga35921cf9e1a183014cfa7f5ca2e705bf">cy_en_usbss_lnk_power_mode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List of USB 3.2 link power modes. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bfaaae060cf7942cb1a72bd6a13cf94fdef" name="gga35921cf9e1a183014cfa7f5ca2e705bfaaae060cf7942cb1a72bd6a13cf94fdef"></a>CY_USBSS_LPM_U0&#160;</td><td class="fielddoc"><p >U0 (active) power state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bface9865cb144949907d2bff68d0f869d5" name="gga35921cf9e1a183014cfa7f5ca2e705bface9865cb144949907d2bff68d0f869d5"></a>CY_USBSS_LPM_U1&#160;</td><td class="fielddoc"><p >U1 power state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bfa4dbc89d6daf1a52c167c66df78abe57a" name="gga35921cf9e1a183014cfa7f5ca2e705bfa4dbc89d6daf1a52c167c66df78abe57a"></a>CY_USBSS_LPM_U2&#160;</td><td class="fielddoc"><p >U2 power state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bfab45463f9b55b75591edc67f591280ce3" name="gga35921cf9e1a183014cfa7f5ca2e705bfab45463f9b55b75591edc67f591280ce3"></a>CY_USBSS_LPM_U3&#160;</td><td class="fielddoc"><p >U3 (suspend) power state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bfa20561cf3a444e63c6cea3148820a57c5" name="gga35921cf9e1a183014cfa7f5ca2e705bfa20561cf3a444e63c6cea3148820a57c5"></a>CY_USBSS_LPM_COMP&#160;</td><td class="fielddoc"><p >Compliance state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35921cf9e1a183014cfa7f5ca2e705bfa02cbba72e71da4515ea8a86d9667f563" name="gga35921cf9e1a183014cfa7f5ca2e705bfa02cbba72e71da4515ea8a86d9667f563"></a>CY_USBSS_LPM_UNKNOWN&#160;</td><td class="fielddoc"><p >The link is not in any of the Ux states. </p>
+<p >This normally happens while the link training is ongoing. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="gafec5dbb1978a2908ff200ba695074467" name="gafec5dbb1978a2908ff200ba695074467"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafec5dbb1978a2908ff200ba695074467">&#9670;&nbsp;</a></span>cy_en_usbss_cal_lpm_cfg_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467">cy_en_usbss_cal_lpm_cfg_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List of possible USB 3.x LPM accept configurations. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggafec5dbb1978a2908ff200ba695074467a232a3e9210685f1b73ca52c7dd750f79" name="ggafec5dbb1978a2908ff200ba695074467a232a3e9210685f1b73ca52c7dd750f79"></a>CY_SSCAL_LPM_DISABLED&#160;</td><td class="fielddoc"><p >U1/U2 entry has been disabled by user. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea" name="ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea"></a>CY_SSCAL_LPM_DELAYED&#160;</td><td class="fielddoc"><p >U1/U2 entry delayed for the instant. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24" name="ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24"></a>CY_SSCAL_LPM_ENABLED&#160;</td><td class="fielddoc"><p >U1/U2 entry is allowed. </p>
 </td></tr>
 </table>
 

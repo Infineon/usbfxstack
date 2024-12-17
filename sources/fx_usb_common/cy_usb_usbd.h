@@ -272,7 +272,7 @@ typedef enum {
 #define CY_USB_USBD_MSG_SIZE (sizeof(cy_stc_usb_cal_msg_t))
 
 /** Maximum number of interfaces supported in the configuration. */
-#define CY_USB_MAX_INTF 10
+#define CY_USB_MAX_INTF 17
 
 /** Stack size reserved for USBD task in 32-bit words. Budgeting extra space to cover for callbacks. */
 #define CY_USBD_TASK_STACK_DEPTH                (512)
@@ -3115,6 +3115,25 @@ void Cy_USB_USBD_DisableHsDevice(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
 void Cy_USB_USBD_EnableHsDevice(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
 
 /*******************************************************************************
+* Function name: Cy_USBD_CtrlHSEnableOnCompliance
+****************************************************************************//**
+*
+* Function used to enable/disable switch to USB-HS (2.0) mode on entry into
+* the USB 3.x Compliance LTSSM state. This transition is left enabled on
+* start-up and can be enabled through this API when device configurations
+* that do not support USB-HS are being used.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param hsEnable
+*  Whether transition into USB-HS is enabled.
+*
+*******************************************************************************/
+void Cy_USBD_CtrlHSEnableOnCompliance(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                                      bool hsEnable);
+
+/*******************************************************************************
 * Function name: Cy_USBD_TaskHandler
 ****************************************************************************//**
 *
@@ -3359,7 +3378,7 @@ cy_en_usbd_ret_code_t Cy_USBD_SendSSDeviceNotification
  * be disabled.
  *
  * \param evtLogSize
- * Size of RAM buffer in bytes.
+ * Size of RAM buffer in 32-bit words.
  *
  * \return
  * The status code of the function execution \ref cy_en_usbd_ret_code_t.

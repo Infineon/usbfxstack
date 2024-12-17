@@ -116,6 +116,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:structcy__stc__usb__cal__ctxt__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a></td></tr>
 <tr class="memdesc:structcy__stc__usb__cal__ctxt__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Context structure which holds all information about the USBHS controller abstraction layer or driver.  <a href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__usb__cal__ctxt__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structcy__stc__usbss__cal__ctxt__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a></td></tr>
+<tr class="memdesc:structcy__stc__usbss__cal__ctxt__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure which encapsulates all information about the USB 3.2 Controller Adaptation Layer (CAL) or driver for FX3G2.  <a href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">More...</a><br /></td></tr>
+<tr class="separator:structcy__stc__usbss__cal__ctxt__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/><h2 class="groupheader">Data Structure Documentation</h2>
 <a name="structcy__stc__usb__cal__msg__t" id="structcy__stc__usb__cal__msg__t"></a>
@@ -817,7 +820,7 @@ pCalCtxt</td>
 <td class="fielddoc">
 Pointer to USBHS CAL driver context structure. </td></tr>
 <tr><td class="fieldtype">
-<a id="aa877c4583b007842a6d38809665ae39e" name="aa877c4583b007842a6d38809665ae39e"></a>cy_stc_usbss_cal_ctxt_t *</td>
+<a id="aa877c4583b007842a6d38809665ae39e" name="aa877c4583b007842a6d38809665ae39e"></a><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *</td>
 <td class="fieldname">
 pSsCalCtxt</td>
 <td class="fielddoc">
@@ -984,6 +987,264 @@ Callback function pointer used to notify the USBD stack. </td></tr>
 clkSrcType</td>
 <td class="fielddoc">
 Clock source type - ECO or external clock. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="structcy__stc__usbss__cal__ctxt__t" id="structcy__stc__usbss__cal__ctxt__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structcy__stc__usbss__cal__ctxt__t">&#9670;&nbsp;</a></span>cy_stc_usbss_cal_ctxt_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct cy_stc_usbss_cal_ctxt_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ab612dbe6133c6f99eedacceb5b23c2ba" name="ab612dbe6133c6f99eedacceb5b23c2ba"></a>USB32DEV_Type *</td>
+<td class="fieldname">
+regBase</td>
+<td class="fielddoc">
+USB32DEV IP base pointer. </td></tr>
+<tr><td class="fieldtype">
+<a id="aacf78814423a78394fcde6ad0d35a499" name="aacf78814423a78394fcde6ad0d35a499"></a>USB32DEV_MAIN_Type *</td>
+<td class="fieldname">
+pMainBase</td>
+<td class="fielddoc">
+Pointer to USB32DEV_MAIN register section. </td></tr>
+<tr><td class="fieldtype">
+<a id="a05ec57f5e298e7d0ab2fe630ef0a996d" name="a05ec57f5e298e7d0ab2fe630ef0a996d"></a>USB32DEV_PROT_Type *</td>
+<td class="fieldname">
+pProtBase</td>
+<td class="fielddoc">
+Pointer to USB32DEV_PROT register section. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab2a67d0d58658f4bd4f76a42476ba31e" name="ab2a67d0d58658f4bd4f76a42476ba31e"></a>USB32DEV_LNK_Type *</td>
+<td class="fieldname">
+pLinkBase</td>
+<td class="fielddoc">
+Pointer to USB32DEV_LINK register section. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab21f9488c966544b78ece2ba972386b8" name="ab21f9488c966544b78ece2ba972386b8"></a>USB32DEV_EPM_Type *</td>
+<td class="fieldname">
+pEpmBase</td>
+<td class="fielddoc">
+Pointer to USB32DEV_EPM register section. </td></tr>
+<tr><td class="fieldtype">
+<a id="a292fd881e24d34406adb8482cd4d50aa" name="a292fd881e24d34406adb8482cd4d50aa"></a>void *</td>
+<td class="fieldname">
+pUsbdCtxt</td>
+<td class="fielddoc">
+Pointer to USBD stack context. <p >Used while sending events. </p>
+</td></tr>
+<tr><td class="fieldtype">
+<a id="af405fbc7dd3636a24556513748a73942" name="af405fbc7dd3636a24556513748a73942"></a><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a></td>
+<td class="fieldname">
+msgCb</td>
+<td class="fielddoc">
+Event callback function registered by USBD stack. </td></tr>
+<tr><td class="fieldtype">
+<a id="a609113a507efdb086e0eda3558582acc" name="a609113a507efdb086e0eda3558582acc"></a>bool</td>
+<td class="fieldname">
+sofEvtEnable</td>
+<td class="fielddoc">
+Whether ITP(SOF) interrupt is to be left enabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a54c5b412ae07063a8ecb3ed9c8b554b6" name="a54c5b412ae07063a8ecb3ed9c8b554b6"></a>bool</td>
+<td class="fieldname">
+forceLPMAccept</td>
+<td class="fielddoc">
+Whether host has asked us to always accept U1/U2 entry. </td></tr>
+<tr><td class="fieldtype">
+<a id="ac1fc9a637672ed1980055ad360024360" name="ac1fc9a637672ed1980055ad360024360"></a><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467">cy_en_usbss_cal_lpm_cfg_t</a></td>
+<td class="fieldname">
+lpmConfig</td>
+<td class="fielddoc">
+Whether Low Power Mode transitions are disabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad58329254f4c6fed43f9080f409456e4" name="ad58329254f4c6fed43f9080f409456e4"></a>bool</td>
+<td class="fieldname">
+pollingCfgDone</td>
+<td class="fielddoc">
+Whether link went through Polling.Configuration. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0d759851c3c8011c3c7b2fa0abc01352" name="a0d759851c3c8011c3c7b2fa0abc01352"></a>bool</td>
+<td class="fieldname">
+pollingLFPSDone</td>
+<td class="fielddoc">
+Whether link went through Polling.LFPS. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8ec60d08f955942fc9eda8ce1d2243fa" name="a8ec60d08f955942fc9eda8ce1d2243fa"></a>bool</td>
+<td class="fieldname">
+linkSuspended</td>
+<td class="fielddoc">
+Whether the USB3 link has been suspended (in U3) </td></tr>
+<tr><td class="fieldtype">
+<a id="ab51bb6107ada0f943812bd1e6f43ed5f" name="ab51bb6107ada0f943812bd1e6f43ed5f"></a>bool</td>
+<td class="fieldname">
+inCompState</td>
+<td class="fielddoc">
+Whether LTSSM is in compliance state. </td></tr>
+<tr><td class="fieldtype">
+<a id="a1e2b0f3668240ff57b5e66f5ec0c00ae" name="a1e2b0f3668240ff57b5e66f5ec0c00ae"></a>uint8_t</td>
+<td class="fieldname">
+currCompPattern</td>
+<td class="fielddoc">
+Current compliance pattern being sent. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8954d243b566234e492b54a61330021b" name="a8954d243b566234e492b54a61330021b"></a>uint8_t</td>
+<td class="fieldname">
+gen2_ebdepth</td>
+<td class="fielddoc">
+Elastic Buffer half-depth to be used in Gen2 connection. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5d4233e03575e56905032f81c21cc3ee" name="a5d4233e03575e56905032f81c21cc3ee"></a>uint32_t</td>
+<td class="fieldname">
+lastLinkState</td>
+<td class="fielddoc">
+The last logged link state. </td></tr>
+<tr><td class="fieldtype">
+<a id="ac31c26ebd97b334a6db470039af5dabc" name="ac31c26ebd97b334a6db470039af5dabc"></a>uint32_t</td>
+<td class="fieldname">
+prevLinkState</td>
+<td class="fielddoc">
+The last valid link state. </td></tr>
+<tr><td class="fieldtype">
+<a id="ac3ad40fab9804bc8e03849fe6db99a1f" name="ac3ad40fab9804bc8e03849fe6db99a1f"></a>uint32_t</td>
+<td class="fieldname">
+ptmStatus</td>
+<td class="fielddoc">
+PTM STATUS response for GET_STATUS command. </td></tr>
+<tr><td class="fieldtype">
+<a id="a10228af4f54285ae5b0178f0748283f4" name="a10228af4f54285ae5b0178f0748283f4"></a>uint16_t</td>
+<td class="fieldname">
+isochDelay</td>
+<td class="fielddoc">
+Isoch delay retrieved from host via SET_ISOC request. </td></tr>
+<tr><td class="fieldtype">
+<a id="abaaf955f6c9ffad7d3d7aea07edcae3f" name="abaaf955f6c9ffad7d3d7aea07edcae3f"></a>uint8_t</td>
+<td class="fieldname">
+activePhyIdx</td>
+<td class="fielddoc">
+USB-SS PHY index used in current connection. </td></tr>
+<tr><td class="fieldtype">
+<a id="a66b50c3fd92cd56b495796c4a2283987" name="a66b50c3fd92cd56b495796c4a2283987"></a>bool</td>
+<td class="fieldname">
+gen2Enabled</td>
+<td class="fielddoc">
+Whether USB connection is being run in Gen2 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab210731e1a2ba599c1e1469744c43a66" name="ab210731e1a2ba599c1e1469744c43a66"></a>bool</td>
+<td class="fieldname">
+dualLaneEnabled</td>
+<td class="fielddoc">
+Whether dual USB lanes are enabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0a406fb2735fdc3a8fbbef0ddc73b567" name="a0a406fb2735fdc3a8fbbef0ddc73b567"></a>bool</td>
+<td class="fieldname">
+rxAdaptationDone[FX3G2_MAX_NUM_USB_PHY]</td>
+<td class="fielddoc">
+Whether receiver adaptation has been completed since last check. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8a4e2ac07be7926dfa9e9e6de237235e" name="a8a4e2ac07be7926dfa9e9e6de237235e"></a>uint8_t</td>
+<td class="fieldname">
+phyLutIndex</td>
+<td class="fielddoc">
+The chosen PHY LUT index. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3095f4a8c48a1e9484a21d7863041ff0" name="a3095f4a8c48a1e9484a21d7863041ff0"></a>bool</td>
+<td class="fieldname">
+connectRcvd</td>
+<td class="fielddoc">
+Whether connect interrupt has been received. </td></tr>
+<tr><td class="fieldtype">
+<a id="a18864a11acb28470131807a4a2a22181" name="a18864a11acb28470131807a4a2a22181"></a>bool</td>
+<td class="fieldname">
+uxExitActive</td>
+<td class="fielddoc">
+Whether Ux exit is ongoing. </td></tr>
+<tr><td class="fieldtype">
+<a id="a03f61a3afac650afda9bd4ff564a0591" name="a03f61a3afac650afda9bd4ff564a0591"></a>bool</td>
+<td class="fieldname">
+lpmWarningDone</td>
+<td class="fielddoc">
+Whether LPM enable related warning has been printed already. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3a1ee08940ed6fd5b76c67c9c24c05de" name="a3a1ee08940ed6fd5b76c67c9c24c05de"></a>uint8_t</td>
+<td class="fieldname">
+u2TimeoutVal</td>
+<td class="fielddoc">
+U2 inactivity timeout value. </td></tr>
+<tr><td class="fieldtype">
+<a id="a102dfc9aabde570417509041f5d8865b" name="a102dfc9aabde570417509041f5d8865b"></a>bool</td>
+<td class="fieldname">
+phyDisabled</td>
+<td class="fielddoc">
+Whether PHY has been disabled as part of U3 processing. </td></tr>
+<tr><td class="fieldtype">
+<a id="a25a52b70047d801141945fd232220f8f" name="a25a52b70047d801141945fd232220f8f"></a>bool</td>
+<td class="fieldname">
+deepSleepEntered</td>
+<td class="fielddoc">
+Whether deep sleep was entered. </td></tr>
+<tr><td class="fieldtype">
+<a id="a00bbe1994ab798b69832e8bef718eab4" name="a00bbe1994ab798b69832e8bef718eab4"></a>bool</td>
+<td class="fieldname">
+devLpmExitDisabled</td>
+<td class="fielddoc">
+Whether device initiated exit from LPM states is disabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a344ff0938680803a895126553b909cd7" name="a344ff0938680803a895126553b909cd7"></a><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#gaf07a15620aa6ac9a13b4fffef4cf6a8c">cy_en_hbdma_clk_freq_t</a></td>
+<td class="fieldname">
+desiredDmaFreq</td>
+<td class="fielddoc">
+Desired DMA clock frequency. </td></tr>
+<tr><td class="fieldtype">
+<a id="ace82dae18d14cd13c4764070d7038657" name="ace82dae18d14cd13c4764070d7038657"></a><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#gaf07a15620aa6ac9a13b4fffef4cf6a8c">cy_en_hbdma_clk_freq_t</a></td>
+<td class="fieldname">
+currentDmaFreq</td>
+<td class="fielddoc">
+Actual DMA clock frequency. </td></tr>
+<tr><td class="fieldtype">
+<a id="a858fa1bf82763b735ddf783fabe6b55c" name="a858fa1bf82763b735ddf783fabe6b55c"></a>uint8_t</td>
+<td class="fieldname">
+phyResult[FX3G2_MAX_NUM_USB_PHY][16]</td>
+<td class="fielddoc">
+CTLE equalization algorithm error code for each setting. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab6b3398129742ac9aa113d1c8aa7ba77" name="ab6b3398129742ac9aa113d1c8aa7ba77"></a>uint32_t</td>
+<td class="fieldname">
+phyEyeHeight[FX3G2_MAX_NUM_USB_PHY][16]</td>
+<td class="fielddoc">
+Eye height recorded for each of the equalizer settings. </td></tr>
+<tr><td class="fieldtype">
+<a id="a1e3ae82127c3c82dec8e9b82796cbf8b" name="a1e3ae82127c3c82dec8e9b82796cbf8b"></a>uint32_t</td>
+<td class="fieldname">
+txAfeSettings[FX3G2_MAX_NUM_USB_PHY][8]</td>
+<td class="fielddoc">
+Configuration for the PHY transmitter slices. </td></tr>
+<tr><td class="fieldtype">
+<a id="a07e5c8ae1b34d6a8d9ea5ffea2fb16a0" name="a07e5c8ae1b34d6a8d9ea5ffea2fb16a0"></a>uint32_t</td>
+<td class="fieldname">
+lbadCounter</td>
+<td class="fielddoc">
+Count of LBAD interrupts received. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad5857c1fd5c8eb4c5c271f00742de496" name="ad5857c1fd5c8eb4c5c271f00742de496"></a>uint8_t</td>
+<td class="fieldname">
+numPhyInitialized</td>
+<td class="fielddoc">
+Count of PHY instances initialized. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa5712d6c509a34baccbf666ed366d483" name="aa5712d6c509a34baccbf666ed366d483"></a>uint8_t</td>
+<td class="fieldname">
+lgoodTimeoutCount</td>
+<td class="fielddoc">
+Count of LGOOD timeout events. </td></tr>
 </table>
 
 </div>

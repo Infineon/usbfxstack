@@ -1,4 +1,4 @@
-# USBFXStack Middleware Library 1.0
+# USBFXStack Middleware Library 1.1.0
 
 ## What's included?
 
@@ -7,7 +7,7 @@ Refer to the [README.md](./README.md).
 
 ## Defect fixes
 
-- Initial release supports the EZ-USB&trade; FX2G3 device
+- This release brings support to the EZ-USB&trade; FX20 Kit, additional to the previous EZ-USB&trade; FX2G3 device support.
 
 
 ## Supported software and tools

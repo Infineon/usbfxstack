@@ -5,6 +5,7 @@ var group__group__usbfxstack__fx__utils__macros =
     [ "CY_DEBUG_DMA_DSCR_CNT", "group__group__usbfxstack__fx__utils__macros.html#gad288fe88754cc5d43745aff9b80d90f5", null ],
     [ "_CY_EFUSE_ACCESS_H_", "group__group__usbfxstack__fx__utils__macros.html#gadd88a505e05e2769fa99eaad475d4e92", null ],
     [ "_CY_FAULT_HANDLERS_H_", "group__group__usbfxstack__fx__utils__macros.html#ga51cbd625319283c549ba9d51648d38d8", null ],
+    [ "_CY_FX_COMMON_H_", "group__group__usbfxstack__fx__utils__macros.html#gace66304ff87c61e7998c9ed0fd0690d5", null ],
     [ "CY_USBFS_CDC_H", "group__group__usbfxstack__fx__utils__macros.html#ga4bab4ea624f43fa5f808940939d5a452", null ],
     [ "USBFS_NUM_EP", "group__group__usbfxstack__fx__utils__macros.html#ga84331e17d273824127fa64a788292bbc", null ],
     [ "USBFS_EP_MAX_PKT_SIZE", "group__group__usbfxstack__fx__utils__macros.html#gab54efa22726acebc00b7b6c4b1bde338", null ],

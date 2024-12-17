@@ -101,7 +101,8 @@ var group__group__usbfxstack__hb__dma__enums =
       [ "CY_HBDMA_MGR_DRV_HW_ERROR", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaadd65c8c0313ec3fb42740174afc4a88d", null ],
       [ "CY_HBDMA_MGR_MEMORY_ERROR", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaaa431edc7e0b50ac6c3b6bb1a41b679af", null ],
       [ "CY_HBDMA_MGR_SEQUENCE_ERROR", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaa5773a3cb915fc0aba26d0dc59f68c475", null ],
-      [ "CY_HBDMA_MGR_MEM_CORRUPTION", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaa697aa1fd3b26a482c90c7336ff1e96db", null ]
+      [ "CY_HBDMA_MGR_MEM_CORRUPTION", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaa697aa1fd3b26a482c90c7336ff1e96db", null ],
+      [ "CY_HBDMA_MGR_SOCK_BUSY", "group__group__usbfxstack__hb__dma__enums.html#gga8a1d453b60acfddb9766af3ad7c2ddaaad29f20ebba8ff18138262b98c992c440", null ]
     ] ],
     [ "cy_en_hbdma_chn_type_t", "group__group__usbfxstack__hb__dma__enums.html#ga0874f74c0d87329389b298e01eb4dd29", [
       [ "CY_HBDMA_TYPE_IP_TO_IP", "group__group__usbfxstack__hb__dma__enums.html#gga0874f74c0d87329389b298e01eb4dd29a633375c92d10604c1882a52cf263fcee", null ],

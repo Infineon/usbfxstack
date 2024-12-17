@@ -905,20 +905,20 @@ typedef struct
 *
 * Initialises LVDS IP block.
 *
-* @param base
+* \param base
 * Pointer to the LVDS register base address
 *
-* @param sipNo
+* \param sipNo
 * Sensor Interface Port number.
 *
-* @param lvdsConfig
+* \param lvdsConfig
 * Pointer to a structure array specifies all the parameters required to configure
 * the LVDS IP block
 *
-* @param lvdsContext
+* \param lvdsContext
 * LVDS context structure.
 *
-* @return cy_en_lvds_status_t
+* \return cy_en_lvds_status_t
 * CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
 * CY_LVDS_SUCCESS - If the operation is successful
 *

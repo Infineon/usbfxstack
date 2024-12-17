@@ -102,31 +102,15 @@ extern "C" {
  */
 typedef enum
 {
-    /**< Operation completed successfully */
-    CY_HBDMA_MGR_SUCCESS = 0U,
-    
-    /**< One or more input parameters are invalid */
-    CY_HBDMA_MGR_BAD_PARAM = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 1U),
-    
-    /**< Timeout occurred for the operation  */
-    CY_HBDMA_MGR_TIMEOUT = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 2U),
-
-    /**< A hardware error occurred during operation */
-    CY_HBDMA_MGR_DRV_HW_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 3U),
-
-    /**< Out of memory */
-    CY_HBDMA_MGR_MEMORY_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 4U),
-
-    /**< Call sequence error. */
-    CY_HBDMA_MGR_SEQUENCE_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 5U),
-
-    /**< Memory corruption error. */
-    CY_HBDMA_MGR_MEM_CORRUPTION = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 6U),
-
-    /**< Socket busy error. */
-    CY_HBDMA_MGR_SOCK_BUSY = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 7U),
-
-} cy_en_hbdma_mgr_status_t; 
+    CY_HBDMA_MGR_SUCCESS = 0U,                                                          /**< Operation completed successfully */
+    CY_HBDMA_MGR_BAD_PARAM = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 1U),              /**< One or more input parameters are invalid */
+    CY_HBDMA_MGR_TIMEOUT = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 2U),                /**< Timeout occurred for the operation  */
+    CY_HBDMA_MGR_DRV_HW_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 3U),           /**< A hardware error occurred during operation */
+    CY_HBDMA_MGR_MEMORY_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 4U),           /**< Out of memory */
+    CY_HBDMA_MGR_SEQUENCE_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 5U),         /**< Call sequence error. */
+    CY_HBDMA_MGR_MEM_CORRUPTION = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 6U),         /**< Memory corruption error. */
+    CY_HBDMA_MGR_SOCK_BUSY = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 7U),              /**< Socket busy error. */
+} cy_en_hbdma_mgr_status_t;
 
 /**
  * @typedef cy_en_hbdma_chn_type_t

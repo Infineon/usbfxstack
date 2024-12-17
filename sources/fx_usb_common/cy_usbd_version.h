@@ -46,10 +46,10 @@
 #define USBD_VERSION_MINOR      (0u)
 
 /** USBD middleware patch version */
-#define USBD_VERSION_PATCH      (0u)
+#define USBD_VERSION_PATCH      (1u)
 
 /** USBD middleware build number */
-#define USBD_VERSION_BUILD      (90u)
+#define USBD_VERSION_BUILD      (91u)
 
 /** USBD middleware version number. */
 #define USBD_VERSION_NUM        ((USBD_VERSION_MAJOR << 28u) | (USBD_VERSION_MINOR << 24u) | \
