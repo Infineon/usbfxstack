@@ -423,6 +423,13 @@ Input clock received from external interface. </td></tr>
 slaveFifoMode</td>
 <td class="fielddoc">
 2bit or 5bit Slave FIFO mode </td></tr>
+<tr><td class="fieldtype">
+<a id="a2252f49826c6a53f1add772315fad997" name="a2252f49826c6a53f1add772315fad997"></a>uint32_t</td>
+<td class="fieldname">
+interfaceClock_kHz</td>
+<td class="fielddoc">
+Input clock received from external interface in KHz. <p >Used when <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga11b775cacd8de1c21c5fc7ffd2ce679e" title="Initialises LVDS IP block.">Cy_LVDS_Init_Ext()</a> is called. </p>
+</td></tr>
 </table>
 
 </div>
@@ -511,6 +518,12 @@ Pointer to PHY config structure for SIP1. </td></tr>
 gpifConfigP1</td>
 <td class="fielddoc">
 Pointer to GPIF config structure for SIP1. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3361862caf19cd48e304424338913da7" name="a3361862caf19cd48e304424338913da7"></a>uint32_t</td>
+<td class="fieldname">
+interfaceClock_kHz[2]</td>
+<td class="fielddoc">
+Current interface clock frequency for each port. </td></tr>
 </table>
 
 </div>

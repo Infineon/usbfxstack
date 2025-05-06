@@ -7,7 +7,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -28,7 +28,9 @@
 /**
  * \addtogroup group_usbfxstack_hb_dma
  * \{
- * 
+ */
+
+/**
  * \addtogroup group_usbfxstack_hb_dma_macros
  * \{
  */
@@ -42,13 +44,13 @@
 #define HBDMA_VERSION_MAJOR      (1u)
 
 /** HBDma manager middleware minor version */
-#define HBDMA_VERSION_MINOR      (0u)
+#define HBDMA_VERSION_MINOR      (1u)
 
 /** HBDma manager middleware patch version */
-#define HBDMA_VERSION_PATCH      (1u)
+#define HBDMA_VERSION_PATCH      (0u)
 
 /** HBDma manager middleware build number */
-#define HBDMA_VERSION_BUILD      (30u)
+#define HBDMA_VERSION_BUILD      (31u)
 
 /** HBDma manager middleware version number */
 #define HBDMA_VERSION_NUM        ((HBDMA_VERSION_MAJOR << 28u) | (HBDMA_VERSION_MINOR << 24u) | \
@@ -57,6 +59,7 @@
 #endif /* CY_HBDMA_VERSION_H */
 
 /** \} group_usbfxstack_hb_dma_macros */
+
 /** \} group_usbfxstack_hb_dma */
 
 /* [] END OF FILE */

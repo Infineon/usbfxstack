@@ -176,6 +176,10 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a784b5978b3f9c85cc6f9055bdc422a2e">CY_LVDS_CONFIG_ERROR</a> = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x02u
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9">CY_LVDS_TIMEOUT_ERROR</a> = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x03u
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a79ef475d2e4f1cbfaf8f4c45e9ee4dd3">CY_LVDS_LINK_ALREADY_ENABLED</a> = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x04u
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be">CY_LVDS_LINK_TRAINING_ERROR</a> = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x05u
 <br />
  }</td></tr>
 <tr class="memdesc:gacd3450c3497d4f3034646dfeba4bcd27"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of status codes returned by LVDS driver.  <a href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">More...</a><br /></td></tr>
@@ -778,40 +782,12 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa7d014d9c5911d8421e84822a57a7e95">CY_LVDS_SLAVE_FIFO_2BIT</a>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680">CY_LVDS_SLAVE_FIFO_5BIT</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628a18b8c19b684b5c068c5146f3c64b51dd">CY_LVDS_ENHANCED_MODE</a>
 <br />
  }</td></tr>
 <tr class="memdesc:gab9a4e0437ac39f6fb89225c6a621d628"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slave FIFO modes.  <a href="group__group__usbfxstack__lvds__lvcmos__enums.html#gab9a4e0437ac39f6fb89225c6a621d628">More...</a><br /></td></tr>
 <tr class="separator:gab9a4e0437ac39f6fb89225c6a621d628"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9b7065002c8707a83a262d99fcbe2ffd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga9b7065002c8707a83a262d99fcbe2ffd">cy_en_lvds_freq_gear_ratio_t</a> { <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffdaf4f3aeb21d362b503f2e010dda684a5e">CY_LVDS_CLK_625_MHZ_1_1</a> = 0
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda9c99175d21a90d93fec6642bc54da48c">CY_LVDS_CLK_625_MHZ_2_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda8c9ccefc6b65da19194f76037e358b5a">CY_LVDS_CLK_156_25_MHZ_1_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda7820afabcaaa9d549ef8f40f82148b08">CY_LVDS_CLK_156_25_MHZ_2_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda61d4732203c404b49d54cb21704a6c26">CY_LVDS_CLK_156_25_MHZ_4_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda1bb1876ff3bf42582171a0d1f721d369">CY_LVDS_CLK_156_25_MHZ_8_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda9059c1801ffc31ac3f8e09c51b7a0062">CY_LVDS_CLK_148_5_MHZ_1_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda77a206e3b7ec3bd0fe81cb5ae2dcb6a1">CY_LVDS_CLK_148_5_MHZ_2_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda31bb9ee03b651dcf6917d348a7a91110">CY_LVDS_CLK_148_5_MHZ_4_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda51e62a011a1bcfb7b483872d9cafec14">CY_LVDS_CLK_148_5_MHZ_8_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda12d4facc6bb3fceb0e2a8d2043b49d7b">CY_LVDS_CLK_74_25_MHZ_2_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda3fcb219aef27727d85212ac4b179ba11">CY_LVDS_CLK_74_25_MHZ_4_1</a>
-, <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda1d37c699c2f347e6a8037b15ae7886d7">CY_LVDS_CLK_74_25_MHZ_8_1</a>
-<br />
- }</td></tr>
-<tr class="memdesc:ga9b7065002c8707a83a262d99fcbe2ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slave FIFO modes.  <a href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga9b7065002c8707a83a262d99fcbe2ffd">More...</a><br /></td></tr>
-<tr class="separator:ga9b7065002c8707a83a262d99fcbe2ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga7d3f67afa51dfdbd308e4910e3862c0a" name="ga7d3f67afa51dfdbd308e4910e3862c0a"></a>
@@ -948,11 +924,15 @@ Enumerations</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a32f1d6cdd16afaefd06145f9cabbef69" name="ggacd3450c3497d4f3034646dfeba4bcd27a32f1d6cdd16afaefd06145f9cabbef69"></a>CY_LVDS_SUCCESS&#160;</td><td class="fielddoc"><p >API passed. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a73ecb7eaa38a2f2f7e58850ce7e84d39" name="ggacd3450c3497d4f3034646dfeba4bcd27a73ecb7eaa38a2f2f7e58850ce7e84d39"></a>CY_LVDS_BAD_PARAMETER&#160;</td><td class="fielddoc"><p >Bad parameter passed in to the API. </p>
+<tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a73ecb7eaa38a2f2f7e58850ce7e84d39" name="ggacd3450c3497d4f3034646dfeba4bcd27a73ecb7eaa38a2f2f7e58850ce7e84d39"></a>CY_LVDS_BAD_PARAMETER&#160;</td><td class="fielddoc"><p >Bad parameter passed in. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a784b5978b3f9c85cc6f9055bdc422a2e" name="ggacd3450c3497d4f3034646dfeba4bcd27a784b5978b3f9c85cc6f9055bdc422a2e"></a>CY_LVDS_CONFIG_ERROR&#160;</td><td class="fielddoc"><p >Bad IP configuration specified. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9" name="ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9"></a>CY_LVDS_TIMEOUT_ERROR&#160;</td><td class="fielddoc"><p >Operation timed out. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a79ef475d2e4f1cbfaf8f4c45e9ee4dd3" name="ggacd3450c3497d4f3034646dfeba4bcd27a79ef475d2e4f1cbfaf8f4c45e9ee4dd3"></a>CY_LVDS_LINK_ALREADY_ENABLED&#160;</td><td class="fielddoc"><p >Link already enabled. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be" name="ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be"></a>CY_LVDS_LINK_TRAINING_ERROR&#160;</td><td class="fielddoc"><p >Link training failed. </p>
 </td></tr>
 </table>
 
@@ -1940,49 +1920,7 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680" name="ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680"></a>CY_LVDS_SLAVE_FIFO_5BIT&#160;</td><td class="fielddoc"><p >5-bit slave fifo mode. </p>
 <p >Master selects DMA socket. </p>
 </td></tr>
-</table>
-
-</div>
-</div>
-<a id="ga9b7065002c8707a83a262d99fcbe2ffd" name="ga9b7065002c8707a83a262d99fcbe2ffd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga9b7065002c8707a83a262d99fcbe2ffd">&#9670;&nbsp;</a></span>cy_en_lvds_freq_gear_ratio_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga9b7065002c8707a83a262d99fcbe2ffd">cy_en_lvds_freq_gear_ratio_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Slave FIFO modes. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffdaf4f3aeb21d362b503f2e010dda684a5e" name="gga9b7065002c8707a83a262d99fcbe2ffdaf4f3aeb21d362b503f2e010dda684a5e"></a>CY_LVDS_CLK_625_MHZ_1_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 625 MHz GEAR RATIO 1:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda9c99175d21a90d93fec6642bc54da48c" name="gga9b7065002c8707a83a262d99fcbe2ffda9c99175d21a90d93fec6642bc54da48c"></a>CY_LVDS_CLK_625_MHZ_2_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 625 MHz GEAR RATIO 2:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda8c9ccefc6b65da19194f76037e358b5a" name="gga9b7065002c8707a83a262d99fcbe2ffda8c9ccefc6b65da19194f76037e358b5a"></a>CY_LVDS_CLK_156_25_MHZ_1_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 156.25 MHz GEAR RATIO 1:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda7820afabcaaa9d549ef8f40f82148b08" name="gga9b7065002c8707a83a262d99fcbe2ffda7820afabcaaa9d549ef8f40f82148b08"></a>CY_LVDS_CLK_156_25_MHZ_2_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 156.25 MHz GEAR RATIO 2:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda61d4732203c404b49d54cb21704a6c26" name="gga9b7065002c8707a83a262d99fcbe2ffda61d4732203c404b49d54cb21704a6c26"></a>CY_LVDS_CLK_156_25_MHZ_4_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 156.25 MHz GEAR RATIO 4:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda1bb1876ff3bf42582171a0d1f721d369" name="gga9b7065002c8707a83a262d99fcbe2ffda1bb1876ff3bf42582171a0d1f721d369"></a>CY_LVDS_CLK_156_25_MHZ_8_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 156.25 MHz GEAR RATIO 8:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda9059c1801ffc31ac3f8e09c51b7a0062" name="gga9b7065002c8707a83a262d99fcbe2ffda9059c1801ffc31ac3f8e09c51b7a0062"></a>CY_LVDS_CLK_148_5_MHZ_1_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 148.5 MHz GEAR RATIO 1:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda77a206e3b7ec3bd0fe81cb5ae2dcb6a1" name="gga9b7065002c8707a83a262d99fcbe2ffda77a206e3b7ec3bd0fe81cb5ae2dcb6a1"></a>CY_LVDS_CLK_148_5_MHZ_2_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 148.5 MHz GEAR RATIO 2:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda31bb9ee03b651dcf6917d348a7a91110" name="gga9b7065002c8707a83a262d99fcbe2ffda31bb9ee03b651dcf6917d348a7a91110"></a>CY_LVDS_CLK_148_5_MHZ_4_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 148.5 MHz GEAR RATIO 4:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda51e62a011a1bcfb7b483872d9cafec14" name="gga9b7065002c8707a83a262d99fcbe2ffda51e62a011a1bcfb7b483872d9cafec14"></a>CY_LVDS_CLK_148_5_MHZ_8_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 148.5 MHz GEAR RATIO 8:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda12d4facc6bb3fceb0e2a8d2043b49d7b" name="gga9b7065002c8707a83a262d99fcbe2ffda12d4facc6bb3fceb0e2a8d2043b49d7b"></a>CY_LVDS_CLK_74_25_MHZ_2_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 74.25 MHz GEAR RATIO 2:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda3fcb219aef27727d85212ac4b179ba11" name="gga9b7065002c8707a83a262d99fcbe2ffda3fcb219aef27727d85212ac4b179ba11"></a>CY_LVDS_CLK_74_25_MHZ_4_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 74.25 MHz GEAR RATIO 4:1. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga9b7065002c8707a83a262d99fcbe2ffda1d37c699c2f347e6a8037b15ae7886d7" name="gga9b7065002c8707a83a262d99fcbe2ffda1d37c699c2f347e6a8037b15ae7886d7"></a>CY_LVDS_CLK_74_25_MHZ_8_1&#160;</td><td class="fielddoc"><p >INTERFACE CLK 74.25 MHz GEAR RATIO 8:1. </p>
+<tr><td class="fieldname"><a id="ggab9a4e0437ac39f6fb89225c6a621d628a18b8c19b684b5c068c5146f3c64b51dd" name="ggab9a4e0437ac39f6fb89225c6a621d628a18b8c19b684b5c068c5146f3c64b51dd"></a>CY_LVDS_ENHANCED_MODE&#160;</td><td class="fielddoc"><p >Enhanced mode of LVDS interface operation. </p>
 </td></tr>
 </table>
 

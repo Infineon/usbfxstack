@@ -101,6 +101,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:structcy__stc__debug__context__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a></td></tr>
 <tr class="memdesc:structcy__stc__debug__context__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure containing the debug logging module's internal state information.  <a href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__debug__context__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structcy__stc__usb__cdc__ctxt__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usb__cdc__ctxt__t">cy_stc_usb_cdc_ctxt_t</a></td></tr>
+<tr class="memdesc:structcy__stc__usb__cdc__ctxt__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure containing the information for USB CDC interface.  <a href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usb__cdc__ctxt__t">More...</a><br /></td></tr>
+<tr class="separator:structcy__stc__usb__cdc__ctxt__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structcy__stc__usbfs__epinfo__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usbfs__epinfo__t">cy_stc_usbfs_epinfo_t</a></td></tr>
 <tr class="memdesc:structcy__stc__usbfs__epinfo__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">USB endpoint handle.  <a href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usbfs__epinfo__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__usbfs__epinfo__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,6 +164,48 @@ Identifies the interface through which data is logged. </td></tr>
 printNow</td>
 <td class="fielddoc">
 Whether messages should be logged as soon as possible. </td></tr>
+<tr><td class="fieldtype">
+<a id="a32f3391808af2bb6ef2d33c6db7f0c32" name="a32f3391808af2bb6ef2d33c6db7f0c32"></a>uint8_t</td>
+<td class="fieldname">
+recvEnabled</td>
+<td class="fielddoc">
+CDC Data Receive enable. </td></tr>
+<tr><td class="fieldtype">
+<a id="af910e1dd3add8f91ddb08a7b86d25328" name="af910e1dd3add8f91ddb08a7b86d25328"></a>void *</td>
+<td class="fieldname">
+pCpuDw0Base</td>
+<td class="fielddoc">
+Datawire 0 Base address. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab4c33b81cb0df98706614c9aaf8e7d2a" name="ab4c33b81cb0df98706614c9aaf8e7d2a"></a>void *</td>
+<td class="fieldname">
+pCpuDw1Base</td>
+<td class="fielddoc">
+Datawire 1 Base address. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab8ead691e9d2385ccf560277e5800a1d" name="ab8ead691e9d2385ccf560277e5800a1d"></a>uint8_t</td>
+<td class="fieldname">
+cdcEpIn</td>
+<td class="fielddoc">
+CDC IN endpoint number. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5bf8ea09447d634db92de6b5acfeca60" name="a5bf8ea09447d634db92de6b5acfeca60"></a>uint8_t</td>
+<td class="fieldname">
+cdcEpOut</td>
+<td class="fielddoc">
+CDC OUT endpoint number. </td></tr>
+<tr><td class="fieldtype">
+<a id="a44423412207debc47065ad00e108f5eb" name="a44423412207debc47065ad00e108f5eb"></a>uint8_t</td>
+<td class="fieldname">
+bufCount</td>
+<td class="fielddoc">
+CDC Channel Buffer count. </td></tr>
+<tr><td class="fieldtype">
+<a id="a64ce22ef917ecd88d375a3c716a8dde8" name="a64ce22ef917ecd88d375a3c716a8dde8"></a>void *</td>
+<td class="fieldname">
+pUsbCtxt</td>
+<td class="fielddoc">
+USBD context. </td></tr>
 </table>
 
 </div>
@@ -226,6 +271,25 @@ Actual size of data read. </td></tr>
 <table class="fieldtable">
 <tr><th colspan="3">Data Fields</th></tr>
 <tr><td class="fieldtype">
+<a id="a85f64545b2370683caae34be049ca4f1" name="a85f64545b2370683caae34be049ca4f1"></a>uint8_t</td>
+<td class="fieldname">
+debugInit</td>
+<td class="fielddoc">
+Debug Initialized. </td></tr>
+<tr><td class="fieldtype">
+<a id="a57e1026d35a43d28c5685139db315f8c" name="a57e1026d35a43d28c5685139db315f8c"></a>uint8_t</td>
+<td class="fieldname">
+startCdcPrint</td>
+<td class="fielddoc">
+Start CDC Print. </td></tr>
+<tr><td class="fieldtype">
+<a id="a00a95abd96e4e3dcb401918b543ab934" name="a00a95abd96e4e3dcb401918b543ab934"></a>uint8_t</td>
+<td class="fieldname">
+curMsg[<a class="el" href="group__group__usbfxstack__fx__utils__macros.html#ga8988cd9c599e34cebc3a9fa1eef53798">MAX_DBG_MSG_SIZE</a>]</td>
+<td class="fielddoc">
+Buffer to hold debug message <br  />
+ </td></tr>
+<tr><td class="fieldtype">
 <a id="a405348f6e12ed525df687b66066a32f7" name="a405348f6e12ed525df687b66066a32f7"></a>uint8_t *</td>
 <td class="fieldname">
 pMsg</td>
@@ -250,6 +314,12 @@ wrPtr</td>
 <td class="fielddoc">
 Index at which new log data should be added. </td></tr>
 <tr><td class="fieldtype">
+<a id="a2b6935f2109d7d766c750f957dbd481c" name="a2b6935f2109d7d766c750f957dbd481c"></a>uint16_t</td>
+<td class="fieldname">
+maxDmaSize</td>
+<td class="fielddoc">
+Maximum size of DMA data transfer. </td></tr>
+<tr><td class="fieldtype">
 <a id="acd30e6974359fd83c45a8b2f4a9984ea" name="acd30e6974359fd83c45a8b2f4a9984ea"></a><a class="el" href="group__group__usbfxstack__fx__utils__enums.html#gadc0954e5db31c3c455ed59f2cf3ff514">cy_en_debug_interface_t</a></td>
 <td class="fieldname">
 intfc</td>
@@ -267,12 +337,6 @@ Verbosity level below which messages should be logged. </td></tr>
 printNow</td>
 <td class="fielddoc">
 Whether immediate output of data is required. </td></tr>
-<tr><td class="fieldtype">
-<a id="a07d41fc766b39aec6f7ecab4db4524b8" name="a07d41fc766b39aec6f7ecab4db4524b8"></a>uint8_t</td>
-<td class="fieldname">
-maxDmaSize</td>
-<td class="fielddoc">
-Maximum size of DMA data transfer. </td></tr>
 <tr><td class="fieldtype">
 <a id="a16bc385bb7abe1c80b01d2a1850ce9fb" name="a16bc385bb7abe1c80b01d2a1850ce9fb"></a>bool</td>
 <td class="fieldname">
@@ -297,6 +361,101 @@ DMAC descriptors used to send data to SCB. </td></tr>
 dbgRcvInfo</td>
 <td class="fielddoc">
 Current debug read status. </td></tr>
+<tr><td class="fieldtype">
+<a id="afac1cbf798c4de9ba33fdd4c97a4a233" name="afac1cbf798c4de9ba33fdd4c97a4a233"></a>void *</td>
+<td class="fieldname">
+usbCdcInfo</td>
+<td class="fielddoc">
+CDC Context. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="structcy__stc__usb__cdc__ctxt__t" id="structcy__stc__usb__cdc__ctxt__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structcy__stc__usb__cdc__ctxt__t">&#9670;&nbsp;</a></span>cy_stc_usb_cdc_ctxt_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct cy_stc_usb_cdc_ctxt_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ada903d6674bc462ae7341e3e47519261" name="ada903d6674bc462ae7341e3e47519261"></a>uint8_t</td>
+<td class="fieldname">
+cdcEpIn</td>
+<td class="fielddoc">
+IN endpoint used for CDC interface. </td></tr>
+<tr><td class="fieldtype">
+<a id="a83de4e8690de52c58b683150e3680219" name="a83de4e8690de52c58b683150e3680219"></a>uint8_t</td>
+<td class="fieldname">
+cdcEpOut</td>
+<td class="fielddoc">
+OUT endpoint used for CDC interface. </td></tr>
+<tr><td class="fieldtype">
+<a id="a01ca1e3e21a3432e5d7206a831faab36" name="a01ca1e3e21a3432e5d7206a831faab36"></a>uint8_t</td>
+<td class="fieldname">
+bufCount</td>
+<td class="fielddoc">
+Number of RAM buffers to be used for logging. </td></tr>
+<tr><td class="fieldtype">
+<a id="a409232bf8890e8283cb685f07f03f375" name="a409232bf8890e8283cb685f07f03f375"></a>uint8_t</td>
+<td class="fieldname">
+recvEnabled</td>
+<td class="fielddoc">
+Whether data receive through OUT endpoint is enabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3f95c54c0cbe249f5312d340933d4f3f" name="a3f95c54c0cbe249f5312d340933d4f3f"></a>uint8_t</td>
+<td class="fieldname">
+rxFreeBufferCount</td>
+<td class="fielddoc">
+Count of free data receive buffers available. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad6f51a4c5e613767a76dcc53a1d9c203" name="ad6f51a4c5e613767a76dcc53a1d9c203"></a>DW_Type *</td>
+<td class="fieldname">
+pCpuDw0Base</td>
+<td class="fielddoc">
+Pointer to DataWire-0 IP registers. </td></tr>
+<tr><td class="fieldtype">
+<a id="a7c3e877226ffb49d57b2cc7d55c1641a" name="a7c3e877226ffb49d57b2cc7d55c1641a"></a>DW_Type *</td>
+<td class="fieldname">
+pCpuDw1Base</td>
+<td class="fielddoc">
+Pointer to DataWire-1 IP registers. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8f72ee73872c783040a79ea0c539009a" name="a8f72ee73872c783040a79ea0c539009a"></a><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a></td>
+<td class="fieldname">
+endpInDma</td>
+<td class="fielddoc">
+DMA status information for IN endpoints. </td></tr>
+<tr><td class="fieldtype">
+<a id="a09b4efa4a5b399e19639ce931e8f9fc2" name="a09b4efa4a5b399e19639ce931e8f9fc2"></a><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a></td>
+<td class="fieldname">
+endpOutDma</td>
+<td class="fielddoc">
+DMA status information for OUT endpoints. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0941f157df4146c4bb08e512b61a1b50" name="a0941f157df4146c4bb08e512b61a1b50"></a>void *</td>
+<td class="fieldname">
+pUsbdCtxt</td>
+<td class="fielddoc">
+USBD stack context pointer. </td></tr>
+<tr><td class="fieldtype">
+<a id="ade951f1bbd2c3ba3b40384dff9d61848" name="ade951f1bbd2c3ba3b40384dff9d61848"></a>void *</td>
+<td class="fieldname">
+cdcSendHandle</td>
+<td class="fielddoc">
+Pointer to DMA channel used for data logging. </td></tr>
+<tr><td class="fieldtype">
+<a id="a51341776f5d7b5967ee88dc0d1dda42e" name="a51341776f5d7b5967ee88dc0d1dda42e"></a>void *</td>
+<td class="fieldname">
+cdcRecvHandle</td>
+<td class="fielddoc">
+Pointer to DMA channel used to receive CDC data. </td></tr>
 </table>
 
 </div>
@@ -580,6 +739,18 @@ Whether first transfer on the ep is complete. </td></tr>
 endpType</td>
 <td class="fielddoc">
 Endpoint Type. </td></tr>
+<tr><td class="fieldtype">
+<a id="a7476052d955e7c61e68590da5bb0fe36" name="a7476052d955e7c61e68590da5bb0fe36"></a>uint8_t *</td>
+<td class="fieldname">
+pCurDataBuffer</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="a0de01cb521cbdfe8fe9194846b2bedcc" name="a0de01cb521cbdfe8fe9194846b2bedcc"></a>uint16_t</td>
+<td class="fieldname">
+curDataSize</td>
+<td class="fielddoc">
+RAM buffer used for current transfer. </td></tr>
 </table>
 
 </div>

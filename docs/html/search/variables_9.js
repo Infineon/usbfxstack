@@ -16,12 +16,13 @@ var searchData=
   ['lpmconfig_13',['lpmConfig',['../group__group__usbfxstack__usb__common__structs.html#ac1fc9a637672ed1980055ad360024360',1,'cy_stc_usbss_cal_ctxt_t']]],
   ['lpmdisabled_14',['lpmDisabled',['../group__group__usbfxstack__usb__common__structs.html#aa41acbb3bbcfe5ccde2d30eec78c3501',1,'cy_stc_usb_usbd_ctxt_t']]],
   ['lpmenablepending_15',['lpmEnablePending',['../group__group__usbfxstack__usb__common__structs.html#ae8c435248370dd77f59aca5f53cf168a',1,'cy_stc_usb_usbd_ctxt_t']]],
-  ['lpmwarningdone_16',['lpmWarningDone',['../group__group__usbfxstack__usb__common__structs.html#a03f61a3afac650afda9bd4ff564a0591',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['lvcmosclkmode_17',['lvcmosClkMode',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a1541b9aa216a6945ed95aeb2fe920ed3',1,'cy_stc_lvds_phy_config_t']]],
-  ['lvcmosmasterclksrc_18',['lvcmosMasterClkSrc',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ad89d52a8cc07451efbfbeaaa780ba081',1,'cy_stc_lvds_phy_config_t']]],
-  ['lvdsad0_5fsck_19',['LVDSAD0_SCK',['../group__group__usbfxstack__hb__dma__structs.html#a09025b1ca6192afe7070dab911ddbfc2',1,'cy_stc_hbdma_context_t']]],
-  ['lvdsad0_5fsck_5fgbl_20',['LVDSAD0_SCK_GBL',['../group__group__usbfxstack__hb__dma__structs.html#a2db56672485d0510893697b00739f3c8',1,'cy_stc_hbdma_context_t']]],
-  ['lvdsad1_5fsck_21',['LVDSAD1_SCK',['../group__group__usbfxstack__hb__dma__structs.html#aadc4ad95ede03174ab908fd3ad49e0cb',1,'cy_stc_hbdma_context_t']]],
-  ['lvdsad1_5fsck_5fgbl_22',['LVDSAD1_SCK_GBL',['../group__group__usbfxstack__hb__dma__structs.html#ab6c892678e6142c227da12349c852f67',1,'cy_stc_hbdma_context_t']]],
-  ['lvdsenabled_23',['lvdsEnabled',['../group__group__usbfxstack__hb__dma__structs.html#a399331ff3bcfd6e4ad8b0dac4ece58fe',1,'cy_stc_hbdma_context_t']]]
+  ['lpmexitlfpsdelay_16',['lpmExitLfpsDelay',['../group__group__usbfxstack__usb__common__structs.html#a6c08558ddae2c3fbb77baae65f345436',1,'cy_stc_usbss_cal_ctxt_t']]],
+  ['lpmwarningdone_17',['lpmWarningDone',['../group__group__usbfxstack__usb__common__structs.html#a03f61a3afac650afda9bd4ff564a0591',1,'cy_stc_usbss_cal_ctxt_t']]],
+  ['lvcmosclkmode_18',['lvcmosClkMode',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a1541b9aa216a6945ed95aeb2fe920ed3',1,'cy_stc_lvds_phy_config_t']]],
+  ['lvcmosmasterclksrc_19',['lvcmosMasterClkSrc',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ad89d52a8cc07451efbfbeaaa780ba081',1,'cy_stc_lvds_phy_config_t']]],
+  ['lvdsad0_5fsck_20',['LVDSAD0_SCK',['../group__group__usbfxstack__hb__dma__structs.html#a09025b1ca6192afe7070dab911ddbfc2',1,'cy_stc_hbdma_context_t']]],
+  ['lvdsad0_5fsck_5fgbl_21',['LVDSAD0_SCK_GBL',['../group__group__usbfxstack__hb__dma__structs.html#a2db56672485d0510893697b00739f3c8',1,'cy_stc_hbdma_context_t']]],
+  ['lvdsad1_5fsck_22',['LVDSAD1_SCK',['../group__group__usbfxstack__hb__dma__structs.html#aadc4ad95ede03174ab908fd3ad49e0cb',1,'cy_stc_hbdma_context_t']]],
+  ['lvdsad1_5fsck_5fgbl_23',['LVDSAD1_SCK_GBL',['../group__group__usbfxstack__hb__dma__structs.html#ab6c892678e6142c227da12349c852f67',1,'cy_stc_hbdma_context_t']]],
+  ['lvdsenabled_24',['lvdsEnabled',['../group__group__usbfxstack__hb__dma__structs.html#a399331ff3bcfd6e4ad8b0dac4ece58fe',1,'cy_stc_hbdma_context_t']]]
 ];

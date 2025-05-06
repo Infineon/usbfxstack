@@ -7,7 +7,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -61,6 +61,12 @@ extern "C" {
  */
 #define DSCRS_PER_CHN                   (3u)
 
+/** Retrieve the DataWire DMA descriptor from the USBHS DMA wrapper data structure. */
+#define Cy_UsbHS_App_GetDmaDesc(dmaset,n)       (cy_stc_dma_descriptor_t *)(&((dmaset)->dmaXferDscr[n]))
+
+/** Retrieve the DMAC descriptor from the USBHS DMA wrapper data structure. */
+#define Cy_UsbHS_App_GetDmaCDesc(dmaset,n)      (cy_stc_dmac_descriptor_t *)(&((dmaset)->dmaXferDscr[n]))
+
 /** \} group_usbfxstack_fx_utils_macros */
 
 /**
@@ -75,26 +81,6 @@ typedef struct
 {
     uint32_t dscrArray[8];              /**< Array of 8 DWORDs that covers the largest DMAC descriptor. */
 } cy_stc_usbhs_dma_desc_t;
-
-/** \} group_usbfxstack_fx_utils_structs */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_macros
- * \{
- */
-
-/** Retrieve the DataWire DMA descriptor from the USBHS DMA wrapper data structure. */
-#define Cy_UsbHS_App_GetDmaDesc(dmaset,n)       (cy_stc_dma_descriptor_t *)(&((dmaset)->dmaXferDscr[n]))
-
-/** Retrieve the DMAC descriptor from the USBHS DMA wrapper data structure. */
-#define Cy_UsbHS_App_GetDmaCDesc(dmaset,n)      (cy_stc_dmac_descriptor_t *)(&((dmaset)->dmaXferDscr[n]))
-
-/** \} group_usbfxstack_fx_utils_macros */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_structs
- * \{
- */
 
 /** 
  * This structure collects all the information associated with the DMA configuration for a
@@ -112,6 +98,9 @@ typedef struct cy_stc_app_endp_dma_set_
     bool                     valid;                             /**< Whether endpoint is valid (enabled). */
     bool                     firstRqtDone;                      /**< Whether first transfer on the ep is complete. */
     cy_en_usb_endp_type_t    endpType;                          /**< Endpoint Type. */
+
+    uint8_t                 *pCurDataBuffer;                    /** RAM buffer used for current transfer. */
+    uint16_t                 curDataSize;                       /** Current DMA transfer size. */
 } cy_stc_app_endp_dma_set_t;
 
 /** \} group_usbfxstack_fx_utils_structs */

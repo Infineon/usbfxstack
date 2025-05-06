@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -280,7 +280,316 @@ typedef enum {
     CY_FX_DBG_FUNC_SIP_LNK1_DATA_IOS_OFF      = 0x1023,         /**< Data IOs of LVDS/LVCMOS link 1 switched off */
     CY_FX_DBG_FUNC_SIP_LNK1_CTRL_IOS_OFF      = 0x1024,         /**< Control IOs of LVDS/LVCMOS link 1 switched off */
     CY_FX_DBG_FUNC_SIP_LNK1_L1_STATE          = 0x1025,         /**< LVDS/LVCMOS link 1 in L1 state. */
-    CY_FX_DBG_FUNC_SIP_LNK1_L3_STATE          = 0x1026          /**< LVDS/LVCMOS link 1 in L3 state. */
+    CY_FX_DBG_FUNC_SIP_LNK1_L3_STATE          = 0x1026,         /**< LVDS/LVCMOS link 1 in L3 state. */
+    CY_FX_DBG_FUNC_SIP_LNK0_TRAIN_DONE_LPBK   = 0x103b,         /**< LVDS/LVCMOS Link 0 training done */
+    CY_FX_DBG_FUNC_SIP_LNK1_TRAIN_DONE_LPBK   = 0x103c,         /**< LVDS/LVCMOS Link 1 training done */
+    CY_FX_DBG_FUNC_SIP_LNK0_L1_ENTRY          = 0x1070,         /**< LVDS/LVCMOS link 0 in L1 state Entry */
+    CY_FX_DBG_FUNC_SIP_LNK0_L1_EXIT           = 0x1071,         /**< LVDS/LVCMOS link 0 in L1 state Exit */
+    CY_FX_DBG_FUNC_SIP_LNK0_L3_ENTRY          = 0x1072,         /**< LVDS/LVCMOS link 0 in L3 state Entry */
+    CY_FX_DBG_FUNC_SIP_LNK1_L1_ENTRY          = 0x1073,         /**< LVDS/LVCMOS link 1 in L1 state Entry */
+    CY_FX_DBG_FUNC_SIP_LNK1_L1_EXIT           = 0x1074,         /**< LVDS/LVCMOS link 1 in L1 state Exit */
+    CY_FX_DBG_FUNC_SIP_LNK1_L3_ENTRY          = 0x1075,         /**< LVDS/LVCMOS link 1 in L3 state Entry */
+
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE0_STS         = 0x129e,         /**< Status on Data lane 0 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE1_STS         = 0x129f,         /**< Status on Data lane 1 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE2_STS         = 0x12a0,         /**< Status on Data lane 2 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE3_STS         = 0x12a1,         /**< Status on Data lane 3 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE4_STS         = 0x12a2,         /**< Status on Data lane 4 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE5_STS         = 0x12a3,         /**< Status on Data lane 5 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE6_STS         = 0x12a4,         /**< Status on Data lane 6 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_LANE7_STS         = 0x12a5,         /**< Status on Data lane 7 of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_CTRL_STS          = 0x12a6,         /**< Status on CTR Lane of LVDS link 0 */
+    CY_FX_DBG_FUNC_SIP_LNK0_CLK_STS           = 0x12a7,         /**< Status on CLK of LVDS link 0 */
+
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE0_STS         = 0x149e,         /**< Status on Data lane 0 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE1_STS         = 0x149f,         /**< Status on Data lane 1 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE2_STS         = 0x14a0,         /**< Status on Data lane 2 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE3_STS         = 0x14a1,         /**< Status on Data lane 3 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE4_STS         = 0x14a2,         /**< Status on Data lane 4 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE5_STS         = 0x14a3,         /**< Status on Data lane 5 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE6_STS         = 0x14a4,         /**< Status on Data lane 6 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_LANE7_STS         = 0x14a5,         /**< Status on Data lane 7 of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_CTRL_STS          = 0x14a6,         /**< Status on CTR Lane of LVDS link 1 */
+    CY_FX_DBG_FUNC_SIP_LNK1_CLK_STS           = 0x14a7,         /**< Status on CLK of LVDS link 1 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH0_SKT_NUM      = 0x1610,         /**< Update Thread0 SKT Number on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH1_SKT_NUM      = 0x1611,         /**< Update Thread1 SKT Number on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH2_SKT_NUM      = 0x1612,         /**< Update Thread2 SKT Number on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH3_SKT_NUM      = 0x1613,         /**< Update Thread3 SKT Number on GPIF0 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH0_FG           = 0x1634,         /**< Empty/Full flag for Thread0 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH0_PARTIAL_FG   = 0x1635,         /**< Partial flag for Thread0 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH1_FG           = 0x1636,         /**< Empty/Full flag for Thread1 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH1_PARTIAL_FG   = 0x1637,         /**< Partial flag for Thread1 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH2_FG           = 0x1638,         /**< Empty/Full flag for Thread2 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH2_PARTIAL_FG   = 0x1639,         /**< Partial flag for Thread2 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH3_FG           = 0x163a,         /**< Empty/Full flag for Thread3 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_TH3_PARTIAL_FG   = 0x163b,         /**< Partial flag for Thread3 on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_CURR_FG          = 0x163c,         /**< Empty/Full flag for Current Thread on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_CURR_PARTIAL_FG  = 0x163d,         /**< Partial flag for Current Thread on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_INVAL_STATE_ERR  = 0x163d,         /**< GPIF INVALID STATE ERR on GPIF0 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_0          = 0x164f,         /**< alpha0 "dq_oen" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_1          = 0x1650,         /**< alpha1 "update_dout" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_2          = 0x1651,         /**< alpha2 "sample_din" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_3          = 0x1652,         /**< alpha3 "sample_ain" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_4          = 0x1653,         /**< alpha4 First early output signal from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_5          = 0x1654,         /**< alpha5 Second early output signal from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_6          = 0x1655,         /**< alpha6 Third early output signal from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_ALPHA_7          = 0x1656,         /**< alpha7 Fourth early output signal from GPIF0 state machine */
+
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_0           = 0x1657,         /**< beta0 First delayed output from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_1           = 0x1658,         /**< beta1 Second delayed output from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_2           = 0x1659,         /**< beta2 Third delayed output from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_3           = 0x165a,         /**< beta3 Fourth delayed output from GPIF0 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_4           = 0x165b,         /**< beta4 LS bit of thread number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_5           = 0x165c,         /**< beta5 MS bit of thread number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_6           = 0x165d,         /**< beta6 "rq_pop" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_7           = 0x165e,         /**< beta7 "wq_push" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_8           = 0x165f,         /**< beta8 "arq_pop" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_9           = 0x1660,         /**< beta9 "awq_push" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_10          = 0x1661,         /**< beta10 "a_oen" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_11          = 0x1662,         /**< beta11 "c_oen" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_12          = 0x1663,         /**< beta12 "ctrl_count_incr" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_13          = 0x1664,         /**< beta13 "ctrl_count_reset" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_14          = 0x1665,         /**< beta14 "addr_count_incr" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_15          = 0x1666,         /**< beta15 "addr_count_reset" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_16          = 0x1667,         /**< beta16 "data_count_incr" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_17          = 0x1668,         /**< beta17 "data_count_reset" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_18          = 0x1669,         /**< beta18 "interrupt_cpu" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_20          = 0x166b,         /**< beta20 "update_aout" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_21          = 0x166c,         /**< beta21 "register_access" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_22          = 0x166d,         /**< beta22 "initialize_crc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_23          = 0x166e,         /**< beta23 "calculate_crc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_24          = 0x166f,         /**< beta24 "use_crc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_27          = 0x1672,         /**< beta27 "thread_done" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_28          = 0x1673,         /**< beta28 "thread_done_eot" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_29          = 0x1674,         /**< beta29 "eop" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_BETA_30          = 0x1675,         /**< beta30 "eot" on GPIF0 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_0         = 0x1677,         /**< lambda0 Reflects CTL0 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_1         = 0x1678,         /**< lambda1 Reflects CTL1 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_2         = 0x1679,         /**< lambda2 Reflects CTL2 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_3         = 0x167a,         /**< lambda3 Reflects CTL3 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_4         = 0x167b,         /**< lambda4 Reflects CTL4 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_5         = 0x167c,         /**< lambda5 Reflects CTL5 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_6         = 0x167d,         /**< lambda6 Reflects CTL6 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_7         = 0x167e,         /**< lambda7 Reflects CTL7 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_8         = 0x167f,         /**< lambda8 Reflects CTL8 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_9         = 0x1680,         /**< lambda9 Reflects CTL9 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_10        = 0x1681,         /**< lambda10 Reflects CTL10 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_11        = 0x1682,         /**< lambda11 Reflects CTL11 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_12        = 0x1683,         /**< lambda12 Reflects CTL12 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_13        = 0x1684,         /**< lambda13 Reflects CTL13 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_14        = 0x1685,         /**< lambda14 Reflects CTL14 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_15        = 0x1686,         /**< lambda15 Reflects CTL15 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_16        = 0x1687,         /**< lambda16 "eg_data_valid" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_17        = 0x1688,         /**< lambda17 "in_data_valid" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_18        = 0x1689,         /**< lambda18 "ctrl_count" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_19        = 0x168a,         /**< lambda19 "addr_count" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_20        = 0x168b,         /**< lambda20 "data_count" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_21        = 0x168c,         /**< lambda21 "ctrl_comp" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_22        = 0x168d,         /**< lambda22 "addr_comp" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_23        = 0x168e,         /**< lambda23 "data_comp" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_24        = 0x168f,         /**< lambda24 "dma_watermark" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_25        = 0x1690,         /**< lambda25 "dma_ready_addr" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_26        = 0x1691,         /**< lambda26 "dma_ready_data" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_27        = 0x1692,         /**< lambda27 "crc_error" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_28        = 0x1693,         /**< lambda28 "Boolean One" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_29        = 0x1694,         /**< lambda29 "interrupt_pending" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_30        = 0x1695,         /**< lambda30 "cpu_lambda" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_31        = 0x1696,         /**< lambda31 "eg_addr_valid" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_32        = 0x1697,         /**< lambda32 Reflects CTL16 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_33        = 0x1698,         /**< lambda33 Reflects CTL17 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_34        = 0x1699,         /**< lambda34 Reflects CTL18 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_35        = 0x169a,         /**< lambda35 Reflects CTL19 asserted state for GPIF0 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_36        = 0x169b,         /**< lambda36 "link_err" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_37        = 0x169c,         /**< lambda37 "tseq_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_38        = 0x169d,         /**< lambda38 "link_idle_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_39        = 0x169e,         /**< lambda39 "data_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_40        = 0x169f,         /**< lambda40 "inmd_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_41        = 0x16a0,         /**< lambda41 "eop_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_42        = 0x16a1,         /**< lambda42 "chkdcrc_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_43        = 0x16a2,         /**< lambda43 "initmcrc_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_44        = 0x16a3,         /**< lambda44 "initdcrc_cmd" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_45        = 0x16a4,         /**< lambda45 "lvds_sflg" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_46        = 0x16a5,         /**< lambda46 "lvds_cflg" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_47        = 0x16a6,         /**< lambda47 "lvds_set_tad" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_48        = 0x16a7,         /**< lambda48 "lvds_set_sad" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_49        = 0x16a8,         /**< lambda49 "lvds_set_varwl" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_50        = 0x16a9,         /**< lambda50 "lvds_set_varwh" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_51        = 0x16aa,         /**< lambda51 "lvds_uevc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_52        = 0x16ab,         /**< lambda52 "lvds_cevc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_53        = 0x16ac,         /**< lambda53 "lvds_epc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_54        = 0x16ad,         /**< lambda54 "lvds_hpc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_55        = 0x16ae,         /**< lambda55 "lvds_cpc" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_56        = 0x16af,         /**< lambda56 "lvds_l1_enter" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_57        = 0x16b0,         /**< lambda57 "lvds_l1_exit" on GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_58        = 0x16b1,         /**< lambda58 Bit 0 of socket number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_59        = 0x16b2,         /**< lambda59 Bit 1 of socket number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_60        = 0x16b3,         /**< lambda60 Bit 2 of socket number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_61        = 0x16b4,         /**< lambda61 Bit 3 of socket number selected by GPIF0 */
+    CY_FX_DBG_FUNC_SIP_GPIF0_LAMBDA_62        = 0x16b5,         /**< lambda62 Bit 4 of socket number selected by GPIF0 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH0_SKT_NUM      = 0x1810,         /**< Update Thread0 SKT Number on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH1_SKT_NUM      = 0x1811,         /**< Update Thread1 SKT Number on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH2_SKT_NUM      = 0x1812,         /**< Update Thread2 SKT Number on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH3_SKT_NUM      = 0x1813,         /**< Update Thread3 SKT Number on GPIF1 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH0_FG           = 0x1834,         /**< Empty/Full flag for Thread0 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH0_PARTIAL_FG   = 0x1835,         /**< Partial flag for Thread0 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH1_FG           = 0x1836,         /**< Empty/Full flag for Thread1 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH1_PARTIAL_FG   = 0x1837,         /**< Partial flag for Thread1 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH2_FG           = 0x1838,         /**< Empty/Full flag for Thread2 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH2_PARTIAL_FG   = 0x1839,         /**< Partial flag for Thread2 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH3_FG           = 0x183a,         /**< Empty/Full flag for Thread3 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_TH3_PARTIAL_FG   = 0x183b,         /**< Partial flag for Thread3 on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_CURR_FG          = 0x183c,         /**< Empty/Full flag for Current Thread on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_CURR_PARTIAL_FG  = 0x183d,         /**< Partial flag for Current Thread on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_INVAL_STATE_ERR  = 0x183d,         /**< GPIF INVALID STATE ERR on GPIF1 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_0          = 0x184f,         /**< alpha0 "dq_oen" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_1          = 0x1850,         /**< alpha1 "update_dout" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_2          = 0x1851,         /**< alpha2 "sample_din" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_3          = 0x1852,         /**< alpha3 "sample_ain" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_4          = 0x1853,         /**< alpha4 First early output signal from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_5          = 0x1854,         /**< alpha5 Second early output signal from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_6          = 0x1855,         /**< alpha6 Third early output signal from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_ALPHA_7          = 0x1856,         /**< alpha7 Fourth early output signal from GPIF1 state machine */
+
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_0           = 0x1857,         /**< beta0 First delayed output from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_1           = 0x1858,         /**< beta1 Second delayed output from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_2           = 0x1859,         /**< beta2 Third delayed output from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_3           = 0x185a,         /**< beta3 Fourth delayed output from GPIF1 state machine */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_4           = 0x185b,         /**< beta4 LS bit of thread number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_5           = 0x185c,         /**< beta5 MS bit of thread number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_6           = 0x185d,         /**< beta6 "rq_pop" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_7           = 0x185e,         /**< beta7 "wq_push" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_8           = 0x185f,         /**< beta8 "arq_pop" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_9           = 0x1860,         /**< beta9 "awq_push" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_10          = 0x1861,         /**< beta10 "a_oen" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_11          = 0x1862,         /**< beta11 "c_oen" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_12          = 0x1863,         /**< beta12 "ctrl_count_incr" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_13          = 0x1864,         /**< beta13 "ctrl_count_reset" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_14          = 0x1865,         /**< beta14 "addr_count_incr" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_15          = 0x1866,         /**< beta15 "addr_count_reset" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_16          = 0x1867,         /**< beta16 "data_count_incr" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_17          = 0x1868,         /**< beta17 "data_count_reset" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_18          = 0x1869,         /**< beta18 "interrupt_cpu" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_20          = 0x186b,         /**< beta20 "update_aout" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_21          = 0x186c,         /**< beta21 "register_access" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_22          = 0x186d,         /**< beta22 "initialize_crc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_23          = 0x186e,         /**< beta23 "calculate_crc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_24          = 0x186f,         /**< beta24 "use_crc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_27          = 0x1872,         /**< beta27 "thread_done" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_28          = 0x1873,         /**< beta28 "thread_done_eot" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_29          = 0x1874,         /**< beta29 "eop" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_BETA_30          = 0x1875,         /**< beta30 "eot" on GPIF1 */
+
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_0         = 0x1877,         /**< lambda0 Reflects CTL0 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_1         = 0x1878,         /**< lambda1 Reflects CTL1 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_2         = 0x1879,         /**< lambda2 Reflects CTL2 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_3         = 0x187a,         /**< lambda3 Reflects CTL3 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_4         = 0x187b,         /**< lambda4 Reflects CTL4 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_5         = 0x187c,         /**< lambda5 Reflects CTL5 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_6         = 0x187d,         /**< lambda6 Reflects CTL6 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_7         = 0x187e,         /**< lambda7 Reflects CTL7 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_8         = 0x187f,         /**< lambda8 Reflects CTL8 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_9         = 0x1880,         /**< lambda9 Reflects CTL9 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_10        = 0x1881,         /**< lambda10 Reflects CTL10 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_11        = 0x1882,         /**< lambda11 Reflects CTL11 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_12        = 0x1883,         /**< lambda12 Reflects CTL12 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_13        = 0x1884,         /**< lambda13 Reflects CTL13 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_14        = 0x1885,         /**< lambda14 Reflects CTL14 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_15        = 0x1886,         /**< lambda15 Reflects CTL15 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_16        = 0x1887,         /**< lambda16 "eg_data_valid" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_17        = 0x1888,         /**< lambda17 "in_data_valid" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_18        = 0x1889,         /**< lambda18 "ctrl_count" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_19        = 0x188a,         /**< lambda19 "addr_count" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_20        = 0x188b,         /**< lambda20 "data_count" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_21        = 0x188c,         /**< lambda21 "ctrl_comp" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_22        = 0x188d,         /**< lambda22 "addr_comp" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_23        = 0x188e,         /**< lambda23 "data_comp" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_24        = 0x188f,         /**< lambda24 "dma_watermark" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_25        = 0x1890,         /**< lambda25 "dma_ready_addr" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_26        = 0x1891,         /**< lambda26 "dma_ready_data" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_27        = 0x1892,         /**< lambda27 "crc_error" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_28        = 0x1893,         /**< lambda28 "Boolean One" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_29        = 0x1894,         /**< lambda29 "interrupt_pending" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_30        = 0x1895,         /**< lambda30 "cpu_lambda" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_31        = 0x1896,         /**< lambda31 "eg_addr_valid" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_32        = 0x1897,         /**< lambda32 Reflects CTL16 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_33        = 0x1898,         /**< lambda33 Reflects CTL17 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_34        = 0x1899,         /**< lambda34 Reflects CTL18 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_35        = 0x189a,         /**< lambda35 Reflects CTL19 asserted state for GPIF1 instance */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_36        = 0x189b,         /**< lambda36 "link_err" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_37        = 0x189c,         /**< lambda37 "tseq_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_38        = 0x189d,         /**< lambda38 "link_idle_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_39        = 0x189e,         /**< lambda39 "data_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_40        = 0x189f,         /**< lambda40 "inmd_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_41        = 0x18a0,         /**< lambda41 "eop_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_42        = 0x18a1,         /**< lambda42 "chkdcrc_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_43        = 0x18a2,         /**< lambda43 "initmcrc_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_44        = 0x18a3,         /**< lambda44 "initdcrc_cmd" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_45        = 0x18a4,         /**< lambda45 "lvds_sflg" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_46        = 0x18a5,         /**< lambda46 "lvds_cflg" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_47        = 0x18a6,         /**< lambda47 "lvds_set_tad" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_48        = 0x18a7,         /**< lambda48 "lvds_set_sad" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_49        = 0x18a8,         /**< lambda49 "lvds_set_varwl" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_50        = 0x18a9,         /**< lambda50 "lvds_set_varwh" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_51        = 0x18aa,         /**< lambda51 "lvds_uevc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_52        = 0x18ab,         /**< lambda52 "lvds_cevc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_53        = 0x18ac,         /**< lambda53 "lvds_epc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_54        = 0x18ad,         /**< lambda54 "lvds_hpc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_55        = 0x18ae,         /**< lambda55 "lvds_cpc" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_56        = 0x18af,         /**< lambda56 "lvds_l1_enter" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_57        = 0x18b0,         /**< lambda57 "lvds_l1_exit" on GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_58        = 0x18b1,         /**< lambda58 Bit 0 of socket number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_59        = 0x18b2,         /**< lambda59 Bit 1 of socket number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_60        = 0x18b3,         /**< lambda60 Bit 2 of socket number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_61        = 0x18b4,         /**< lambda61 Bit 3 of socket number selected by GPIF1 */
+    CY_FX_DBG_FUNC_SIP_GPIF1_LAMBDA_62        = 0x18b5,         /**< lambda62 Bit 4 of socket number selected by GPIF1 */
+
+    CY_FX_DBG_FUNC_SIP_TH0_EOP                = 0x1A04,         /**< End of Packet on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_EOT                = 0x1A05,         /**< End of Transfer on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_DMA_READY          = 0x1A08,         /**< DMA READY on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_DMA_ERROR          = 0x1A0a,         /**< DMA Error on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_OVERRUN            = 0x1A1d,         /**< Write exceeds the space available in the buffer on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_UNDERRUN           = 0x1A1e,         /**< Reads exceeds the byte count of the buffer on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_SOCKET_ACTIVE      = 0x1A2b,         /**< Socket has gone inactive within a DMA Transfer on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_ADAPTER_OVERRUN    = 0x1A61,         /**< Adapter Unable to service write request though buffer is available on Thread0 */
+    CY_FX_DBG_FUNC_SIP_TH0_ADAPTER_UNDERRUN   = 0x1A62,         /**< Adapter Unable to service read request though buffer is available on Thread0 */
+
+    CY_FX_DBG_FUNC_SIP_TH1_EOP                = 0x1B04,         /**< End of Packet on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_EOT                = 0x1B05,         /**< End of Transfer on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_DMA_READY          = 0x1B08,         /**< DMA READY on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_DMA_ERROR          = 0x1B0a,         /**< DMA Error on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_OVERRUN            = 0x1B1d,         /**< Write exceeds the space available in the buffer on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_UNDERRUN           = 0x1B1e,         /**< Reads exceeds the byte count of the buffer on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_SOCKET_ACTIVE      = 0x1B2b,         /**< Socket has gone inactive within a DMA Transfer on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_ADAPTER_OVERRUN    = 0x1B61,         /**< Adapter Unable to service write request though buffer is available on Thread1 */
+    CY_FX_DBG_FUNC_SIP_TH1_ADAPTER_UNDERRUN   = 0x1B62,         /**< Adapter Unable to service read request though buffer is available on Thread1 */
+
+    CY_FX_DBG_FUNC_SIP_TH2_EOP                = 0x1C04,         /**< End of Packet on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_EOT                = 0x1C05,         /**< End of Transfer on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_DMA_READY          = 0x1C08,         /**< DMA READY on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_DMA_ERROR          = 0x1C0a,         /**< DMA Error on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_OVERRUN            = 0x1C1d,         /**< Write exceeds the space available in the buffer on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_UNDERRUN           = 0x1C1e,         /**< Reads exceeds the byte count of the buffer on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_SOCKET_ACTIVE      = 0x1C2b,         /**< Socket has gone inactive within a DMA Transfer on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_ADAPTER_OVERRUN    = 0x1C61,         /**< Adapter Unable to service write request though buffer is available on Thread2 */
+    CY_FX_DBG_FUNC_SIP_TH2_ADAPTER_UNDERRUN   = 0x1C62,         /**< Adapter Unable to service read request though buffer is available on Thread2 */
+
+    CY_FX_DBG_FUNC_SIP_TH3_EOP                = 0x1D04,         /**< End of Packet on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_EOT                = 0x1D05,         /**< End of Transfer on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_DMA_READY          = 0x1D08,         /**< DMA READY on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_DMA_ERROR          = 0x1D0a,         /**< DMA Error on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_OVERRUN            = 0x1D1d,         /**< Write exceeds the space available in the buffer on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_UNDERRUN           = 0x1D1e,         /**< Reads exceeds the byte count of the buffer on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_SOCKET_ACTIVE      = 0x1D2b,         /**< Socket has gone inactive within a DMA Transfer on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_ADAPTER_OVERRUN    = 0x1D61,         /**< Adapter Unable to service write request though buffer is available on Thread3 */
+    CY_FX_DBG_FUNC_SIP_TH3_ADAPTER_UNDERRUN   = 0x1D62          /**< Adapter Unable to service read request though buffer is available on Thread3 */
+
 } cy_en_fxusb_dbg_func_sel_t;
 
 /** \} group_usbfxstack_fx_utils_enums */
@@ -294,8 +603,8 @@ typedef enum {
  * Function name: Cy_UsbFx_SelectDFTFunctions
  ****************************************************************************//**
  *
- * Function used to select the Design-For-Test debug functions which are to
- * be driven on to the P11.0, P11.1, P9.2 and P9.3 pins of the EZ-USB FX device.
+ * Function used to select the Design-For-Test debug functions which are to be
+ * driven on to the P11.0, P11.1, P9.2, P9.3, P9.4 and P9.5 pins of the EZ-USB FX device.
  *
  * \param dft0_func
  * Select the debug function to be driven on the P11.0 pin. Any USB/LVDS function
@@ -309,6 +618,12 @@ typedef enum {
  * \param usbdft1_func
  * Select the debug function to be driven on the P9.3 pin. Only USB functions
  * are supported.
+ * \param sipdft0_func
+ * Select the debug function to be driven on the P9.4 pin. Only LVDS/LVCMOS functions
+ * are supported.
+ * \param sipdft1_func
+ * Select the debug function to be driven on the P9.5 pin. Only LVDS/LVCMOS functions
+ * are supported.
  *
  * \return
  * true if DFT configuration is done, false in case of error.
@@ -317,7 +632,9 @@ bool Cy_UsbFx_SelectDFTFunctions(
         uint32_t dft0_func,
         uint32_t dft1_func,
         uint32_t usbdft0_func,
-        uint32_t usbdft1_func);
+        uint32_t usbdft1_func,
+        uint32_t sipdft0_func,
+        uint32_t sipdft1_func);
 
 /*******************************************************************************
  * Function name: Cy_UsbFx_MemSetDword

@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright (2024) Cypress Semiconductor Corporation
+* Copyright (2025) Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 /**
  * \addtogroup group_usbfxstack_lvds_lvcmos
  * \{
@@ -168,6 +169,8 @@ extern "C" {
 #define LVDSSS_LVDS_LINK_CONFIG_TWO_BIT_SLV_FF_A0_Pos   (7UL)
 /** Mask for TWO_BIT_SLV_FF field in LINK_CONFIG register of the A0 Silicon Revision */
 #define LVDSSS_LVDS_LINK_CONFIG_TWO_BIT_SLV_FF_A0_Msk   (0x80UL)
+/** Max LVDS Lane Data Bit Rate 1.2 Gbps */
+#define MAX_LVDS_LANE_DATA_BIT_RATE                     (1250000)
 
 /** \} group_usbfxstack_lvds_lvcmos_macros */
 
@@ -242,10 +245,12 @@ typedef enum
  */
 typedef enum
 {
-    CY_LVDS_SUCCESS        = 0x00u,                                     /**< API passed. */
-    CY_LVDS_BAD_PARAMETER  = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x01u,  /**< Bad parameter passed in to the API. */
-    CY_LVDS_CONFIG_ERROR   = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x02u,  /**< Bad IP configuration specified. */
-    CY_LVDS_TIMEOUT_ERROR  = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x03u   /**< Operation timed out. */
+    CY_LVDS_SUCCESS              = 0x00u,                                       /**< API passed. */
+    CY_LVDS_BAD_PARAMETER        = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x01u,    /**< Bad parameter passed in. */
+    CY_LVDS_CONFIG_ERROR         = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x02u,    /**< Bad IP configuration specified. */
+    CY_LVDS_TIMEOUT_ERROR        = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x03u,    /**< Operation timed out. */
+    CY_LVDS_LINK_ALREADY_ENABLED = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x04u,    /**< Link already enabled */
+    CY_LVDS_LINK_TRAINING_ERROR  = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x05u     /**< Link training failed. */
 } cy_en_lvds_status_t;
 
 /**
@@ -687,6 +692,7 @@ typedef enum
     CY_LVDS_PHY_DESKEW_DDR_FAST                 /**< Fast deskew algorithm for DDR interface. */
 } cy_en_lvds_phy_deskew_algo_t;
 
+/* NOTE: Interface CLK supported for LVCMOS case are 160 MHz, 100 MHz and 80 MHz */
 /**
  *  @typedef cy_en_lvds_phy_interface_clock_t
  *  @brief LVDS PHY interface clock frequencies type.
@@ -704,6 +710,19 @@ typedef enum
     CY_LVDS_PHY_INTERFACE_CLK_80_MHZ            /**< Interface clock at 80 MHz. Used in LVCMOS mode. */
 } cy_en_lvds_phy_interface_clock_t;
 
+#if LVCMOS_16BIT_SDR
+/**
+ *  @typedef cy_en_lvds_phy_interface_clockOut_t
+ *  @brief LVDS PHY interface clock  out frequencies type.
+ */
+typedef enum
+{
+    CY_LVDS_PHY_INTERFACE_CLK_OUT_48_MHZ = 1,   /**< Interface clock out at 48 MHz.  */
+    CY_LVDS_PHY_INTERFACE_CLK_OUT_24_MHZ,       /**< Interface clock out at 24 MHz.  */
+    CY_LVDS_PHY_INTERFACE_CLK_OUT_12_MHZ        /**< Interface clock out at 12 MHz.  */
+} cy_en_lvds_phy_interface_clockOut_t;
+#endif
+
 /**
  *  @typedef cy_en_lvds_slave_fifo_mode_t
  *  @brief Slave FIFO modes.
@@ -712,31 +731,10 @@ typedef enum
 {
     CY_LVDS_NORMAL_MODE = 0,                    /**< Normal mode of LVDS interface operation. */
     CY_LVDS_SLAVE_FIFO_2BIT,                    /**< 2-bit slave fifo mode. Master selects DMA thread. */
-    CY_LVDS_SLAVE_FIFO_5BIT                     /**< 5-bit slave fifo mode. Master selects DMA socket. */
+    CY_LVDS_SLAVE_FIFO_5BIT,                    /**< 5-bit slave fifo mode. Master selects DMA socket. */
+    CY_LVDS_ENHANCED_MODE                       /**< Enhanced mode of LVDS interface operation. */
 } cy_en_lvds_slave_fifo_mode_t;
 
-#if (!LVCMOS_16BIT_SDR)
-/**
- *  @typedef cy_en_lvds_freq_gear_ratio_t
- *  @brief Slave FIFO modes.
- */
-typedef enum
-{
-    CY_LVDS_CLK_625_MHZ_1_1 = 0,                /**< INTERFACE CLK 625 MHz GEAR RATIO 1:1 */
-    CY_LVDS_CLK_625_MHZ_2_1,                    /**< INTERFACE CLK 625 MHz GEAR RATIO 2:1 */
-    CY_LVDS_CLK_156_25_MHZ_1_1,                 /**< INTERFACE CLK 156.25 MHz GEAR RATIO 1:1 */
-    CY_LVDS_CLK_156_25_MHZ_2_1,                 /**< INTERFACE CLK 156.25 MHz GEAR RATIO 2:1 */
-    CY_LVDS_CLK_156_25_MHZ_4_1,                 /**< INTERFACE CLK 156.25 MHz GEAR RATIO 4:1 */
-    CY_LVDS_CLK_156_25_MHZ_8_1,                 /**< INTERFACE CLK 156.25 MHz GEAR RATIO 8:1 */
-    CY_LVDS_CLK_148_5_MHZ_1_1,                  /**< INTERFACE CLK 148.5 MHz GEAR RATIO 1:1 */
-    CY_LVDS_CLK_148_5_MHZ_2_1,                  /**< INTERFACE CLK 148.5 MHz GEAR RATIO 2:1 */
-    CY_LVDS_CLK_148_5_MHZ_4_1,                  /**< INTERFACE CLK 148.5 MHz GEAR RATIO 4:1 */
-    CY_LVDS_CLK_148_5_MHZ_8_1,                  /**< INTERFACE CLK 148.5 MHz GEAR RATIO 8:1 */
-    CY_LVDS_CLK_74_25_MHZ_2_1,                  /**< INTERFACE CLK 74.25 MHz GEAR RATIO 2:1 */
-    CY_LVDS_CLK_74_25_MHZ_4_1,                  /**< INTERFACE CLK 74.25 MHz GEAR RATIO 4:1 */
-    CY_LVDS_CLK_74_25_MHZ_8_1                   /**< INTERFACE CLK 74.25 MHz GEAR RATIO 8:1 */
-} cy_en_lvds_freq_gear_ratio_t;
-#endif /* (!LVCMOS_16BIT_SDR) */
 
 /** \} group_usbfxstack_lvds_lvcmos_enums */
 
@@ -825,6 +823,8 @@ typedef struct
     cy_en_lvds_master_clk_src_t         lvcmosMasterClkSrc;     /**< LVCMOS Master Clock Source */
     cy_en_lvds_phy_interface_clock_t    interfaceClock;         /**< Input clock received from external interface. */
     cy_en_lvds_slave_fifo_mode_t        slaveFifoMode;          /**< 2bit or 5bit Slave FIFO mode */
+    uint32_t                            interfaceClock_kHz;     /**< Input clock received from external interface in KHz.
+                                                                     Used when Cy_LVDS_Init_Ext() is called. */
 } cy_stc_lvds_phy_config_t;
 
 /**
@@ -885,7 +885,7 @@ typedef struct
     cy_stc_lvds_gpif_config_t *gpifConfigP0;            /**< Pointer to GPIF config structure for SIP0 */
     cy_stc_lvds_phy_config_t *phyConfigP1;              /**< Pointer to PHY config structure for SIP1 */
     cy_stc_lvds_gpif_config_t *gpifConfigP1;            /**< Pointer to GPIF config structure for SIP1 */
-
+    uint32_t interfaceClock_kHz[2];                     /**< Current interface clock frequency for each port. */
 } cy_stc_lvds_context_t;
 
 /** \} group_usbfxstack_lvds_lvcmos_structs */
@@ -903,7 +903,10 @@ typedef struct
 * Function Name: Cy_LVDS_Init
 ****************************************************************************//**
 *
-* Initialises LVDS IP block.
+* Initialises LVDS IP block. Only discrete clock frequencies specified through
+* \ref cy_en_lvds_phy_interface_clock_t are supported. Use the
+* \ref Cy_LVDS_Init_Ext() function to get support for a wider range of
+* frequencies.
 *
 * \param base
 * Pointer to the LVDS register base address
@@ -926,6 +929,58 @@ typedef struct
 cy_en_lvds_status_t Cy_LVDS_Init(LVDSSS_LVDS_Type * base, uint8_t sipNo,
                                 const cy_stc_lvds_config_t * lvdsConfig,
                                 cy_stc_lvds_context_t *lvdsContext);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_Init_Ext
+****************************************************************************//**
+*
+* Initialises LVDS IP block. More flexible version of \ref Cy_LVDS_Init() function
+* which allows selection of any interface clock frequency within the valid
+* range.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param sipNo
+* Sensor Interface Port number.
+*
+* \param lvdsConfig
+* Pointer to a structure array specifies all the parameters required to configure
+* the LVDS IP block
+*
+* \param lvdsContext
+* LVDS context structure.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_Init_Ext(LVDSSS_LVDS_Type * base,
+                                uint8_t sipNo,const cy_stc_lvds_config_t * lvdsConfig,
+                                cy_stc_lvds_context_t *lvdsContext);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_Deinit
+****************************************************************************//**
+*
+* De-initializes the Sensor Interface Port IP block.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param sipNo
+* Sensor Interface Port number.
+*
+* \param lvdsContext
+* Pointer to driver context structure.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_Deinit(LVDSSS_LVDS_Type *base, uint8_t sipNo, cy_stc_lvds_context_t *lvdsContext);
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_PhyInit
@@ -956,6 +1011,28 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo,
                                     cy_stc_lvds_context_t *lvdsContext);
 
 /*******************************************************************************
+* Function Name: Cy_LVDS_PhyDeinit
+****************************************************************************//**
+*
+* De-initialises LVDS Sensor interface port and Analog front end.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param portNo
+* Port number on the LVDS Sensor Interface port (SIP)
+*
+* \param lvdsContext
+* Pointer to SIP driver context structure.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_PhyDeinit(LVDSSS_LVDS_Type *base, uint8_t portNo, cy_stc_lvds_context_t *lvdsContext);
+
+/*******************************************************************************
 * Function Name: Cy_LVDS_PhyTrainingStart
 ****************************************************************************//**
 *
@@ -979,6 +1056,40 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo,
 *******************************************************************************/
 cy_en_lvds_status_t Cy_LVDS_PhyTrainingStart(LVDSSS_LVDS_Type* base, uint8_t portNo,
                                             const cy_stc_lvds_phy_config_t * config);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_GetLinkTrainingStatus
+****************************************************************************//**
+*
+* Checks whether link training has been completed for the specified Sensor Interface
+* Ports. Detailed status of link training is returned through the pCompletedLanes
+* and pFailedLanes parameters.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param portNo
+* Port number on the LVDS Sensor Interface port (SIP)
+*
+* \param pCompletedLanes
+* Returns address to store bit-map representing lanes on which link training has
+* been completed. Bit 16 represents the control lane and bits 15 to 0 represent the
+* data lanes corresponding to the port.
+*
+* \param pFailedLanes
+* Returns address to store bit-map representing lanes on which link training has
+* failed. Bit 16 represents the control lane and bits 15 to 0 represent the
+* data lanes corresponding to the port.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_SUCCESS - If link training for the port has completed without error.
+* CY_LVDS_CONFIG_ERROR - If the port specified is not enabled or is in LVCMOS mode.
+* CY_LVDS_LINK_TRAINING_ERROR - If link training failed on one or more lanes.
+* CY_LVDS_TIMEOUT_ERROR - If link training has not been completed and there is no sequence error.
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_GetLinkTrainingStatus(LVDSSS_LVDS_Type* base, uint8_t portNo,
+        uint32_t *pCompletedLanes, uint32_t *pFailedLanes);
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_PhyGpioModeEnable
@@ -1136,7 +1247,7 @@ void Cy_LVDS_GpifInitAddrCounter(LVDSSS_LVDS_Type * base, uint8_t smNo,
 * Whether to count upwards from the initial value.
 *
 * \param outputBit
-* Selects counter bit to be connected to CTRL[9] output.  TODO Check if this is valid
+* Selects counter bit to be connected to CTRL[9] output.
 *
 *******************************************************************************/
 void Cy_LVDS_GpifInitCtrlCounter(LVDSSS_LVDS_Type* base, uint8_t smNo,
@@ -1280,7 +1391,7 @@ cy_en_lvds_status_t Cy_LVDS_GpifInit(LVDSSS_LVDS_Type * base, uint8_t smNo,
 * Index of the state from where to start the state machine.
 *
 * \param initialAlpha
-* Alpha signal to look for once the state machine starts.
+* Alpha signal to be asserted when the state machine starts from stateIndex.
 *
 * \return cy_en_lvds_status_t
 * CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
@@ -1316,8 +1427,8 @@ cy_en_lvds_status_t Cy_LVDS_GpifSMStart(LVDSSS_LVDS_Type* base, uint8_t smNo,
 * State index which triggers GPIF_DONE event
 *
 * \param initialAlpha
-* Mask of Alpha signal which needs to be asserted when the new state machine starts
-* \ref cy_en_lvds_gpif_alpha_t
+* Bit-mask representing Alpha signals which should be asserted when the state machine
+* starts from the toState.
 *
 * \param switchTimeout
 * Switch timeout counter value. SWITCH_TIMEOUT interrupt gets asserted once the
@@ -1565,6 +1676,27 @@ cy_en_lvds_status_t Cy_LVDS_L3_Exit(LVDSSS_LVDS_Type * base,
 *******************************************************************************/
 cy_en_lvds_status_t Cy_LVDS_GpifSMControl(LVDSSS_LVDS_Type * base, uint8_t smNo, bool pause);
 
+#if LVCMOS_16BIT_SDR
+/*******************************************************************************
+* Function Name: Cy_LVDS_ClkOutEnable
+****************************************************************************//**
+*
+* Enables clock out. Cy_LVDS_Enable should be called after Cy_LVDS_ClkOutEnable.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param clkOutFreq
+* Clock out frequency
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid or LVDS is already enabled
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_ClkOutEnable(LVDSSS_LVDS_Type * base,  cy_en_lvds_phy_interface_clockOut_t clkOutFreq);
+#endif /* #if LVCMOS_16BIT_SDR*/
+
 __STATIC_INLINE void Cy_LVDS_Disable                            (LVDSSS_LVDS_Type * base);
 __STATIC_INLINE void Cy_LVDS_Enable                             (LVDSSS_LVDS_Type * base);
 __STATIC_INLINE uint8_t Cy_LVDS_GpifGetLambdaStatus             (LVDSSS_LVDS_Type * base, uint8_t smNo, uint32_t lambdaIndex);
@@ -1588,7 +1720,7 @@ __STATIC_INLINE void Cy_LVDS_GpifSetInterrupt                   (LVDSSS_LVDS_Typ
 __STATIC_INLINE void Cy_LVDS_GpifSetInterruptMask               (LVDSSS_LVDS_Type * base, uint8_t smNo, uint32_t interruptMask);
 __STATIC_INLINE uint32_t Cy_LVDS_GpifGetInterruptStatusMasked   (LVDSSS_LVDS_Type * base, uint8_t smNo);
 __STATIC_INLINE uint32_t Cy_LVDS_GpifGetInterruptStatus         (LVDSSS_LVDS_Type * base, uint8_t smNo);
-__STATIC_INLINE void Cy_LVDS_GpifConfigClock                    (LVDSSS_LVDS_Type * base, uint8_t smNo, const cy_stc_lvds_phy_config_t * phyConfig);
+__STATIC_INLINE void Cy_LVDS_GpifConfigClock                    (LVDSSS_LVDS_Type * base, uint8_t smNo, cy_stc_lvds_context_t *pLvdsContext, const cy_stc_lvds_phy_config_t *phyConfig);
 __STATIC_INLINE void Cy_LVDS_ThreadIntlvEnable                  (LVDSSS_LVDS_Type * base, cy_en_thread_intlv_t threadNo);
 __STATIC_INLINE void Cy_LVDS_GpifSetEndianness                  (LVDSSS_LVDS_Type * base, uint8_t smNo, bool endianType);
 __STATIC_INLINE uint32_t Cy_LVDS_GpifGetStatus                  (LVDSSS_LVDS_Type * base, uint8_t smNo);
@@ -2115,19 +2247,26 @@ __STATIC_INLINE void Cy_LVDS_GpifSetInterrupt(LVDSSS_LVDS_Type * base, uint8_t s
 * \param smNo
 * State Machine Number for GPIF.
 *
+* \param pLvdsContext
+* LVDS context structure pointer.
+*
 * \param phyConfig
-* LVDS PHY config structure which provides the clock information.
+* Configuration parameters for the AFE block.
 *
 *******************************************************************************/
-__STATIC_INLINE void Cy_LVDS_GpifConfigClock(LVDSSS_LVDS_Type* base, uint8_t smNo, const cy_stc_lvds_phy_config_t * phyConfig)
+__STATIC_INLINE void Cy_LVDS_GpifConfigClock(LVDSSS_LVDS_Type* base, uint8_t smNo,
+        cy_stc_lvds_context_t * pLvdsContext, const cy_stc_lvds_phy_config_t *phyConfig)
 {
     bool isIfClkLvcmosSDR = false;
-    if(((phyConfig->interfaceClock == CY_LVDS_PHY_INTERFACE_CLK_80_MHZ) ||
-        (phyConfig->interfaceClock == CY_LVDS_PHY_INTERFACE_CLK_100_MHZ)) &&
-        (phyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) && (phyConfig->gearingRatio == CY_LVDS_PHY_GEAR_RATIO_1_1))
+
+    /* LVCMOS_IF_CLK_100MHZ bit should be set when operating in SDR mode at frequencies under 100 MHz. */
+    if ((pLvdsContext->interfaceClock_kHz[smNo] <= 100000) &&
+        (phyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) &&
+        (phyConfig->gearingRatio == CY_LVDS_PHY_GEAR_RATIO_1_1))
     {
         isIfClkLvcmosSDR = true;
     }
+
     base->GPIF_CLK_SEL[smNo] =  _VAL2FLD(LVDSSS_LVDS_GPIF_CLK_SEL_GPIF_CLK_SRC, phyConfig->clkSrc) |
                                 _VAL2FLD(LVDSSS_LVDS_GPIF_CLK_SEL_USB_CLK_DIV_VAL, phyConfig->clkDivider) |
                                 _BOOL2FLD(LVDSSS_LVDS_GPIF_CLK_SEL_GATE_WAVEFORM_MEM_CLK, 1) |
@@ -2491,6 +2630,8 @@ __STATIC_INLINE bool Cy_LVDS_PhyGpioRead(LVDSSS_LVDS_Type* base,
     return ((base->AFE[portNo].PHY_GPIO[pinNo] & LVDSSS_LVDS_AFE_PHY_GPIO_IN_VALUE_Msk) >> (LVDSSS_LVDS_AFE_PHY_GPIO_IN_VALUE_Pos));
 }
 
+/** \} group_usbfxstack_lvds_lvcmos_functions */
+
 #if defined(__cplusplus)
 }
 #endif
@@ -2498,8 +2639,6 @@ __STATIC_INLINE bool Cy_LVDS_PhyGpioRead(LVDSSS_LVDS_Type* base,
 #endif /* CY_IP_MXS40LVDS2USB32SS */
 
 #endif /* (CY_LVDS_H) */
-
-/** \} group_usbfxstack_lvds_lvcmos_functions */
 
 /**
  * \} group_usbfxstack_lvds_lvcmos

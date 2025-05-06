@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -175,6 +175,26 @@ extern "C" {
 
 #define UsbBlkInitConfig                        *((volatile uint32_t *)0x40680028UL)
 
+/* USB PHY Capability LBPM Values */
+#define CY_USBSS_LBPM_PHY_CAP_MASK              (0x03UL)
+#define CY_USBSS_LBPM_PHY_CAP_GEN1x1_VAL        (0x00UL)
+#define CY_USBSS_LBPM_PHY_CAP_GEN2X1_VAL        (0x04UL)
+#define CY_USBSS_LBPM_PHY_CAP_GEN1X2_VAL        (0x40UL)
+#define CY_USBSS_LBPM_PHY_CAP_GEN2X2_VAL        (0x44UL)
+
+#define ENABLE_CDR_RESET_ON_DEC_ERR (0)
+#define CTRL_PHY_CLK_U3 (1)
+
+#define USBSS_CAL_GET_LINK_STATE(regs)      ((regs)->LNK_LTSSM_STATE & USB32DEV_LNK_LTSSM_STATE_LTSSM_STATE_Msk)
+
+#define CY_USBSS_JUMP_TO_LINK_STATE(regs, state)                                                        \
+    ((regs)->LNK_LTSSM_STATE = (((state) << USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_VALUE_Pos) |        \
+        USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_GO_Msk))
+
+#define CY_USBSS_FORCE_LINK_STATE(regs, state)                                                          \
+    ((regs)->LNK_LTSSM_STATE = (((state) << USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_VALUE_Pos) |        \
+        USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_EN_Msk))
+
 #endif /* DOXYGEN */
 
 /** \} group_usbfxstack_usb_common_macros */
@@ -241,7 +261,8 @@ typedef enum
     CY_USBSS_LNK_STATE_COMP              = 0x17,        /**< Compliance */
     CY_USBSS_LNK_STATE_RECOV_ACT         = 0x18,        /**< Recovery.Active */
     CY_USBSS_LNK_STATE_RECOV_CNFG        = 0x19,        /**< Recovery.Configuration */
-    CY_USBSS_LNK_STATE_RECOV_IDLE        = 0x1A         /**< Recovery.Idle */
+    CY_USBSS_LNK_STATE_RECOV_IDLE        = 0x1A,        /**< Recovery.Idle */
+    CY_USBSS_LNK_STATE_ILLEGAL           = 0x1F         /**< Illegal/unknown LTSSM state. */
 } cy_en_usbss_link_state_t;
 
 /**
@@ -308,7 +329,7 @@ typedef struct cy_stc_usbss_cal_ctxt_t
     bool                gen2Enabled;                                    /**< Whether USB connection is being run in Gen2 mode. */
     bool                dualLaneEnabled;                                /**< Whether dual USB lanes are enabled. */
     bool                rxAdaptationDone[FX3G2_MAX_NUM_USB_PHY];        /**< Whether receiver adaptation has been completed since last check. */
-    uint8_t             phyLutIndex;                                    /**< The chosen PHY LUT index. */
+    uint8_t             phyLutIndex[FX3G2_MAX_NUM_USB_PHY];             /**< The chosen PHY LUT index. */
     bool                connectRcvd;                                    /**< Whether connect interrupt has been received. */
     bool                uxExitActive;                                   /**< Whether Ux exit is ongoing. */
     bool                lpmWarningDone;                                 /**< Whether LPM enable related warning has been printed already. */
@@ -324,6 +345,14 @@ typedef struct cy_stc_usbss_cal_ctxt_t
     uint32_t            lbadCounter;                                    /**< Count of LBAD interrupts received. */
     uint8_t             numPhyInitialized;                              /**< Count of PHY instances initialized. */
     uint8_t             lgoodTimeoutCount;                              /**< Count of LGOOD timeout events. */
+    uint16_t            lpmExitLfpsDelay;                               /**< Expected LPM exit LFPS TX duration. */
+    bool                gen1x1FallbackEn;                               /**< Enable fallback to Gen1x1 if the Host/Hub does not support fallback to x1 speeds */
+    bool                compExitDone;                                   /**< Whether Compliance state has been exited. */
+    uint32_t            compExitTS;                                     /**< Time stamp when compliance state was exited. */
+    uint16_t            activeLutMask;                                  /**< Active CTLE LUT mask value. */
+    bool                stopClkOnEpResetEnable;                         /**< Enable stopping clock during EP reset. */
+    cy_en_usb_config_lane_t usbConfigLane;                              /**< USB configuration lane selection. */
+    bool                gen1SpeedForced;                                /**< Driver has forced Gen1 speed in compliance. */
 }cy_stc_usbss_cal_ctxt_t;
 
 /** \} group_usbfxstack_usb_common_structs */
@@ -1554,8 +1583,6 @@ void Cy_USBSS_Cal_DeepSleepExit(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
 void
 Cy_USBSS_Cal_DisableLPMDeviceExit(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool devExitDisable);
 
-#ifndef DOXYGEN
-
 /*******************************************************************************
  * Function Name: Cy_USBSS_Cal_InitEventLog
  ****************************************************************************//**
@@ -1581,6 +1608,62 @@ Cy_USBSS_Cal_DisableLPMDeviceExit(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool devExi
 cy_en_usb_cal_ret_code_t Cy_USBSS_Cal_InitEventLog(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                                    uint32_t *pEvtLogBuf,
                                                    uint16_t  evtLogSize);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_PostEpEnable
+****************************************************************************//**
+*
+* Function to reset egress socket EOB detection function after endpoints have
+* been enabled.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+*******************************************************************************/
+void Cy_USBSS_Cal_PostEpEnable(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_ReleaseLTSSM
+****************************************************************************//**
+*
+* Function to release the LTSSM from a forced state.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+*******************************************************************************/
+void Cy_USBSS_Cal_ReleaseLTSSM(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_ClkStopOnEpRstEnable
+****************************************************************************//**
+*
+* Function to enable stop/restart of USB block clock during EP reset. This functionality
+* can be enabled to ensure all state related to an endpoint is cleared properly. A
+* possible side effect is that the USB link goes through recovery cycles during the
+* Endpoint Reset operation.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+* \param clkStopEn
+* Whether to enable or disable the clock stop control.
+*******************************************************************************/
+void Cy_USBSS_Cal_ClkStopOnEpRstEnable(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool clkStopEn);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_SelectConfigLane
+****************************************************************************//**
+*
+* Function to select the USB 3.x Configuration Lane. This API can be used in cases
+* where the USB connection orientation is being detected externally instead of
+* through CC1/CC2 voltage measurement by the controller itself.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+* \param laneSel
+* Desired configuration lane selection.
+*******************************************************************************/
+void Cy_USBSS_Cal_SelectConfigLane(cy_stc_usbss_cal_ctxt_t *pCalCtxt, cy_en_usb_config_lane_t laneSel);
+
+#ifndef DOXYGEN
 
 /* Debug function used during Silicon bring-up: To be removed. */
 void Cy_USBSS_Cal_PrintCtleResults(cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t phyIndex);

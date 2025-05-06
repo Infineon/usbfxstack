@@ -7,7 +7,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -98,6 +98,42 @@ typedef enum
     USB_EP0_STATE_STALL                 /**< EP0 in stall phase. */
 } cy_en_usbfs_ep0state_t;
 
+/**
+ * @typedef cy_en_usbfs_ep_mode_t
+ * @brief USB endpoint modes. The enumeration lists all the possible register configurations
+ * for endpoint states. This list is dependent on the hardware and should not be changed.
+ */
+typedef enum
+{
+    USBDEV_EP_MODE_DISABLE = 0,         /**< Ignore all USB traffic to this EP */
+    USBDEV_EP_MODE_NAK_INOUT,           /**< SETUP: Accept, IN: NAK, OUT: NAK */
+    USBDEV_EP_MODE_STATUS_OUT_ONLY,     /**< SETUP: Accept, IN: STALL, OUT: ACK 0B, NAK others */
+    USBDEV_EP_MODE_STALL_INOUT,         /**< SETUP: Accept, IN: STALL, OUT: STALL */
+    USBDEV_EP_MODE_RESERVED_4,          /**< Reserved setting. */
+    USBDEV_EP_MODE_ISO_OUT,             /**< SETUP: Ignore, IN: Ignore, OUT: Accept ISO */
+    USBDEV_EP_MODE_STATUS_IN_ONLY,      /**< SETUP: Accept, IN: Respond 0B, OUT: STALL */
+    USBDEV_EP_MODE_ISO_IN,              /**< SETUP: Ignore, IN: Accept ISO, OUT: Ignore */
+    USBDEV_EP_MODE_NAK_OUT,             /**< SETUP: Ignore, IN: Ignore, OUT: NAK */
+    USBDEV_EP_MODE_ACK_OUT,             /**< SETUP: Ignore, IN: Ignore, OUT: ACK or STALL. */
+    USBDEV_EP_MODE_RESERVED_10,         /**< Reserved setting. */
+    USBDEV_EP_MODE_ACK_OUT_STATUS_IN,   /**< SETUP: Ignore, IN: Respond 0B, OUT: ACK */
+    USBDEV_EP_MODE_NAK_IN,              /**< SETUP: Ignore, IN: NAK, OUT: Ignore */
+    USBDEV_EP_MODE_ACK_IN,              /**< SETUP: Ignore, IN: ACK or STALL, OUT: Ignore. */
+    USBDEV_EP_MODE_RESERVED_14,         /**< Reserved setting. */
+    USBDEV_EP_MODE_ACK_IN_STATUS_OUT    /**< SETUP: Ignore, IN: Respond, OUT: ACK 0B, NAK others */
+} cy_en_usbfs_ep_mode_t;
+
+/**
+ * @typedef cy_en_usbfs_intr_priority_t
+ * @brief USB interrupt priority options.
+ */
+typedef enum
+{
+    USB_INTR_PRIORITY_HIGH = 0,         /**< Configured to use the USB_INTR_HIGH_VECTOR_LOCATION */
+    USB_INTR_PRIORITY_MED,              /**< Configured to use the USB_INTR_MED_VECTOR_LOCATION */
+    USB_INTR_PRIORITY_LOW               /**< Configured to use the USB_INTR_LOW_VECTOR_LOCATION */
+} cy_en_usbfs_intr_priority_t;
+
 /** \} group_usbfxstack_fx_utils_enums */
 
 /**
@@ -160,58 +196,6 @@ typedef struct
     uint8_t cdcConfig[8];               /**< CDC SET/GET line coding data buffer. */
     bool    cdcRecvEnabled;             /**< Whether CDC data receive is enabled by user. */
 } cy_usbfs_devhandle_t;
-
-/** \} group_usbfxstack_fx_utils_structs */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_enums
- * \{
- */
-
-/**
- * @typedef cy_en_usbfs_ep_mode_t
- * @brief USB endpoint modes. The enumeration lists all the possible register configurations
- * for endpoint states. This list is dependent on the hardware and should not be changed.
- */
-typedef enum
-{
-    USBDEV_EP_MODE_DISABLE,             /* Ignore all USB traffic to this EP */
-    USBDEV_EP_MODE_NAK_INOUT,           /* SETUP: Accept, IN: NAK, OUT: NAK */
-    USBDEV_EP_MODE_STATUS_OUT_ONLY,     /* SETUP: Accept, IN: STALL, OUT: ACK 0B, NAK others */
-    USBDEV_EP_MODE_STALL_INOUT,         /* SETUP: Accept, IN: STALL, OUT: STALL */
-    USBDEV_EP_MODE_ISO_OUT = 5,         /* SETUP: Ignore, IN: Ignore, OUT: Accept ISO */
-    USBDEV_EP_MODE_STATUS_IN_ONLY,      /* SETUP: Accept, IN: Respond 0B, OUT: STALL */
-    USBDEV_EP_MODE_ISO_IN,              /* SETUP: Ignore, IN: Accept ISO, OUT: Ignore */
-    USBDEV_EP_MODE_NAK_OUT,             /* SETUP: Ignore, IN: Ignore, OUT: NAK */
-    USBDEV_EP_MODE_ACK_OUT,             /* SETUP: Ignore, IN: Ignore, OUT: ACK or STALL
-                                           (changes mode to NAK_OUT after ACK) */
-    USBDEV_EP_MODE_ACK_OUT_STATUS_IN = 11,
-    /* SETUP: Ignore, IN: Respond 0B, OUT: ACK */
-    USBDEV_EP_MODE_NAK_IN,              /* SETUP: Ignore, IN: NAK, OUT: Ignore */
-    USBDEV_EP_MODE_ACK_IN,              /* SETUP: Ignore, IN: ACK or STALL, OUT: Ignore
-                                           (changes mode to NAK_IN after ACK) */
-    USBDEV_EP_MODE_ACK_IN_STATUS_OUT = 15,
-    /* SETUP: Ignore, IN: Respond, OUT: ACK 0B, NAK others */
-
-} cy_en_usbfs_ep_mode_t;
-
-/**
- * @typedef cy_en_usbfs_intr_priority_t
- * @brief USB interrupt priority options.
- */
-typedef enum
-{
-    USB_INTR_PRIORITY_HIGH, /* Configured to use the USB_INTR_HIGH_VECTOR_LOCATION */
-    USB_INTR_PRIORITY_MED,  /* Configured to use the USB_INTR_MED_VECTOR_LOCATION */
-    USB_INTR_PRIORITY_LOW   /* Configured to use the USB_INTR_LOW_VECTOR_LOCATION */
-} cy_en_usbfs_intr_priority_t;
-
-/** \} group_usbfxstack_fx_utils_enums */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_structs
- * \{
- */
 
 #ifndef DOXYGEN
 

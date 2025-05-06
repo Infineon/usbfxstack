@@ -101,6 +101,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga153dcd5f7d32f548cb7f1d2e54740ba7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga153dcd5f7d32f548cb7f1d2e54740ba7">Cy_USB_USBD_Init</a> (void *pAppCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, DMAC_Type *pCpuDmacBase, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pSsCalCtxt, <a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pHbDmaMgrCtxt)</td></tr>
 <tr class="memdesc:ga153dcd5f7d32f548cb7f1d2e54740ba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function initializes USBD layer and activates CAL layer initialization function for SS and HS controller.  <a href="group__group__usbfxstack__usb__common__functions.html#ga153dcd5f7d32f548cb7f1d2e54740ba7">More...</a><br /></td></tr>
 <tr class="separator:ga153dcd5f7d32f548cb7f1d2e54740ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab17b2efb1cb1e2cda9b0f4d724ed2004"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gab17b2efb1cb1e2cda9b0f4d724ed2004">Cy_USBD_DebugRegisterCallback</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, uint8_t debugOutEp, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga1d336f8c870e093b9296a003c7ead9ad">cy_en_usb_usbd_cb_t</a> callBackType, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a> callBackFunc)</td></tr>
+<tr class="memdesc:gab17b2efb1cb1e2cda9b0f4d724ed2004"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API will be used by CDC (Debug) interface to register required callback.  <a href="group__group__usbfxstack__usb__common__functions.html#gab17b2efb1cb1e2cda9b0f4d724ed2004">More...</a><br /></td></tr>
+<tr class="separator:gab17b2efb1cb1e2cda9b0f4d724ed2004"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabeff2fa14eb96a51603827d920574b52"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gabeff2fa14eb96a51603827d920574b52">Cy_USBD_RegisterCallback</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga1d336f8c870e093b9296a003c7ead9ad">cy_en_usb_usbd_cb_t</a> callBackType, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a> callBackFunc)</td></tr>
 <tr class="memdesc:gabeff2fa14eb96a51603827d920574b52"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API will be used by application to register required callback.  <a href="group__group__usbfxstack__usb__common__functions.html#gabeff2fa14eb96a51603827d920574b52">More...</a><br /></td></tr>
 <tr class="separator:gabeff2fa14eb96a51603827d920574b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -504,6 +507,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:ga9b7af7161a52cf93c822dfa3d89f7f28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9b7af7161a52cf93c822dfa3d89f7f28">Cy_USBD_DisableLPMDeviceExit</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, bool devExitDisable)</td></tr>
 <tr class="memdesc:ga9b7af7161a52cf93c822dfa3d89f7f28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to disable support for device initiated exit from USB 3.x low power modes completely.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9b7af7161a52cf93c822dfa3d89f7f28">More...</a><br /></td></tr>
 <tr class="separator:ga9b7af7161a52cf93c822dfa3d89f7f28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafc734b9217c14e0a9dd5838838af8c35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gafc734b9217c14e0a9dd5838838af8c35">Cy_USBD_DisableSSOnBusReset</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt)</td></tr>
+<tr class="memdesc:gafc734b9217c14e0a9dd5838838af8c35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which disables the USB 3.x reconnection when USB 2.x Bus Reset is received.  <a href="group__group__usbfxstack__usb__common__functions.html#gafc734b9217c14e0a9dd5838838af8c35">More...</a><br /></td></tr>
+<tr class="separator:gafc734b9217c14e0a9dd5838838af8c35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac4d2647167df9195879c5f5673fa638c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gac4d2647167df9195879c5f5673fa638c">Cy_USBD_SelectConfigLane</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6c994c88b19d23289c36ca85dcc80856">cy_en_usb_config_lane_t</a> laneSel)</td></tr>
+<tr class="memdesc:gac4d2647167df9195879c5f5673fa638c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to select the USB 3.x Configuration Lane.  <a href="group__group__usbfxstack__usb__common__functions.html#gac4d2647167df9195879c5f5673fa638c">More...</a><br /></td></tr>
+<tr class="separator:gac4d2647167df9195879c5f5673fa638c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9bc22556f358fd830746ff3305be8226"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">Cy_USBHS_Cal_Init</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, void *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a> callBackFunc)</td></tr>
 <tr class="memdesc:ga9bc22556f358fd830746ff3305be8226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the HS controller ie CAL layer and PHY.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">More...</a><br /></td></tr>
 <tr class="separator:ga9bc22556f358fd830746ff3305be8226"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -651,6 +660,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:gad1690cf72af4e895c1423fa15718bd4f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gad1690cf72af4e895c1423fa15718bd4f">Cy_USBHS_Cal_GetXferCount</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, uint32_t endpNum, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#gaaebdfe5d46401ad52420b00ca401e6f8">cy_en_usb_endp_dir_t</a> endpDir, uint32_t *pCntPending)</td></tr>
 <tr class="memdesc:gad1690cf72af4e895c1423fa15718bd4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the remaining transfer count on the specified endpoint.  <a href="group__group__usbfxstack__usb__common__functions.html#gad1690cf72af4e895c1423fa15718bd4f">More...</a><br /></td></tr>
 <tr class="separator:gad1690cf72af4e895c1423fa15718bd4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa63a716775b3f6ea4cd418e88f689eee"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gaa63a716775b3f6ea4cd418e88f689eee">Cy_USBHS_Cal_IsNewCtrlRqtReceived</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt)</td></tr>
+<tr class="memdesc:gaa63a716775b3f6ea4cd418e88f689eee"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function uses the SETUP_CLR_BUSY to check whether a new control request has been received while a previous send/recv data call is pending.  <a href="group__group__usbfxstack__usb__common__functions.html#gaa63a716775b3f6ea4cd418e88f689eee">More...</a><br /></td></tr>
+<tr class="separator:gaa63a716775b3f6ea4cd418e88f689eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga907a5ad3284147b814930986011703f0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga907a5ad3284147b814930986011703f0">Cy_USBHS_Cal_PreemphasisControl</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, bool enable)</td></tr>
+<tr class="memdesc:ga907a5ad3284147b814930986011703f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to enable/disable Pre-emphasis based on the active USB test mode.  <a href="group__group__usbfxstack__usb__common__functions.html#ga907a5ad3284147b814930986011703f0">More...</a><br /></td></tr>
+<tr class="separator:ga907a5ad3284147b814930986011703f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga237a999056772a1d593dd9789d9395af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga237a999056772a1d593dd9789d9395af">Cy_USBSS_Cal_Init</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, void *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a> cb)</td></tr>
 <tr class="memdesc:ga237a999056772a1d593dd9789d9395af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the USBSS IP and relevant variables.  <a href="group__group__usbfxstack__usb__common__functions.html#ga237a999056772a1d593dd9789d9395af">More...</a><br /></td></tr>
 <tr class="separator:ga237a999056772a1d593dd9789d9395af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -819,6 +834,21 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:ga0a4f7f0c9590b1899c9d6786aebca0a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga0a4f7f0c9590b1899c9d6786aebca0a2">Cy_USBSS_Cal_DisableLPMDeviceExit</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, bool devExitDisable)</td></tr>
 <tr class="memdesc:ga0a4f7f0c9590b1899c9d6786aebca0a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to disable support for device initiated exit from USB low power modes completely.  <a href="group__group__usbfxstack__usb__common__functions.html#ga0a4f7f0c9590b1899c9d6786aebca0a2">More...</a><br /></td></tr>
 <tr class="separator:ga0a4f7f0c9590b1899c9d6786aebca0a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaab44c6a6a5da0deeaf71eda25fdbc00a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gaab44c6a6a5da0deeaf71eda25fdbc00a">Cy_USBSS_Cal_InitEventLog</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, uint32_t *pEvtLogBuf, uint16_t evtLogSize)</td></tr>
+<tr class="memdesc:gaab44c6a6a5da0deeaf71eda25fdbc00a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables capture of USBSS CAL event and state changes into RAM buffer.  <a href="group__group__usbfxstack__usb__common__functions.html#gaab44c6a6a5da0deeaf71eda25fdbc00a">More...</a><br /></td></tr>
+<tr class="separator:gaab44c6a6a5da0deeaf71eda25fdbc00a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga767fcd3c69b61729a123f4568caffc4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga767fcd3c69b61729a123f4568caffc4c">Cy_USBSS_Cal_PostEpEnable</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt)</td></tr>
+<tr class="memdesc:ga767fcd3c69b61729a123f4568caffc4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to reset egress socket EOB detection function after endpoints have been enabled.  <a href="group__group__usbfxstack__usb__common__functions.html#ga767fcd3c69b61729a123f4568caffc4c">More...</a><br /></td></tr>
+<tr class="separator:ga767fcd3c69b61729a123f4568caffc4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabf696a6536056d04b6f979ef4cadec9d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gabf696a6536056d04b6f979ef4cadec9d">Cy_USBSS_Cal_ReleaseLTSSM</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt)</td></tr>
+<tr class="memdesc:gabf696a6536056d04b6f979ef4cadec9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to release the LTSSM from a forced state.  <a href="group__group__usbfxstack__usb__common__functions.html#gabf696a6536056d04b6f979ef4cadec9d">More...</a><br /></td></tr>
+<tr class="separator:gabf696a6536056d04b6f979ef4cadec9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga50b6b4ccaaff1dc7095dc21807b01f36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga50b6b4ccaaff1dc7095dc21807b01f36">Cy_USBSS_Cal_ClkStopOnEpRstEnable</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, bool clkStopEn)</td></tr>
+<tr class="memdesc:ga50b6b4ccaaff1dc7095dc21807b01f36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to enable stop/restart of USB block clock during EP reset.  <a href="group__group__usbfxstack__usb__common__functions.html#ga50b6b4ccaaff1dc7095dc21807b01f36">More...</a><br /></td></tr>
+<tr class="separator:ga50b6b4ccaaff1dc7095dc21807b01f36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga30c175ad0e4df2a14fb31351209b4f70"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga30c175ad0e4df2a14fb31351209b4f70">Cy_USBSS_Cal_SelectConfigLane</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6c994c88b19d23289c36ca85dcc80856">cy_en_usb_config_lane_t</a> laneSel)</td></tr>
+<tr class="memdesc:ga30c175ad0e4df2a14fb31351209b4f70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to select the USB 3.x Configuration Lane.  <a href="group__group__usbfxstack__usb__common__functions.html#ga30c175ad0e4df2a14fb31351209b4f70">More...</a><br /></td></tr>
+<tr class="separator:ga30c175ad0e4df2a14fb31351209b4f70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga24e3cac8dbacb620555a0964b7dc23a9" name="ga24e3cac8dbacb620555a0964b7dc23a9"></a>
@@ -951,6 +981,58 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_USBD_STATUS_SUCCESS if the operation is successful. CY_USBD_STATUS_FAILURE if the opration is failed. </dd></dl>
+
+</div>
+</div>
+<a id="gab17b2efb1cb1e2cda9b0f4d724ed2004" name="gab17b2efb1cb1e2cda9b0f4d724ed2004"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab17b2efb1cb1e2cda9b0f4d724ed2004">&#9670;&nbsp;</a></span>Cy_USBD_DebugRegisterCallback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a> Cy_USBD_DebugRegisterCallback </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>debugOutEp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga1d336f8c870e093b9296a003c7ead9ad">cy_en_usb_usbd_cb_t</a>&#160;</td>
+          <td class="paramname"><em>callBackType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a>&#160;</td>
+          <td class="paramname"><em>callBackFunc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This API will be used by CDC (Debug) interface to register required callback. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USBD Context</td></tr>
+    <tr><td class="paramname">debugOutEp</td><td>CDC (Debug) OUT endpoint number.</td></tr>
+    <tr><td class="paramname">callBackType</td><td>USBD callback type</td></tr>
+    <tr><td class="paramname">callBackFunc</td><td>Registered callback function</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_USBD_STATUS_SUCCESS if the operation is successful. CY_USBD_STATUS_CTXT_NULL if usbd context is NULL. CY_USBD_STATUS_BAD_PARAM if ednpoint number is out of range CY_USBD_STATUS_INVALID_CALLBACK_TYPE if callback type not supported. </dd></dl>
 
 </div>
 </div>
@@ -5937,6 +6019,72 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 
 </div>
 </div>
+<a id="gafc734b9217c14e0a9dd5838838af8c35" name="gafc734b9217c14e0a9dd5838838af8c35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafc734b9217c14e0a9dd5838838af8c35">&#9670;&nbsp;</a></span>Cy_USBD_DisableSSOnBusReset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBD_DisableSSOnBusReset </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which disables the USB 3.x reconnection when USB 2.x Bus Reset is received. </p>
+<p >This function is only provided for testing of link robustness and not expected to be used in an application.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB Stack context structure. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gac4d2647167df9195879c5f5673fa638c" name="gac4d2647167df9195879c5f5673fa638c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac4d2647167df9195879c5f5673fa638c">&#9670;&nbsp;</a></span>Cy_USBD_SelectConfigLane()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a> Cy_USBD_SelectConfigLane </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6c994c88b19d23289c36ca85dcc80856">cy_en_usb_config_lane_t</a>&#160;</td>
+          <td class="paramname"><em>laneSel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to select the USB 3.x Configuration Lane. </p>
+<p >This API can be used in cases where the USB connection orientation is being detected externally instead of through CC1/CC2 voltage measurement by the controller itself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB Stack context structure. </td></tr>
+    <tr><td class="paramname">laneSel</td><td>Desired configuration lane selection.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the orientation selection has been registered successfully. </dd></dl>
+
+</div>
+</div>
 <a id="ga9bc22556f358fd830746ff3305be8226" name="ga9bc22556f358fd830746ff3305be8226"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9bc22556f358fd830746ff3305be8226">&#9670;&nbsp;</a></span>Cy_USBHS_Cal_Init()</h2>
 
@@ -7651,6 +7799,70 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_USB_CAL_STATUS_SUCCESS if the operation is successful. CY_USB_CAL_STATUS_BAD_PARAM if direction and endpoint number invalid. CY_USB_CAL_STATUS_CAL_BASE_NULL if register base pointer is NULL. </dd></dl>
+
+</div>
+</div>
+<a id="gaa63a716775b3f6ea4cd418e88f689eee" name="gaa63a716775b3f6ea4cd418e88f689eee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa63a716775b3f6ea4cd418e88f689eee">&#9670;&nbsp;</a></span>Cy_USBHS_Cal_IsNewCtrlRqtReceived()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USBHS_Cal_IsNewCtrlRqtReceived </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function uses the SETUP_CLR_BUSY to check whether a new control request has been received while a previous send/recv data call is pending. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>CAL layer context pointer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if a new request has been received, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga907a5ad3284147b814930986011703f0" name="ga907a5ad3284147b814930986011703f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga907a5ad3284147b814930986011703f0">&#9670;&nbsp;</a></span>Cy_USBHS_Cal_PreemphasisControl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBHS_Cal_PreemphasisControl </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enable</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to enable/disable Pre-emphasis based on the active USB test mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>CAL layer context pointer. </td></tr>
+    <tr><td class="paramname">enable</td><td>Whether pre-emphasis is to be enabled or disabled. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -9838,6 +10050,180 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   <table class="params">
     <tr><td class="paramname">pCalCtxt</td><td>USBSS Controller context structure. </td></tr>
     <tr><td class="paramname">devExitDisable</td><td>true to disable device initiated exit from LPM states. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gaab44c6a6a5da0deeaf71eda25fdbc00a" name="gaab44c6a6a5da0deeaf71eda25fdbc00a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaab44c6a6a5da0deeaf71eda25fdbc00a">&#9670;&nbsp;</a></span>Cy_USBSS_Cal_InitEventLog()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a> Cy_USBSS_Cal_InitEventLog </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>pEvtLogBuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>evtLogSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enables capture of USBSS CAL event and state changes into RAM buffer. </p>
+<p >This function is intended to be called by USBD and not directly from the application.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>The pointer to the USBSS context structure <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> allocated by the user.</td></tr>
+    <tr><td class="paramname">pEvtLogBuf</td><td>RAM buffer pointer to log the data into. Can be NULL if logging is to be disabled.</td></tr>
+    <tr><td class="paramname">evtLogSize</td><td>Size of RAM buffer in 32-bit words.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The status code of the function execution <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga767fcd3c69b61729a123f4568caffc4c" name="ga767fcd3c69b61729a123f4568caffc4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga767fcd3c69b61729a123f4568caffc4c">&#9670;&nbsp;</a></span>Cy_USBSS_Cal_PostEpEnable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBSS_Cal_PostEpEnable </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to reset egress socket EOB detection function after endpoints have been enabled. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>USBSS Controller context structure. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gabf696a6536056d04b6f979ef4cadec9d" name="gabf696a6536056d04b6f979ef4cadec9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabf696a6536056d04b6f979ef4cadec9d">&#9670;&nbsp;</a></span>Cy_USBSS_Cal_ReleaseLTSSM()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBSS_Cal_ReleaseLTSSM </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to release the LTSSM from a forced state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>USBSS Controller context structure. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga50b6b4ccaaff1dc7095dc21807b01f36" name="ga50b6b4ccaaff1dc7095dc21807b01f36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga50b6b4ccaaff1dc7095dc21807b01f36">&#9670;&nbsp;</a></span>Cy_USBSS_Cal_ClkStopOnEpRstEnable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBSS_Cal_ClkStopOnEpRstEnable </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>clkStopEn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to enable stop/restart of USB block clock during EP reset. </p>
+<p >This functionality can be enabled to ensure all state related to an endpoint is cleared properly. A possible side effect is that the USB link goes through recovery cycles during the Endpoint Reset operation.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>USBSS Controller context structure. </td></tr>
+    <tr><td class="paramname">clkStopEn</td><td>Whether to enable or disable the clock stop control. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga30c175ad0e4df2a14fb31351209b4f70" name="ga30c175ad0e4df2a14fb31351209b4f70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga30c175ad0e4df2a14fb31351209b4f70">&#9670;&nbsp;</a></span>Cy_USBSS_Cal_SelectConfigLane()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_USBSS_Cal_SelectConfigLane </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6c994c88b19d23289c36ca85dcc80856">cy_en_usb_config_lane_t</a>&#160;</td>
+          <td class="paramname"><em>laneSel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to select the USB 3.x Configuration Lane. </p>
+<p >This API can be used in cases where the USB connection orientation is being detected externally instead of through CC1/CC2 voltage measurement by the controller itself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>USBSS Controller context structure. </td></tr>
+    <tr><td class="paramname">laneSel</td><td>Desired configuration lane selection. </td></tr>
   </table>
   </dd>
 </dl>

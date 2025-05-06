@@ -808,6 +808,12 @@ ep0RecvCb</td>
 <td class="fielddoc">
 Callback for EP0 OUT transfer completion. </td></tr>
 <tr><td class="fieldtype">
+<a id="a88e5944b42835176ff8c91e77738c650" name="a88e5944b42835176ff8c91e77738c650"></a><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a></td>
+<td class="fieldname">
+debugSlpCb</td>
+<td class="fielddoc">
+USB 2.x SLP transfer callback function. </td></tr>
+<tr><td class="fieldtype">
 <a id="afd9db2bcae757be199609bb23c7a6e7c" name="afd9db2bcae757be199609bb23c7a6e7c"></a>DMAC_Type *</td>
 <td class="fieldname">
 pCpuDmacBase</td>
@@ -928,11 +934,23 @@ ep0ExpRcvSize</td>
 <td class="fielddoc">
 Size of expected transfer on EP0-OUT. </td></tr>
 <tr><td class="fieldtype">
-<a id="a6c182b2a2bb50cb6f4a7315a8c866d7b" name="a6c182b2a2bb50cb6f4a7315a8c866d7b"></a>bool</td>
+<a id="a10c15d858ae6d192ef51f5bdcd37275f" name="a10c15d858ae6d192ef51f5bdcd37275f"></a>uint8_t</td>
 <td class="fieldname">
-enableExtClk</td>
+debugOutEp</td>
 <td class="fielddoc">
-Use external clock as USB2 PLL Reference. </td></tr>
+Debug OUT Endpoint Number. </td></tr>
+<tr><td class="fieldtype">
+<a id="a208218bd3bc66fc56c326e7b34cc57e3" name="a208218bd3bc66fc56c326e7b34cc57e3"></a>bool</td>
+<td class="fieldname">
+ssOnBusResetDisable</td>
+<td class="fielddoc">
+Whether SS connect on USB 2.x Bus Reset is disabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a9707228bb69922dddf37014bf4af3d90" name="a9707228bb69922dddf37014bf4af3d90"></a>bool</td>
+<td class="fieldname">
+underrunWarningDone</td>
+<td class="fielddoc">
+Whether underrun warning has been issued. </td></tr>
 </table>
 
 </div>
@@ -1150,9 +1168,9 @@ rxAdaptationDone[FX3G2_MAX_NUM_USB_PHY]</td>
 <td class="fielddoc">
 Whether receiver adaptation has been completed since last check. </td></tr>
 <tr><td class="fieldtype">
-<a id="a8a4e2ac07be7926dfa9e9e6de237235e" name="a8a4e2ac07be7926dfa9e9e6de237235e"></a>uint8_t</td>
+<a id="aeb1e0399e8d316d66846b4b339fa0230" name="aeb1e0399e8d316d66846b4b339fa0230"></a>uint8_t</td>
 <td class="fieldname">
-phyLutIndex</td>
+phyLutIndex[FX3G2_MAX_NUM_USB_PHY]</td>
 <td class="fielddoc">
 The chosen PHY LUT index. </td></tr>
 <tr><td class="fieldtype">
@@ -1245,6 +1263,54 @@ Count of PHY instances initialized. </td></tr>
 lgoodTimeoutCount</td>
 <td class="fielddoc">
 Count of LGOOD timeout events. </td></tr>
+<tr><td class="fieldtype">
+<a id="a6c08558ddae2c3fbb77baae65f345436" name="a6c08558ddae2c3fbb77baae65f345436"></a>uint16_t</td>
+<td class="fieldname">
+lpmExitLfpsDelay</td>
+<td class="fielddoc">
+Expected LPM exit LFPS TX duration. </td></tr>
+<tr><td class="fieldtype">
+<a id="a77c7f136ae092fd731d358a65c7534ba" name="a77c7f136ae092fd731d358a65c7534ba"></a>bool</td>
+<td class="fieldname">
+gen1x1FallbackEn</td>
+<td class="fielddoc">
+Enable fallback to Gen1x1 if the Host/Hub does not support fallback to x1 speeds. </td></tr>
+<tr><td class="fieldtype">
+<a id="ae0ac5e68f65d9cc4ba025304864a5e52" name="ae0ac5e68f65d9cc4ba025304864a5e52"></a>bool</td>
+<td class="fieldname">
+compExitDone</td>
+<td class="fielddoc">
+Whether Compliance state has been exited. </td></tr>
+<tr><td class="fieldtype">
+<a id="ada6c8535dba5509b98a9e95c85c69a2a" name="ada6c8535dba5509b98a9e95c85c69a2a"></a>uint32_t</td>
+<td class="fieldname">
+compExitTS</td>
+<td class="fielddoc">
+Time stamp when compliance state was exited. </td></tr>
+<tr><td class="fieldtype">
+<a id="abea9ec4e4fdcc3dfb07709d625677e5a" name="abea9ec4e4fdcc3dfb07709d625677e5a"></a>uint16_t</td>
+<td class="fieldname">
+activeLutMask</td>
+<td class="fielddoc">
+Active CTLE LUT mask value. </td></tr>
+<tr><td class="fieldtype">
+<a id="a25d03bc94ec403d13f831ab0ccec5f3a" name="a25d03bc94ec403d13f831ab0ccec5f3a"></a>bool</td>
+<td class="fieldname">
+stopClkOnEpResetEnable</td>
+<td class="fielddoc">
+Enable stopping clock during EP reset. </td></tr>
+<tr><td class="fieldtype">
+<a id="abab09fbb0bfe1ea9344b179eec1d6475" name="abab09fbb0bfe1ea9344b179eec1d6475"></a><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga6c994c88b19d23289c36ca85dcc80856">cy_en_usb_config_lane_t</a></td>
+<td class="fieldname">
+usbConfigLane</td>
+<td class="fielddoc">
+USB configuration lane selection. </td></tr>
+<tr><td class="fieldtype">
+<a id="a49b66dd9a35e0eb5611c8475c7db9459" name="a49b66dd9a35e0eb5611c8475c7db9459"></a>bool</td>
+<td class="fieldname">
+gen1SpeedForced</td>
+<td class="fielddoc">
+Driver has forced Gen1 speed in compliance. </td></tr>
 </table>
 
 </div>

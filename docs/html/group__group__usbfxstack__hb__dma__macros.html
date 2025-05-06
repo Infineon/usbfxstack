@@ -108,6 +108,53 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_ID</b>&#160;&#160;&#160;CY_PDL_DRV_ID(0x80U)</td></tr>
 <tr class="memdesc:ga7ed8b0110621dd4b7fc7196853cf597c"><td class="mdescLeft">&#160;</td><td class="mdescRight">HBDMA driver identifier. <br /></td></tr>
 <tr class="separator:ga7ed8b0110621dd4b7fc7196853cf597c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0d496156905749539b01efa3b5f894b8"><td class="memItemLeft" align="right" valign="top"><a id="ga0d496156905749539b01efa3b5f894b8" name="ga0d496156905749539b01efa3b5f894b8"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBW_SRAM_BASE_ADDR</b>&#160;&#160;&#160;(0x1C000000UL)</td></tr>
+<tr class="memdesc:ga0d496156905749539b01efa3b5f894b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base address of HBW SRAM. <br /></td></tr>
+<tr class="separator:ga0d496156905749539b01efa3b5f894b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaee456e18a4c14379647dcde5ad6c7636"><td class="memItemLeft" align="right" valign="top"><a id="gaee456e18a4c14379647dcde5ad6c7636" name="gaee456e18a4c14379647dcde5ad6c7636"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBW_SRAM_LAST_ADDR</b>&#160;&#160;&#160;(0x1C100000UL)</td></tr>
+<tr class="memdesc:gaee456e18a4c14379647dcde5ad6c7636"><td class="mdescLeft">&#160;</td><td class="mdescRight">Upper limit of the HBW SRAM. <br /></td></tr>
+<tr class="separator:gaee456e18a4c14379647dcde5ad6c7636"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga83033af6e2a72d1c71eb2b4f453284df"><td class="memItemLeft" align="right" valign="top"><a id="ga83033af6e2a72d1c71eb2b4f453284df" name="ga83033af6e2a72d1c71eb2b4f453284df"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_DESC_SIZE</b>&#160;&#160;&#160;(0x10U)</td></tr>
+<tr class="memdesc:ga83033af6e2a72d1c71eb2b4f453284df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of each High Bandwidth DMA descriptor. <br /></td></tr>
+<tr class="separator:ga83033af6e2a72d1c71eb2b4f453284df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga18dfdaa376bc03e50a34dc4bde01f195"><td class="memItemLeft" align="right" valign="top"><a id="ga18dfdaa376bc03e50a34dc4bde01f195" name="ga18dfdaa376bc03e50a34dc4bde01f195"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_MAX_DSCR_CNT</b>&#160;&#160;&#160;(4096U)</td></tr>
+<tr class="memdesc:ga18dfdaa376bc03e50a34dc4bde01f195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of descriptors supported. <br /></td></tr>
+<tr class="separator:ga18dfdaa376bc03e50a34dc4bde01f195"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3445f1ae0d65fb328ec2d7bce6d49aac"><td class="memItemLeft" align="right" valign="top"><a id="ga3445f1ae0d65fb328ec2d7bce6d49aac" name="ga3445f1ae0d65fb328ec2d7bce6d49aac"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_GET_DESC_ADDR</b>(dscr_no)&#160;&#160;&#160;((<a class="el" href="group__group__usbfxstack__hb__dma__macros.html#ga0d496156905749539b01efa3b5f894b8">CY_HBW_SRAM_BASE_ADDR</a>) + ((dscr_no) * <a class="el" href="group__group__usbfxstack__hb__dma__macros.html#ga83033af6e2a72d1c71eb2b4f453284df">CY_HBDMA_DESC_SIZE</a>))</td></tr>
+<tr class="memdesc:ga3445f1ae0d65fb328ec2d7bce6d49aac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get address of nth DMA descriptor. <br /></td></tr>
+<tr class="separator:ga3445f1ae0d65fb328ec2d7bce6d49aac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga35194b131c319ea6cd5611a59a0ef3a7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__macros.html#ga35194b131c319ea6cd5611a59a0ef3a7">CY_HBDMA_IS_SOCKET_VALID</a>(id)</td></tr>
+<tr class="memdesc:ga35194b131c319ea6cd5611a59a0ef3a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether socket id passed is valid.  <a href="group__group__usbfxstack__hb__dma__macros.html#ga35194b131c319ea6cd5611a59a0ef3a7">More...</a><br /></td></tr>
+<tr class="separator:ga35194b131c319ea6cd5611a59a0ef3a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3deb05567f3e88a686e6fadbecb23e85"><td class="memItemLeft" align="right" valign="top"><a id="ga3deb05567f3e88a686e6fadbecb23e85" name="ga3deb05567f3e88a686e6fadbecb23e85"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_IS_USB_IN_SOCK</b>(id)&#160;&#160;&#160;(((id) &gt;= <a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa0c2cc7a89124204d23959c0e67705bf">CY_HBDMA_USBIN_SOCKET_00</a>) &amp;&amp; ((id) &lt;= <a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a5571929405e91c73285626646d29acdf">CY_HBDMA_USBIN_SOCKET_15</a>))</td></tr>
+<tr class="memdesc:ga3deb05567f3e88a686e6fadbecb23e85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the socket is a valid USB ingress socket. <br /></td></tr>
+<tr class="separator:ga3deb05567f3e88a686e6fadbecb23e85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8655a54c215177cdce997db47a0e329d"><td class="memItemLeft" align="right" valign="top"><a id="ga8655a54c215177cdce997db47a0e329d" name="ga8655a54c215177cdce997db47a0e329d"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_IS_USB_EG_SOCK</b>(id)&#160;&#160;&#160;(((id) &gt;= <a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a1704b570bc1aa1676f7a67fd97b6587b">CY_HBDMA_USBEG_SOCKET_00</a>) &amp;&amp; ((id) &lt;= <a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa7ba41501955b28a3114e6ca90465db5">CY_HBDMA_USBEG_SOCKET_15</a>))</td></tr>
+<tr class="memdesc:ga8655a54c215177cdce997db47a0e329d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the socket is a valid USB egress socket. <br /></td></tr>
+<tr class="separator:ga8655a54c215177cdce997db47a0e329d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaceedbaac1a0f329f75ff3bc36faa8ebb"><td class="memItemLeft" align="right" valign="top"><a id="gaceedbaac1a0f329f75ff3bc36faa8ebb" name="gaceedbaac1a0f329f75ff3bc36faa8ebb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_SOCK_STATUS_WR_MASK</b>&#160;&#160;&#160;(0x2FE007FFUL)</td></tr>
+<tr class="memdesc:gaceedbaac1a0f329f75ff3bc36faa8ebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mask for write-able fields of socket status. <br /></td></tr>
+<tr class="separator:gaceedbaac1a0f329f75ff3bc36faa8ebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga832cd522e72a220329a83dc1286f47ca"><td class="memItemLeft" align="right" valign="top"><a id="ga832cd522e72a220329a83dc1286f47ca" name="ga832cd522e72a220329a83dc1286f47ca"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_SOCK_PER_ADAPTER</b>&#160;&#160;&#160;(16u)</td></tr>
+<tr class="memdesc:ga832cd522e72a220329a83dc1286f47ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of sockets supported per DMA adapter. <br /></td></tr>
+<tr class="separator:ga832cd522e72a220329a83dc1286f47ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1670017a5742f18c9a072ef401e5b9d5"><td class="memItemLeft" align="right" valign="top"><a id="ga1670017a5742f18c9a072ef401e5b9d5" name="ga1670017a5742f18c9a072ef401e5b9d5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_SOCK_STATE_STALL</b>&#160;&#160;&#160;(1u)</td></tr>
+<tr class="memdesc:ga1670017a5742f18c9a072ef401e5b9d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket stall status value. <br /></td></tr>
+<tr class="separator:ga1670017a5742f18c9a072ef401e5b9d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga93be21c21572de80569ac56a8eb7e919"><td class="memItemLeft" align="right" valign="top"><a id="ga93be21c21572de80569ac56a8eb7e919" name="ga93be21c21572de80569ac56a8eb7e919"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_SOCK_STATE_ACTIVE</b>&#160;&#160;&#160;(2u)</td></tr>
+<tr class="memdesc:ga93be21c21572de80569ac56a8eb7e919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket active status value. <br /></td></tr>
+<tr class="separator:ga93be21c21572de80569ac56a8eb7e919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabff077f0d9356992e563e8c826a14917"><td class="memItemLeft" align="right" valign="top"><a id="gabff077f0d9356992e563e8c826a14917" name="gabff077f0d9356992e563e8c826a14917"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_HBDMA_MGR_H</b></td></tr>
 <tr class="memdesc:gabff077f0d9356992e563e8c826a14917"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates the use of HB-DMA Manager. <br /></td></tr>
@@ -157,15 +204,15 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga27e144a67f2c71eb1e4cbdb9e1a81137"><td class="mdescLeft">&#160;</td><td class="mdescRight">HBDma manager middleware major version. <br /></td></tr>
 <tr class="separator:ga27e144a67f2c71eb1e4cbdb9e1a81137"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5203b1cb3c963289f9ecfdef53803a38"><td class="memItemLeft" align="right" valign="top"><a id="ga5203b1cb3c963289f9ecfdef53803a38" name="ga5203b1cb3c963289f9ecfdef53803a38"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_MINOR</b>&#160;&#160;&#160;(0u)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_MINOR</b>&#160;&#160;&#160;(1u)</td></tr>
 <tr class="memdesc:ga5203b1cb3c963289f9ecfdef53803a38"><td class="mdescLeft">&#160;</td><td class="mdescRight">HBDma manager middleware minor version. <br /></td></tr>
 <tr class="separator:ga5203b1cb3c963289f9ecfdef53803a38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga942995f3fae675de9017d6b052204437"><td class="memItemLeft" align="right" valign="top"><a id="ga942995f3fae675de9017d6b052204437" name="ga942995f3fae675de9017d6b052204437"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_PATCH</b>&#160;&#160;&#160;(1u)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_PATCH</b>&#160;&#160;&#160;(0u)</td></tr>
 <tr class="memdesc:ga942995f3fae675de9017d6b052204437"><td class="mdescLeft">&#160;</td><td class="mdescRight">HBDma manager middleware patch version. <br /></td></tr>
 <tr class="separator:ga942995f3fae675de9017d6b052204437"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa9f48d0d0044d01b76ff27085c554cde"><td class="memItemLeft" align="right" valign="top"><a id="gaa9f48d0d0044d01b76ff27085c554cde" name="gaa9f48d0d0044d01b76ff27085c554cde"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_BUILD</b>&#160;&#160;&#160;(30u)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HBDMA_VERSION_BUILD</b>&#160;&#160;&#160;(31u)</td></tr>
 <tr class="memdesc:gaa9f48d0d0044d01b76ff27085c554cde"><td class="mdescLeft">&#160;</td><td class="mdescRight">HBDma manager middleware build number. <br /></td></tr>
 <tr class="separator:gaa9f48d0d0044d01b76ff27085c554cde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6fccd71f140e070129fb05728d7d69e7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__macros.html#ga6fccd71f140e070129fb05728d7d69e7">HBDMA_VERSION_NUM</a></td></tr>
@@ -173,6 +220,39 @@ Macros</h2></td></tr>
 <tr class="separator:ga6fccd71f140e070129fb05728d7d69e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="ga35194b131c319ea6cd5611a59a0ef3a7" name="ga35194b131c319ea6cd5611a59a0ef3a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga35194b131c319ea6cd5611a59a0ef3a7">&#9670;&nbsp;</a></span>CY_HBDMA_IS_SOCKET_VALID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_HBDMA_IS_SOCKET_VALID</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">id</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">                                       ( ((id) &lt;= <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a145cfc9103a904f048410edbba994235">CY_HBDMA_LVDS_SOCKET_31</a>) || \</div>
+<div class="line">                                       (((id) &gt;= <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa0c2cc7a89124204d23959c0e67705bf">CY_HBDMA_USBIN_SOCKET_00</a>) &amp;&amp; ((id) &lt;= <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a5571929405e91c73285626646d29acdf">CY_HBDMA_USBIN_SOCKET_15</a>)) || \</div>
+<div class="line">                                       (((<span class="keywordtype">id</span>) &gt;= <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a1704b570bc1aa1676f7a67fd97b6587b">CY_HBDMA_USBEG_SOCKET_00</a>) &amp;&amp; ((<span class="keywordtype">id</span>) &lt;= <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa7ba41501955b28a3114e6ca90465db5">CY_HBDMA_USBEG_SOCKET_15</a>)) || \</div>
+<div class="line">                                       ((id) == <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06ab52450d4a6d8c2248e1235dd61fdad72">CY_HBDMA_VIRT_SOCKET_WR</a>) || \</div>
+<div class="line">                                       ((id) == <a class="code hl_enumvalue" href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a5b30bab15a0c6589cda05677a9bea3d0">CY_HBDMA_VIRT_SOCKET_RD</a>) \</div>
+<div class="line">                                     )</div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06a145cfc9103a904f048410edbba994235"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a145cfc9103a904f048410edbba994235">CY_HBDMA_LVDS_SOCKET_31</a></div><div class="ttdeci">@ CY_HBDMA_LVDS_SOCKET_31</div><div class="ttdoc">LVDS socket #31.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:269</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06a1704b570bc1aa1676f7a67fd97b6587b"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a1704b570bc1aa1676f7a67fd97b6587b">CY_HBDMA_USBEG_SOCKET_00</a></div><div class="ttdeci">@ CY_HBDMA_USBEG_SOCKET_00</div><div class="ttdoc">USB egress socket #00.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:271</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06a5571929405e91c73285626646d29acdf"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a5571929405e91c73285626646d29acdf">CY_HBDMA_USBIN_SOCKET_15</a></div><div class="ttdeci">@ CY_HBDMA_USBIN_SOCKET_15</div><div class="ttdoc">USB ingress socket #15.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:303</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06a5b30bab15a0c6589cda05677a9bea3d0"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06a5b30bab15a0c6589cda05677a9bea3d0">CY_HBDMA_VIRT_SOCKET_RD</a></div><div class="ttdeci">@ CY_HBDMA_VIRT_SOCKET_RD</div><div class="ttdoc">Virtual (CPU) access socket for data read.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:305</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06aa0c2cc7a89124204d23959c0e67705bf"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa0c2cc7a89124204d23959c0e67705bf">CY_HBDMA_USBIN_SOCKET_00</a></div><div class="ttdeci">@ CY_HBDMA_USBIN_SOCKET_00</div><div class="ttdoc">USB ingress socket #00.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:288</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06aa7ba41501955b28a3114e6ca90465db5"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06aa7ba41501955b28a3114e6ca90465db5">CY_HBDMA_USBEG_SOCKET_15</a></div><div class="ttdeci">@ CY_HBDMA_USBEG_SOCKET_15</div><div class="ttdoc">USB egress socket #15.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:286</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__enums_html_ggab83411cd9077b5c27dda0bad41d89a06ab52450d4a6d8c2248e1235dd61fdad72"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__enums.html#ggab83411cd9077b5c27dda0bad41d89a06ab52450d4a6d8c2248e1235dd61fdad72">CY_HBDMA_VIRT_SOCKET_WR</a></div><div class="ttdeci">@ CY_HBDMA_VIRT_SOCKET_WR</div><div class="ttdoc">Virtual (CPU) access socket for data write.</div><div class="ttdef"><b>Definition:</b> cy_hbdma.h:306</div></div>
+</div><!-- fragment -->
+<p>Check whether socket id passed is valid. </p>
+
+</div>
+</div>
 <a id="ga6fccd71f140e070129fb05728d7d69e7" name="ga6fccd71f140e070129fb05728d7d69e7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6fccd71f140e070129fb05728d7d69e7">&#9670;&nbsp;</a></span>HBDMA_VERSION_NUM</h2>
 
@@ -186,10 +266,10 @@ Macros</h2></td></tr>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">        ((<a class="code hl_define" href="group__group__usbfxstack__hb__dma__macros.html#ga27e144a67f2c71eb1e4cbdb9e1a81137">HBDMA_VERSION_MAJOR</a> &lt;&lt; 28u) | (<a class="code hl_define" href="group__group__usbfxstack__hb__dma__macros.html#ga5203b1cb3c963289f9ecfdef53803a38">HBDMA_VERSION_MINOR</a> &lt;&lt; 24u) | \</div>
 <div class="line">        (<a class="code hl_define" href="group__group__usbfxstack__hb__dma__macros.html#ga942995f3fae675de9017d6b052204437">HBDMA_VERSION_PATCH</a> &lt;&lt; 16u) | (<a class="code hl_define" href="group__group__usbfxstack__hb__dma__macros.html#gaa9f48d0d0044d01b76ff27085c554cde">HBDMA_VERSION_BUILD</a>))</div>
-<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga27e144a67f2c71eb1e4cbdb9e1a81137"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga27e144a67f2c71eb1e4cbdb9e1a81137">HBDMA_VERSION_MAJOR</a></div><div class="ttdeci">#define HBDMA_VERSION_MAJOR</div><div class="ttdoc">HBDma manager middleware major version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:42</div></div>
-<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga5203b1cb3c963289f9ecfdef53803a38"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga5203b1cb3c963289f9ecfdef53803a38">HBDMA_VERSION_MINOR</a></div><div class="ttdeci">#define HBDMA_VERSION_MINOR</div><div class="ttdoc">HBDma manager middleware minor version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:45</div></div>
-<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga942995f3fae675de9017d6b052204437"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga942995f3fae675de9017d6b052204437">HBDMA_VERSION_PATCH</a></div><div class="ttdeci">#define HBDMA_VERSION_PATCH</div><div class="ttdoc">HBDma manager middleware patch version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:48</div></div>
-<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_gaa9f48d0d0044d01b76ff27085c554cde"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#gaa9f48d0d0044d01b76ff27085c554cde">HBDMA_VERSION_BUILD</a></div><div class="ttdeci">#define HBDMA_VERSION_BUILD</div><div class="ttdoc">HBDma manager middleware build number.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:51</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga27e144a67f2c71eb1e4cbdb9e1a81137"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga27e144a67f2c71eb1e4cbdb9e1a81137">HBDMA_VERSION_MAJOR</a></div><div class="ttdeci">#define HBDMA_VERSION_MAJOR</div><div class="ttdoc">HBDma manager middleware major version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:44</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga5203b1cb3c963289f9ecfdef53803a38"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga5203b1cb3c963289f9ecfdef53803a38">HBDMA_VERSION_MINOR</a></div><div class="ttdeci">#define HBDMA_VERSION_MINOR</div><div class="ttdoc">HBDma manager middleware minor version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:47</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_ga942995f3fae675de9017d6b052204437"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#ga942995f3fae675de9017d6b052204437">HBDMA_VERSION_PATCH</a></div><div class="ttdeci">#define HBDMA_VERSION_PATCH</div><div class="ttdoc">HBDma manager middleware patch version.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:50</div></div>
+<div class="ttc" id="agroup__group__usbfxstack__hb__dma__macros_html_gaa9f48d0d0044d01b76ff27085c554cde"><div class="ttname"><a href="group__group__usbfxstack__hb__dma__macros.html#gaa9f48d0d0044d01b76ff27085c554cde">HBDMA_VERSION_BUILD</a></div><div class="ttdeci">#define HBDMA_VERSION_BUILD</div><div class="ttdoc">HBDma manager middleware build number.</div><div class="ttdef"><b>Definition:</b> cy_hbdma_version.h:53</div></div>
 </div><!-- fragment -->
 <p>HBDma manager middleware version number. </p>
 

@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -23,10 +23,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+
 /**
  * \addtogroup group_usbfxstack_hb_dma
  * \{
- * 
+ */
+
+/**
  * \addtogroup group_usbfxstack_hb_dma_macros
  * \{
  */
@@ -356,7 +359,7 @@ typedef struct cy_stc_hbdma_intr_msg
 
 /** \} group_usbfxstack_hb_dma_structs */
 
-/** 
+/**
  * \addtogroup group_usbfxstack_hb_dma_functions
  * \{
  */
@@ -1181,14 +1184,6 @@ void Cy_HBDma_Mgr_SetLvdsAdapterIngressMode(
         bool isAdap1Ingress);
 
 /** \} group_usbfxstack_hb_dma_functions */
-
-/*******************************************************************************
- *                                 API Constants
- *******************************************************************************/
-
-/*******************************************************************************
- *                        In-line Function Implementation
- *******************************************************************************/
 
 #if defined(__cplusplus)
 }

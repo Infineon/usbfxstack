@@ -42,7 +42,9 @@ var group__group__usbfxstack__lvds__lvcmos__enums =
       [ "CY_LVDS_SUCCESS", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a32f1d6cdd16afaefd06145f9cabbef69", null ],
       [ "CY_LVDS_BAD_PARAMETER", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a73ecb7eaa38a2f2f7e58850ce7e84d39", null ],
       [ "CY_LVDS_CONFIG_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a784b5978b3f9c85cc6f9055bdc422a2e", null ],
-      [ "CY_LVDS_TIMEOUT_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9", null ]
+      [ "CY_LVDS_TIMEOUT_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9", null ],
+      [ "CY_LVDS_LINK_ALREADY_ENABLED", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a79ef475d2e4f1cbfaf8f4c45e9ee4dd3", null ],
+      [ "CY_LVDS_LINK_TRAINING_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be", null ]
     ] ],
     [ "cy_en_lvds_md_type_t", "group__group__usbfxstack__lvds__lvcmos__enums.html#gacbb7056cae06fe3fa44fef0c225305de", [
       [ "CY_LVDS_MD_CONSTANT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacbb7056cae06fe3fa44fef0c225305dea2e6efa3270f09a128f36d1b7eae3ee9e", null ],
@@ -343,21 +345,7 @@ var group__group__usbfxstack__lvds__lvcmos__enums =
     [ "cy_en_lvds_slave_fifo_mode_t", "group__group__usbfxstack__lvds__lvcmos__enums.html#gab9a4e0437ac39f6fb89225c6a621d628", [
       [ "CY_LVDS_NORMAL_MODE", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628a4a3d3609910fab67ea455119589b85db", null ],
       [ "CY_LVDS_SLAVE_FIFO_2BIT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa7d014d9c5911d8421e84822a57a7e95", null ],
-      [ "CY_LVDS_SLAVE_FIFO_5BIT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680", null ]
-    ] ],
-    [ "cy_en_lvds_freq_gear_ratio_t", "group__group__usbfxstack__lvds__lvcmos__enums.html#ga9b7065002c8707a83a262d99fcbe2ffd", [
-      [ "CY_LVDS_CLK_625_MHZ_1_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffdaf4f3aeb21d362b503f2e010dda684a5e", null ],
-      [ "CY_LVDS_CLK_625_MHZ_2_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda9c99175d21a90d93fec6642bc54da48c", null ],
-      [ "CY_LVDS_CLK_156_25_MHZ_1_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda8c9ccefc6b65da19194f76037e358b5a", null ],
-      [ "CY_LVDS_CLK_156_25_MHZ_2_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda7820afabcaaa9d549ef8f40f82148b08", null ],
-      [ "CY_LVDS_CLK_156_25_MHZ_4_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda61d4732203c404b49d54cb21704a6c26", null ],
-      [ "CY_LVDS_CLK_156_25_MHZ_8_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda1bb1876ff3bf42582171a0d1f721d369", null ],
-      [ "CY_LVDS_CLK_148_5_MHZ_1_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda9059c1801ffc31ac3f8e09c51b7a0062", null ],
-      [ "CY_LVDS_CLK_148_5_MHZ_2_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda77a206e3b7ec3bd0fe81cb5ae2dcb6a1", null ],
-      [ "CY_LVDS_CLK_148_5_MHZ_4_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda31bb9ee03b651dcf6917d348a7a91110", null ],
-      [ "CY_LVDS_CLK_148_5_MHZ_8_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda51e62a011a1bcfb7b483872d9cafec14", null ],
-      [ "CY_LVDS_CLK_74_25_MHZ_2_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda12d4facc6bb3fceb0e2a8d2043b49d7b", null ],
-      [ "CY_LVDS_CLK_74_25_MHZ_4_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda3fcb219aef27727d85212ac4b179ba11", null ],
-      [ "CY_LVDS_CLK_74_25_MHZ_8_1", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga9b7065002c8707a83a262d99fcbe2ffda1d37c699c2f347e6a8037b15ae7886d7", null ]
+      [ "CY_LVDS_SLAVE_FIFO_5BIT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680", null ],
+      [ "CY_LVDS_ENHANCED_MODE", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628a18b8c19b684b5c068c5146f3c64b51dd", null ]
     ] ]
 ];

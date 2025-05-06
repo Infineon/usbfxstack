@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright (2024) Cypress Semiconductor Corporation
+* Copyright (2025) Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +26,11 @@
  * \addtogroup group_usbfxstack_hb_dma
  * \{
  * HBDma is initialized and configured using the DMA manager, part of the usbfxstack middleware library.
- * 
- * All data movement within the High BandWidth subsystem happens through temporary buffers located in the 
- * buffer RAM. When a DMA datapath is being setup between the LVCMOS and USBHS interfaces, the firmware 
- * needs to prepare RAM buffers which will be used for the transfers and configure a set of descriptors which track 
- * the state of these RAM buffers. This is performed using a set of convenience API provided as part of the High 
+ *
+ * All data movement within the High BandWidth subsystem happens through temporary buffers located in the
+ * buffer RAM. When a DMA datapath is being setup between the LVCMOS and USBHS interfaces, the firmware
+ * needs to prepare RAM buffers which will be used for the transfers and configure a set of descriptors which track
+ * the state of these RAM buffers. This is performed using a set of convenience API provided as part of the High
  * BandWidth DMA manager.
  * \defgroup group_usbfxstack_hb_dma_macros Macros
  * \defgroup group_usbfxstack_hb_dma_enums Enumerated Types
@@ -78,9 +78,148 @@ extern "C" {
 /** HBDMA driver identifier */
 #define CY_HBDMA_ID                     CY_PDL_DRV_ID(0x80U)
 
+/** Base address of HBW SRAM. */
+#define CY_HBW_SRAM_BASE_ADDR           (0x1C000000UL)
+
+/** Upper limit of the HBW SRAM. */
+#define CY_HBW_SRAM_LAST_ADDR           (0x1C100000UL)
+
+/** Size of each High Bandwidth DMA descriptor. */
+#define CY_HBDMA_DESC_SIZE              (0x10U)
+
+/** Maximum number of descriptors supported. */
+#define CY_HBDMA_MAX_DSCR_CNT           (4096U)
+
+/** Get address of nth DMA descriptor. */
+#define CY_HBDMA_GET_DESC_ADDR(dscr_no) ((CY_HBW_SRAM_BASE_ADDR) + ((dscr_no) * CY_HBDMA_DESC_SIZE))
+
+/** Check whether socket id passed is valid. */
+#define CY_HBDMA_IS_SOCKET_VALID(id) ( ((id) <= CY_HBDMA_LVDS_SOCKET_31) || \
+                                       (((id) >= CY_HBDMA_USBIN_SOCKET_00) && ((id) <= CY_HBDMA_USBIN_SOCKET_15)) || \
+                                       (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15)) || \
+                                       ((id) == CY_HBDMA_VIRT_SOCKET_WR) || \
+                                       ((id) == CY_HBDMA_VIRT_SOCKET_RD) \
+                                     )
+
+/** Check whether the socket is a valid USB ingress socket. */
+#define CY_HBDMA_IS_USB_IN_SOCK(id)  (((id) >= CY_HBDMA_USBIN_SOCKET_00) && ((id) <= CY_HBDMA_USBIN_SOCKET_15))
+
+/** Check whether the socket is a valid USB egress socket. */
+#define CY_HBDMA_IS_USB_EG_SOCK(id)  (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15))
+
+/** Mask for write-able fields of socket status. */
+#define CY_HBDMA_SOCK_STATUS_WR_MASK    (0x2FE007FFUL)
+
+/** Maximum number of sockets supported per DMA adapter. */
+#define CY_HBDMA_SOCK_PER_ADAPTER       (16u)
+
+/** Socket stall status value. */
+#define CY_HBDMA_SOCK_STATE_STALL       (1u)
+
+/** Socket active status value. */
+#define CY_HBDMA_SOCK_STATE_ACTIVE      (2u)
+
+#ifndef DOXYGEN
+
+/** Compute Producer Socket encoding in the DSCR_SYNC field. */
+#define CY_HBDMA_PROD_SOCK_TO_SYNC(sck_id)      \
+    ((((sck_id) & 0x0FU) | (((sck_id) & 0xF0U) << 4U)) << 16U)
+
+/** Compute Consumer Socket encoding in the DSCR_SYNC field. */
+#define CY_HBDMA_CONS_SOCK_TO_SYNC(sck_id)      \
+    (((sck_id) & 0x0FU) | (((sck_id) & 0xF0U) << 4U))
+
+/** Retrieve producer socket ID from descriptor sync field. */
+#define CY_HBDMA_SYNC_TO_PROD_SOCK(sync)        \
+    (cy_hbdma_socket_id_t)((((sync) >> 16U) & 0x0FU) | (((sync) >> 20U) & 0xF0U))
+
+/** Retrieve consumer socket ID from descriptor sync field. */
+#define CY_HBDMA_SYNC_TO_CONS_SOCK(sync)        \
+    (cy_hbdma_socket_id_t)(((sync) & 0x0FU) | (((sync) >> 4U) & 0xF0U))
+
+/** Get next WR descriptor index from descriptor chain field. */
+#define CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(chain)    \
+    (uint16_t)(((chain) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Msk) >> \
+            LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Pos)
+
+/** Get next RD descriptor index from descriptor chain field. */
+#define CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(chain)    \
+    (uint16_t)(((chain) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_RD_NEXT_DSCR_Msk) >> \
+            LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_RD_NEXT_DSCR_Pos)
+
+/** Get the socket current state from the status register. */
+#define CY_HBDMA_STATUS_TO_SOCK_STATE(status)   \
+    (((status) & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_STATE_Msk) >> LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_STATE_Pos)
+
+/** Get DMA buffer address from descriptor buffer register. */
+#define CY_HBDMA_GET_BUFFER_ADDRESS(dscrBuffer) \
+    ((uint8_t *)((uint32_t)(dscrBuffer) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_BUFFER_ADDR_Msk))
+
+/** Check whether marker bit is set on descriptor. */
+#define CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrBuffer)       \
+    ((((uint32_t)(dscrBuffer)) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_MARKER_Msk) != 0)
+
+/** Update the marker bit in descriptor buffer pointer. */
+#define CY_HBDMA_MARK_DSCR_BUFFER(dscrBuffer)   \
+    ((uint8_t *)((uint32_t)(dscrBuffer) | LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_MARKER_Msk))
+
+/** Get DMA buffer size field from the descriptor. */
+#define CY_HBDMA_DSCR_GET_BUFSIZE(en_64k, dscrSize)                                             \
+    (                                                                                           \
+     ((en_64k) != 0) ?                                                                          \
+        (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) << 1U) :          \
+        ((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk)                    \
+    )
+
+/** Get byte count field from the descriptor. */
+#define CY_HBDMA_DSCR_GET_BYTECNT(en_64k, dscrSize)                                             \
+    (                                                                                           \
+     ((en_64k) != 0) ?                                                                          \
+        ((((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) >>                \
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) |                 \
+         (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_MSB_Msk) << 16U)       \
+        ) :                                                                                     \
+        (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) >>                 \
+                       LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos)                    \
+    )
+
+/** Set the DMA buffer size field in the descriptor. */
+#define CY_HBDMA_DSCR_SET_BUFSIZE(en_64k, dscrSize, bufSize)                                    \
+    (                                                                                           \
+     ((en_64k) != 0) ?                                                                          \
+        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) |                \
+         (((bufSize) >> 1U) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk)            \
+        ) :                                                                                     \
+        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) |                \
+         ((bufSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk))                   \
+    )
+
+/** Update DMA buffer size by rounding up the byte count value. */
+#define CY_HBDMA_DSCR_SET_SIZE_BY_COUNT(en_64k, dscrSize, byteCnt)                              \
+    (                                                                                           \
+     ((en_64k) != 0) ?                                                                          \
+        (CY_HBDMA_DSCR_SET_BUFSIZE((en_64k), (dscrSize), ((byteCnt) + 0x1FU))) :                \
+        (CY_HBDMA_DSCR_SET_BUFSIZE((en_64k), (dscrSize), ((byteCnt) + 0x0FU)))                  \
+    )
+
+/** Set the byte count field in the descriptor. */
+#define CY_HBDMA_DSCR_SET_BYTECNT(en_64k, dscrSize, byteCnt)                                    \
+    (                                                                                           \
+     ((en_64k) != 0) ?                                                                          \
+        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
+         (((byteCnt) << LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) &                 \
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
+         ((byteCnt) >> 16U)) :                                                                  \
+        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
+         (((byteCnt) << LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) &                 \
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk))                  \
+    )
+
+#endif /* DOXYGEN */
+
 /** \} group_usbfxstack_hb_dma_macros */
 
-/** 
+/**
  * \addtogroup group_usbfxstack_hb_dma_enums
  * \{
  */
@@ -240,7 +379,7 @@ typedef enum
  * This is an internal callback function used by the socket ISRs to send
  * information to the DMA manager for processing.
  *
- * \return 
+ * \return
  * Indicates whether further interrupt processing is to be paused to avoid
  * over-running the interrupt queue.
  */
@@ -261,7 +400,7 @@ typedef bool (*cy_cb_hbdma_intr_callback_t) (
  */
 
 /*******************************************************************************
-*                            Data Structures    
+*                            Data Structures
 *******************************************************************************/
 
 #ifndef DOXYGEN
@@ -879,154 +1018,7 @@ void Cy_HBDma_SetLvdsAdapterIngressMode(
         bool isAdap0Ingress,
         bool isAdap1Ingress);
 
-/*******************************************************************************
-*                         Internal Function Prototypes
-*******************************************************************************/
-
-/*******************************************************************************
-*                           Internal Constants
-*******************************************************************************/
-
-/** Base address of HBW SRAM. */
-#define CY_HBW_SRAM_BASE_ADDR           (0x1C000000UL)
-
-/** Upper limit of the HBW SRAM. */
-#define CY_HBW_SRAM_LAST_ADDR           (0x1C100000UL)
-
-/** Size of each High Bandwidth DMA descriptor. */
-#define CY_HBDMA_DESC_SIZE              (0x10U)
-
-/** Maximum number of descriptors supported. */
-#define CY_HBDMA_MAX_DSCR_CNT           (4096U)
-
-/** Get address of nth DMA descriptor. */
-#define CY_HBDMA_GET_DESC_ADDR(dscr_no) ((CY_HBW_SRAM_BASE_ADDR) + ((dscr_no) * CY_HBDMA_DESC_SIZE))
-
-/** Check whether socket id passed is valid. */
-#define CY_HBDMA_IS_SOCKET_VALID(id) ( ((id) <= CY_HBDMA_LVDS_SOCKET_31) || \
-                                       (((id) >= CY_HBDMA_USBIN_SOCKET_00) && ((id) <= CY_HBDMA_USBIN_SOCKET_15)) || \
-                                       (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15)) || \
-                                       ((id) == CY_HBDMA_VIRT_SOCKET_WR) || \
-                                       ((id) == CY_HBDMA_VIRT_SOCKET_RD) \
-                                     )
-
-/** Check whether the socket is a valid USB ingress socket. */
-#define CY_HBDMA_IS_USB_IN_SOCK(id)  (((id) >= CY_HBDMA_USBIN_SOCKET_00) && ((id) <= CY_HBDMA_USBIN_SOCKET_15))
-
-/** Check whether the socket is a valid USB egress socket. */
-#define CY_HBDMA_IS_USB_EG_SOCK(id)  (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15))
-
-/** Mask for write-able fields of socket status. */
-#define CY_HBDMA_SOCK_STATUS_WR_MASK    (0x2FE007FFUL)
-
-/** Maximum number of sockets supported per DMA adapter. */
-#define CY_HBDMA_SOCK_PER_ADAPTER       (16u)
-
-/** Socket stall status value. */
-#define CY_HBDMA_SOCK_STATE_STALL       (1u)
-
-/** Socket active status value. */
-#define CY_HBDMA_SOCK_STATE_ACTIVE      (2u)
-
-/** Compute Producer Socket encoding in the DSCR_SYNC field. */
-#define CY_HBDMA_PROD_SOCK_TO_SYNC(sck_id)      \
-    ((((sck_id) & 0x0FU) | (((sck_id) & 0xF0U) << 4U)) << 16U)
-
-/** Compute Consumer Socket encoding in the DSCR_SYNC field. */
-#define CY_HBDMA_CONS_SOCK_TO_SYNC(sck_id)      \
-    (((sck_id) & 0x0FU) | (((sck_id) & 0xF0U) << 4U))
-
-/** Retrieve producer socket ID from descriptor sync field. */
-#define CY_HBDMA_SYNC_TO_PROD_SOCK(sync)        \
-    (cy_hbdma_socket_id_t)((((sync) >> 16U) & 0x0FU) | (((sync) >> 20U) & 0xF0U))
-
-/** Retrieve consumer socket ID from descriptor sync field. */
-#define CY_HBDMA_SYNC_TO_CONS_SOCK(sync)        \
-    (cy_hbdma_socket_id_t)(((sync) & 0x0FU) | (((sync) >> 4U) & 0xF0U))
-
-/** Get next WR descriptor index from descriptor chain field. */
-#define CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(chain)    \
-    (uint16_t)(((chain) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Msk) >> \
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Pos)
-
-/** Get next RD descriptor index from descriptor chain field. */
-#define CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(chain)    \
-    (uint16_t)(((chain) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_RD_NEXT_DSCR_Msk) >> \
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_RD_NEXT_DSCR_Pos)
-
-/** Get the socket current state from the status register. */
-#define CY_HBDMA_STATUS_TO_SOCK_STATE(status)   \
-    (((status) & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_STATE_Msk) >> LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_STATE_Pos)
-
-/** Get DMA buffer address from descriptor buffer register. */
-#define CY_HBDMA_GET_BUFFER_ADDRESS(dscrBuffer) \
-    ((uint8_t *)((uint32_t)(dscrBuffer) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_BUFFER_ADDR_Msk))
-
-/** Check whether marker bit is set on descriptor. */
-#define CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrBuffer)       \
-    ((((uint32_t)(dscrBuffer)) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_MARKER_Msk) != 0)
-
-/** Update the marker bit in descriptor buffer pointer. */
-#define CY_HBDMA_MARK_DSCR_BUFFER(dscrBuffer)   \
-    ((uint8_t *)((uint32_t)(dscrBuffer) | LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_BUFFER_MARKER_Msk))
-
-/** Get DMA buffer size field from the descriptor. */
-#define CY_HBDMA_DSCR_GET_BUFSIZE(en_64k, dscrSize)                                             \
-    (                                                                                           \
-     ((en_64k) != 0) ?                                                                          \
-        (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) << 1U) :          \
-        ((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk)                    \
-    )
-
-/** Get byte count field from the descriptor. */
-#define CY_HBDMA_DSCR_GET_BYTECNT(en_64k, dscrSize)                                             \
-    (                                                                                           \
-     ((en_64k) != 0) ?                                                                          \
-        ((((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) >>                \
-                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) |                 \
-         (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_MSB_Msk) << 16U)       \
-        ) :                                                                                     \
-        (((dscrSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) >>                 \
-                       LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos)                    \
-    )
-
-/** Set the DMA buffer size field in the descriptor. */
-#define CY_HBDMA_DSCR_SET_BUFSIZE(en_64k, dscrSize, bufSize)                                    \
-    (                                                                                           \
-     ((en_64k) != 0) ?                                                                          \
-        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) |                \
-         (((bufSize) >> 1U) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk)            \
-        ) :                                                                                     \
-        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk) |                \
-         ((bufSize) & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk))                   \
-    )
-
-/** Update DMA buffer size by rounding up the byte count value. */
-#define CY_HBDMA_DSCR_SET_SIZE_BY_COUNT(en_64k, dscrSize, byteCnt)                              \
-    (                                                                                           \
-     ((en_64k) != 0) ?                                                                          \
-        (CY_HBDMA_DSCR_SET_BUFSIZE((en_64k), (dscrSize), ((byteCnt) + 0x1FU))) :                \
-        (CY_HBDMA_DSCR_SET_BUFSIZE((en_64k), (dscrSize), ((byteCnt) + 0x0FU)))                  \
-    )
-
-/** Set the byte count field in the descriptor. */
-#define CY_HBDMA_DSCR_SET_BYTECNT(en_64k, dscrSize, byteCnt)                                    \
-    (                                                                                           \
-     ((en_64k) != 0) ?                                                                          \
-        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
-         (((byteCnt) << LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) &                 \
-                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
-         ((byteCnt) >> 16U)) :                                                                  \
-        (((dscrSize) & ~LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk) |                 \
-         (((byteCnt) << LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Pos) &                 \
-                        LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BYTE_COUNT_Msk))                  \
-    )
-
 /** \} group_usbfxstack_hb_dma_functions */
-
-/*******************************************************************************
-*                       In-line Function Implementation
-*******************************************************************************/
 
 #if defined(__cplusplus)
 }

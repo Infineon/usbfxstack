@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -53,39 +53,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/** \} group_usbfxstack_usb_common_macros */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_enums
- * \{
- */
-
-/**
- * @typedef cy_en_usb_std_dscr_type_t
- * @brief Standard descriptor types defined by USB specification.
- */
-typedef enum {
-    CY_USB_DSCR_TYPE_DEVICE = 0x01u,                    /**< 0x01: Device descriptor. */
-    CY_USB_DSCR_TYPE_CFG,                               /**< 0x02: Configuration descriptor. */
-    CY_USB_DSCR_TYPE_STR,                               /**< 0x03: String descriptor. */
-    CY_USB_DSCR_TYPE_INTF,                              /**< 0x04: Interface descriptor. */
-    CY_USB_DSCR_TYPE_ENDP,                              /**< 0x05: Endpoint descriptor. */
-    CY_USB_DSCR_TYPE_DEVICE_QUALIFIER,                  /**< 0x06: Device qualifier descriptor. */
-
-    CY_USB_DSCR_TYPE_INTF_ASSOC = 0x0Bu,                /**< 0x0B: Interface association descriptor. */
-    CY_USB_DSCR_TYPE_BOS = 0x0Fu,                       /**< 0x0F: BOS descriptor. */
-    CY_USB_DSCR_TYPE_DEVICE_CAP = 0x10u,                /**< 0x10: Device capability descriptor. */
-    CY_USB_DSCR_TYPE_SS_ENDP_COMP = 0x30u,              /**< 0x30: SS endpoint companion descriptor. */
-    CY_USB_DSCR_TYPE_SSP_ISO_ENDP_COMP = 0x31u          /**< 0x31: SSP isochronous EP companion descriptor. */
-} cy_en_usb_std_dscr_type_t;
-
-/** \} group_usbfxstack_usb_common_enums */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_macros
- * \{
- */
 
 /** Offset of descriptor length field in any USB descriptor. */
 #define CY_USB_DSCR_OFFSET_LEN               (0x00)
@@ -266,13 +233,13 @@ typedef enum {
 #endif /* DOXYGEN */
 
 /** Depth of message queue used by USBD stack to get messages from USBHS/USBSS CAL drivers. */
-#define CY_USB_USBD_MSG_QUEUE_SIZE 32
+#define CY_USB_USBD_MSG_QUEUE_SIZE              (32)
 
 /** Size of each message in the USBD message queue. */
-#define CY_USB_USBD_MSG_SIZE (sizeof(cy_stc_usb_cal_msg_t))
+#define CY_USB_USBD_MSG_SIZE                    (sizeof(cy_stc_usb_cal_msg_t))
 
 /** Maximum number of interfaces supported in the configuration. */
-#define CY_USB_MAX_INTF 17
+#define CY_USB_MAX_INTF                         (17)
 
 /** Stack size reserved for USBD task in 32-bit words. Budgeting extra space to cover for callbacks. */
 #define CY_USBD_TASK_STACK_DEPTH                (512)
@@ -280,39 +247,135 @@ typedef enum {
 /** USBD task priority level. */
 #define CY_USBD_TASK_PRIORITY                   (10)
 
+#ifndef DOXYGEN
+#if (!EP0_DATAWIRE_EN)
+
+/* Map USBD DMA types and function names to DMAC types and functions. */
+typedef cy_stc_dmac_descriptor_t cy_stc_usbd_dma_descr_t;
+typedef cy_stc_dmac_descriptor_config_t cy_stc_usbd_dma_descr_conf_t;
+typedef cy_stc_dmac_channel_config_t cy_stc_usbd_dma_chn_conf_t;
+
+#define CY_USBD_DMA_CHN_DISABLED CY_DMAC_CHANNEL_DISABLED
+#define CY_USBD_DMA_CHN_ENABLED CY_DMAC_CHANNEL_ENABLED
+#define CY_USBD_DMA_RETRIG_IM CY_DMAC_RETRIG_IM
+#define CY_USBD_DMA_WAIT_FOR_REACT CY_DMAC_WAIT_FOR_REACT
+#define CY_USBD_DMA_DESCR_CHAIN CY_DMAC_DESCR_CHAIN
+#define CY_USBD_DMA_X_LOOP CY_DMAC_X_LOOP
+#define CY_USBD_DMA_BYTE CY_DMAC_BYTE
+#define CY_USBD_DMA_WORD CY_DMAC_WORD
+#define CY_USBD_DMA_XFER_SIZE_DATA CY_DMAC_TRANSFER_SIZE_DATA
+#define CY_USBD_DMA_1D_XFER CY_DMAC_1D_TRANSFER
+#define CY_USBD_DMA_2D_XFER CY_DMAC_2D_TRANSFER
+
+#define Cy_USBD_DMADesc_SetSrcAddress Cy_DMAC_Descriptor_SetSrcAddress
+#define Cy_USBD_DMADesc_SetDstAddress Cy_DMAC_Descriptor_SetDstAddress
+#define Cy_USBD_DMADesc_SetXloopDataCount Cy_DMAC_Descriptor_SetXloopDataCount
+#define Cy_USBD_DMADesc_SetYloopDataCount Cy_DMAC_Descriptor_SetYloopDataCount
+#define Cy_USBD_DMADesc_SetYloopSrcIncrement Cy_DMAC_Descriptor_SetYloopSrcIncrement
+#define Cy_USBD_DMADesc_SetYloopDstIncrement Cy_DMAC_Descriptor_SetYloopDstIncrement
+#define Cy_USBD_DMADesc_SetNextDescriptor Cy_DMAC_Descriptor_SetNextDescriptor
+#define Cy_USBD_DMADesc_SetChannelState Cy_DMAC_Descriptor_SetChannelState
+#define Cy_USBD_DMADesc_Init Cy_DMAC_Descriptor_Init
+#define Cy_USBD_DMAChn_Init Cy_DMAC_Channel_Init
+#define Cy_USBD_DMAChn_SetDesc Cy_DMAC_Channel_SetDescriptor
+#define Cy_USBD_DMAChn_Enable Cy_DMAC_Channel_Enable
+#define Cy_USBD_DMAChn_Disable Cy_DMAC_Channel_Disable
+#define Cy_USBD_DMAChn_IsEnabled Cy_DMAC_Channel_IsEnabled
+#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), CY_DMAC_INTR_MASK)
+#define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), 0)
+#define Cy_USBD_DMAChn_GetIntrStatus Cy_DMAC_Channel_GetInterruptStatus
+#define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMAC_Channel_ClearInterrupt((dmabase), (channel), (value))
+
+#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDmacBase
+#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDmacBase
+
+#define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT16
+#define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
+#define CY_USBD_EGREP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
+#define CY_USBD_EGREP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
+#define CY_USBD_INGEP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT0
+#define CY_USBD_INGEP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN0
+#define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
+#define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
+
+#else
+
+/* Map USBD DMA types and function names to DW types and functions. */
+typedef cy_stc_dma_descriptor_t cy_stc_usbd_dma_descr_t;
+typedef cy_stc_dma_descriptor_config_t cy_stc_usbd_dma_descr_conf_t;
+typedef cy_stc_dma_channel_config_t cy_stc_usbd_dma_chn_conf_t;
+
+#define CY_USBD_DMA_CHN_DISABLED CY_DMA_CHANNEL_DISABLED
+#define CY_USBD_DMA_CHN_ENABLED CY_DMA_CHANNEL_ENABLED
+#define CY_USBD_DMA_RETRIG_IM CY_DMA_RETRIG_IM
+#define CY_USBD_DMA_WAIT_FOR_REACT CY_DMA_WAIT_FOR_REACT
+#define CY_USBD_DMA_DESCR_CHAIN CY_DMA_DESCR_CHAIN
+#define CY_USBD_DMA_X_LOOP CY_DMA_X_LOOP
+#define CY_USBD_DMA_BYTE CY_DMA_BYTE
+#define CY_USBD_DMA_WORD CY_DMA_WORD
+#define CY_USBD_DMA_XFER_SIZE_DATA CY_DMA_TRANSFER_SIZE_DATA
+#define CY_USBD_DMA_1D_XFER CY_DMA_1D_TRANSFER
+#define CY_USBD_DMA_2D_XFER CY_DMA_2D_TRANSFER
+
+#define Cy_USBD_DMADesc_SetSrcAddress Cy_DMA_Descriptor_SetSrcAddress
+#define Cy_USBD_DMADesc_SetDstAddress Cy_DMA_Descriptor_SetDstAddress
+#define Cy_USBD_DMADesc_SetXloopDataCount Cy_DMA_Descriptor_SetXloopDataCount
+#define Cy_USBD_DMADesc_SetYloopDataCount Cy_DMA_Descriptor_SetYloopDataCount
+#define Cy_USBD_DMADesc_SetYloopSrcIncrement Cy_DMA_Descriptor_SetYloopSrcIncrement
+#define Cy_USBD_DMADesc_SetYloopDstIncrement Cy_DMA_Descriptor_SetYloopDstIncrement
+#define Cy_USBD_DMADesc_SetNextDescriptor Cy_DMA_Descriptor_SetNextDescriptor
+#define Cy_USBD_DMADesc_SetChannelState Cy_DMA_Descriptor_SetChannelState
+#define Cy_USBD_DMADesc_Init Cy_DMA_Descriptor_Init
+#define Cy_USBD_DMAChn_Init Cy_DMA_Channel_Init
+#define Cy_USBD_DMAChn_SetDesc Cy_DMA_Channel_SetDescriptor
+#define Cy_USBD_DMAChn_Enable Cy_DMA_Channel_Enable
+#define Cy_USBD_DMAChn_Disable Cy_DMA_Channel_Disable
+#define Cy_USBD_DMAChn_IsEnabled Cy_DMA_Channel_IsEnabled
+#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), CY_DMA_INTR_MASK)
+#define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), 0)
+#define Cy_USBD_DMAChn_GetIntrStatus Cy_DMA_Channel_GetInterruptStatus
+#define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMA_Channel_ClearInterrupt((dmabase), (channel))
+
+#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDw1Base
+#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDw0Base
+
+#define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_1_USBHSDEV_TR_OUT16
+#define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
+#define CY_USBD_EGREP_DMA_TRIG_BASE     TRIG_OUT_MUX_1_PDMA1_TR_IN0
+#define CY_USBD_EGREP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_PDMA1_TR_OUT0
+#define CY_USBD_INGEP_OUT_TRIG          TRIG_IN_MUX_0_USBHSDEV_TR_OUT0
+#define CY_USBD_INGEP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN0
+#define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_0_PDMA0_TR_IN0
+#define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_PDMA0_TR_OUT0
+
+#endif /* EP0_DATAWIRE_EN */
+#endif /* DOXYGEN */
+
 /** \} group_usbfxstack_usb_common_macros */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_structs
- * \{
- */
-
-typedef struct cy_stc_usb_usbd_ctxt_t cy_stc_usb_usbd_ctxt_t;
-
-/** \} group_usbfxstack_usb_common_structs */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_typedefs
- * \{
-*/
-
-/**
- * USB stack to application callback prototype.
- * A function of this type is used by the USBD stack to notify the application
- * about events of interest.
- */
-typedef void (* cy_usb_usbd_callback_t) (
-        void *pAppCtxt,                         /**< Application context pointer. */
-        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,      /**< USBD stack context pointer. */
-        cy_stc_usb_cal_msg_t *pMsg              /**< Message pointer. */
-        );
-
-/** \} group_usbfxstack_usb_common_typedefs */
 
 /**
  * \addtogroup group_usbfxstack_usb_common_enums
  * \{
  */
+
+/**
+ * @typedef cy_en_usb_std_dscr_type_t
+ * @brief Standard descriptor types defined by USB specification.
+ */
+typedef enum {
+    CY_USB_DSCR_TYPE_DEVICE = 0x01u,                    /**< 0x01: Device descriptor. */
+    CY_USB_DSCR_TYPE_CFG,                               /**< 0x02: Configuration descriptor. */
+    CY_USB_DSCR_TYPE_STR,                               /**< 0x03: String descriptor. */
+    CY_USB_DSCR_TYPE_INTF,                              /**< 0x04: Interface descriptor. */
+    CY_USB_DSCR_TYPE_ENDP,                              /**< 0x05: Endpoint descriptor. */
+    CY_USB_DSCR_TYPE_DEVICE_QUALIFIER,                  /**< 0x06: Device qualifier descriptor. */
+
+    CY_USB_DSCR_TYPE_INTF_ASSOC = 0x0Bu,                /**< 0x0B: Interface association descriptor. */
+    CY_USB_DSCR_TYPE_BOS = 0x0Fu,                       /**< 0x0F: BOS descriptor. */
+    CY_USB_DSCR_TYPE_DEVICE_CAP = 0x10u,                /**< 0x10: Device capability descriptor. */
+    CY_USB_DSCR_TYPE_SS_ENDP_COMP = 0x30u,              /**< 0x30: SS endpoint companion descriptor. */
+    CY_USB_DSCR_TYPE_SSP_ISO_ENDP_COMP = 0x31u          /**< 0x31: SSP isochronous EP companion descriptor. */
+} cy_en_usb_std_dscr_type_t;
 
 /**
  * @typedef cy_en_usb_set_dscr_type_t
@@ -478,7 +541,7 @@ typedef enum {
  * @typedef cy_en_usbd_notification_type_t
  * @brief Types of device notifications applicable to USB3.2 devices. */
 typedef enum {
-    CY_USBD_NOTIF_RESERVED = 0,                 /**< Invalid value. */
+    CY_USBD_NOTIF_RESERVED = 0,         /**< Invalid value. */
     CY_USBD_NOTIF_FUNC_WAKE,            /**< Function wake notification. */
     CY_USBD_NOTIF_LTM,                  /**< Latency tolerance message. */
     CY_USBD_NOTIF_BIAM,                 /**< Bus interval adjustment message. */
@@ -487,6 +550,28 @@ typedef enum {
 }cy_en_usbd_notification_type_t;
 
 /** \} group_usbfxstack_usb_common_enums */
+
+#ifndef DOXYGEN
+typedef struct cy_stc_usb_usbd_ctxt_t cy_stc_usb_usbd_ctxt_t;
+#endif /* DOXYGEN */
+
+/**
+ * \addtogroup group_usbfxstack_usb_common_typedefs
+ * \{
+*/
+
+/**
+ * USB stack to application callback prototype.
+ * A function of this type is used by the USBD stack to notify the application
+ * about events of interest.
+ */
+typedef void (* cy_usb_usbd_callback_t) (
+        void *pAppCtxt,                         /**< Application context pointer. */
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,      /**< USBD stack context pointer. */
+        cy_stc_usb_cal_msg_t *pMsg              /**< Message pointer. */
+        );
+
+/** \} group_usbfxstack_usb_common_typedefs */
 
 /**
  * \addtogroup group_usbfxstack_usb_common_structs
@@ -529,117 +614,6 @@ typedef struct
     uint32_t streamID;                          /**< Active stream number for USB 3.x bulk endpoints. */
     uint16_t retryBufOffset;                    /**< Offset to retry buffer region allocated for the endpoint. */
 }cy_stc_usb_endp_info_t;
-
-/** \} group_usbfxstack_usb_common_structs */
-
-#ifndef DOXYGEN
-#if (!EP0_DATAWIRE_EN)
-
-/* Map USBD DMA types and function names to DMAC types and functions. */
-typedef cy_stc_dmac_descriptor_t cy_stc_usbd_dma_descr_t;
-typedef cy_stc_dmac_descriptor_config_t cy_stc_usbd_dma_descr_conf_t;
-typedef cy_stc_dmac_channel_config_t cy_stc_usbd_dma_chn_conf_t;
-
-#define CY_USBD_DMA_CHN_DISABLED CY_DMAC_CHANNEL_DISABLED
-#define CY_USBD_DMA_CHN_ENABLED CY_DMAC_CHANNEL_ENABLED
-#define CY_USBD_DMA_RETRIG_IM CY_DMAC_RETRIG_IM
-#define CY_USBD_DMA_WAIT_FOR_REACT CY_DMAC_WAIT_FOR_REACT
-#define CY_USBD_DMA_DESCR_CHAIN CY_DMAC_DESCR_CHAIN
-#define CY_USBD_DMA_X_LOOP CY_DMAC_X_LOOP
-#define CY_USBD_DMA_BYTE CY_DMAC_BYTE
-#define CY_USBD_DMA_WORD CY_DMAC_WORD
-#define CY_USBD_DMA_XFER_SIZE_DATA CY_DMAC_TRANSFER_SIZE_DATA
-#define CY_USBD_DMA_1D_XFER CY_DMAC_1D_TRANSFER
-#define CY_USBD_DMA_2D_XFER CY_DMAC_2D_TRANSFER
-
-#define Cy_USBD_DMADesc_SetSrcAddress Cy_DMAC_Descriptor_SetSrcAddress
-#define Cy_USBD_DMADesc_SetDstAddress Cy_DMAC_Descriptor_SetDstAddress
-#define Cy_USBD_DMADesc_SetXloopDataCount Cy_DMAC_Descriptor_SetXloopDataCount
-#define Cy_USBD_DMADesc_SetYloopDataCount Cy_DMAC_Descriptor_SetYloopDataCount
-#define Cy_USBD_DMADesc_SetYloopSrcIncrement Cy_DMAC_Descriptor_SetYloopSrcIncrement
-#define Cy_USBD_DMADesc_SetYloopDstIncrement Cy_DMAC_Descriptor_SetYloopDstIncrement
-#define Cy_USBD_DMADesc_SetNextDescriptor Cy_DMAC_Descriptor_SetNextDescriptor
-#define Cy_USBD_DMADesc_SetChannelState Cy_DMAC_Descriptor_SetChannelState
-#define Cy_USBD_DMADesc_Init Cy_DMAC_Descriptor_Init
-#define Cy_USBD_DMAChn_Init Cy_DMAC_Channel_Init
-#define Cy_USBD_DMAChn_SetDesc Cy_DMAC_Channel_SetDescriptor
-#define Cy_USBD_DMAChn_Enable Cy_DMAC_Channel_Enable
-#define Cy_USBD_DMAChn_Disable Cy_DMAC_Channel_Disable
-#define Cy_USBD_DMAChn_IsEnabled Cy_DMAC_Channel_IsEnabled
-#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), CY_DMAC_INTR_MASK)
-#define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), 0)
-#define Cy_USBD_DMAChn_GetIntrStatus Cy_DMAC_Channel_GetInterruptStatus
-#define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMAC_Channel_ClearInterrupt((dmabase), (channel), (value))
-
-#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDmacBase
-#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDmacBase
-
-#define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT16
-#define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
-#define CY_USBD_EGREP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
-#define CY_USBD_EGREP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
-#define CY_USBD_INGEP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT0
-#define CY_USBD_INGEP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN0
-#define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
-#define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
-
-#else
-
-/* Map USBD DMA types and function names to DW types and functions. */
-typedef cy_stc_dma_descriptor_t cy_stc_usbd_dma_descr_t;
-typedef cy_stc_dma_descriptor_config_t cy_stc_usbd_dma_descr_conf_t;
-typedef cy_stc_dma_channel_config_t cy_stc_usbd_dma_chn_conf_t;
-
-#define CY_USBD_DMA_CHN_DISABLED CY_DMA_CHANNEL_DISABLED
-#define CY_USBD_DMA_CHN_ENABLED CY_DMA_CHANNEL_ENABLED
-#define CY_USBD_DMA_RETRIG_IM CY_DMA_RETRIG_IM
-#define CY_USBD_DMA_WAIT_FOR_REACT CY_DMA_WAIT_FOR_REACT
-#define CY_USBD_DMA_DESCR_CHAIN CY_DMA_DESCR_CHAIN
-#define CY_USBD_DMA_X_LOOP CY_DMA_X_LOOP
-#define CY_USBD_DMA_BYTE CY_DMA_BYTE
-#define CY_USBD_DMA_WORD CY_DMA_WORD
-#define CY_USBD_DMA_XFER_SIZE_DATA CY_DMA_TRANSFER_SIZE_DATA
-#define CY_USBD_DMA_1D_XFER CY_DMA_1D_TRANSFER
-#define CY_USBD_DMA_2D_XFER CY_DMA_2D_TRANSFER
-
-#define Cy_USBD_DMADesc_SetSrcAddress Cy_DMA_Descriptor_SetSrcAddress
-#define Cy_USBD_DMADesc_SetDstAddress Cy_DMA_Descriptor_SetDstAddress
-#define Cy_USBD_DMADesc_SetXloopDataCount Cy_DMA_Descriptor_SetXloopDataCount
-#define Cy_USBD_DMADesc_SetYloopDataCount Cy_DMA_Descriptor_SetYloopDataCount
-#define Cy_USBD_DMADesc_SetYloopSrcIncrement Cy_DMA_Descriptor_SetYloopSrcIncrement
-#define Cy_USBD_DMADesc_SetYloopDstIncrement Cy_DMA_Descriptor_SetYloopDstIncrement
-#define Cy_USBD_DMADesc_SetNextDescriptor Cy_DMA_Descriptor_SetNextDescriptor
-#define Cy_USBD_DMADesc_SetChannelState Cy_DMA_Descriptor_SetChannelState
-#define Cy_USBD_DMADesc_Init Cy_DMA_Descriptor_Init
-#define Cy_USBD_DMAChn_Init Cy_DMA_Channel_Init
-#define Cy_USBD_DMAChn_SetDesc Cy_DMA_Channel_SetDescriptor
-#define Cy_USBD_DMAChn_Enable Cy_DMA_Channel_Enable
-#define Cy_USBD_DMAChn_Disable Cy_DMA_Channel_Disable
-#define Cy_USBD_DMAChn_IsEnabled Cy_DMA_Channel_IsEnabled
-#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), CY_DMA_INTR_MASK)
-#define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), 0)
-#define Cy_USBD_DMAChn_GetIntrStatus Cy_DMA_Channel_GetInterruptStatus
-#define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMA_Channel_ClearInterrupt((dmabase), (channel))
-
-#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDw1Base
-#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDw0Base
-
-#define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_1_USBHSDEV_TR_OUT16
-#define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
-#define CY_USBD_EGREP_DMA_TRIG_BASE     TRIG_OUT_MUX_1_PDMA1_TR_IN0
-#define CY_USBD_EGREP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_PDMA1_TR_OUT0
-#define CY_USBD_INGEP_OUT_TRIG          TRIG_IN_MUX_0_USBHSDEV_TR_OUT0
-#define CY_USBD_INGEP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN0
-#define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_0_PDMA0_TR_IN0
-#define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_PDMA0_TR_OUT0
-
-#endif /* EP0_DATAWIRE_EN */
-#endif /* DOXYGEN */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_structs
- * \{
- */
 
 /**
  * @brief Structure containing all information managed by the USBD device stack.
@@ -711,6 +685,7 @@ struct cy_stc_usb_usbd_ctxt_t
     cy_usb_usbd_callback_t DisconnectCb;                /**< USB disconnect callback function. */
     cy_usb_usbd_callback_t setAddrCb;                   /**< SetAddress callback function. */
     cy_usb_usbd_callback_t ep0RecvCb;                   /**< Callback for EP0 OUT transfer completion. */
+    cy_usb_usbd_callback_t debugSlpCb;                  /**< USB 2.x SLP transfer callback function. */
 
     DMAC_Type *pCpuDmacBase;                            /**< Pointer to DMAC register structure. */
 
@@ -724,6 +699,7 @@ struct cy_stc_usb_usbd_ctxt_t
     TimerHandle_t usbdTimerHandle;                      /**< Timer instance used by the stack. */
     TimerHandle_t usb3ConnectTimer;                     /**< Timer instance used to enable USB3 connection. */
     bool usb3ConnectTimerStarted;                       /**< Whether usb3ConnectTimer has been started. */
+    bool lpbkStateTimerStarted;                         /**< Whether loopback state timer is running. */
 #else
     uint32_t nextTaskTick;                              /**< The time tick at which next USBD task should be run. */
 #endif /* FREERTOS_ENABLE */
@@ -749,7 +725,9 @@ struct cy_stc_usb_usbd_ctxt_t
     uint8_t *pEp0ReceiveBuffer;                         /**< Buffer into which EP0 OUT data should be received. */
     uint16_t ep0ExpRcvSize;                             /**< Size of expected transfer on EP0-OUT. */
 
-    bool enableExtClk;                                  /**< Use external clock as USB2 PLL Reference. */
+    uint8_t debugOutEp;                                 /**< Debug OUT Endpoint Number*/
+    bool ssOnBusResetDisable;                           /**< Whether SS connect on USB 2.x Bus Reset is disabled. */
+    bool underrunWarningDone;                           /**< Whether underrun warning has been issued. */
 };
 
 /** \} group_usbfxstack_usb_common_structs */
@@ -808,6 +786,37 @@ cy_en_usbd_ret_code_t Cy_USB_USBD_Init(void *pAppCtxt,
                                        cy_stc_usbss_cal_ctxt_t *pSsCalCtxt,
                                        cy_stc_hbdma_mgr_context_t *pHbDmaMgrCtxt);
 
+
+/*******************************************************************************
+* Function name: Cy_USBD_DebugRegisterCallback
+****************************************************************************//**
+*
+*  This API will be used by CDC (Debug) interface to register required callback
+*
+* \param pUsbdCtxt
+* USBD Context
+*
+* \param debugOutEp
+* CDC (Debug) OUT endpoint number.
+*
+* \param callBackType
+* USBD callback type
+*
+* \param callBackFunc
+* Registered callback function
+*
+* \return
+* CY_USBD_STATUS_SUCCESS if the operation is successful.
+* CY_USBD_STATUS_CTXT_NULL if usbd context is NULL.
+* CY_USBD_STATUS_BAD_PARAM if ednpoint number is out of range
+* CY_USBD_STATUS_INVALID_CALLBACK_TYPE if callback type not supported.
+*
+*******************************************************************************/
+cy_en_usbd_ret_code_t
+Cy_USBD_DebugRegisterCallback (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                            uint8_t debugOutEp,
+                          cy_en_usb_usbd_cb_t callBackType,
+                          cy_usb_usbd_callback_t callBackFunc);
 
 
 /*******************************************************************************
@@ -3460,7 +3469,7 @@ void Cy_USBD_ResetTimerTick(void);
 *
 * \param pUsbdCtxt
 * USB stack context pointer.
-* 
+*
 *******************************************************************************/
 void Cy_USBD_EP0OutDma_IntrHandler(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
 
@@ -3500,6 +3509,39 @@ cy_en_usbd_ret_code_t Cy_USBD_SetDmaClkFreq(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 *******************************************************************************/
 void
 Cy_USBD_DisableLPMDeviceExit(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, bool devExitDisable);
+
+/*******************************************************************************
+* Function Name: Cy_USBD_DisableSSOnBusReset
+****************************************************************************//**
+*
+* Function which disables the USB 3.x reconnection when USB 2.x Bus Reset
+* is received. This function is only provided for testing of link robustness
+* and not expected to be used in an application.
+*
+* \param pUsbdCtxt
+* USB Stack context structure.
+*******************************************************************************/
+void Cy_USBD_DisableSSOnBusReset(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
+
+/*******************************************************************************
+* Function Name: Cy_USBD_SelectConfigLane
+****************************************************************************//**
+*
+* Function to select the USB 3.x Configuration Lane. This API can be used in cases
+* where the USB connection orientation is being detected externally instead of
+* through CC1/CC2 voltage measurement by the controller itself.
+*
+* \param pUsbdCtxt
+* USB Stack context structure.
+* \param laneSel
+* Desired configuration lane selection.
+*
+* \return
+* Whether the orientation selection has been registered successfully.
+*******************************************************************************/
+cy_en_usbd_ret_code_t Cy_USBD_SelectConfigLane(
+                                               cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                                               cy_en_usb_config_lane_t laneSel);
 
 /** \} group_usbfxstack_usb_common_functions */
 

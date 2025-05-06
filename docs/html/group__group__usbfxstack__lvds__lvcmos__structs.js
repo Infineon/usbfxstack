@@ -44,7 +44,8 @@ var group__group__usbfxstack__lvds__lvcmos__structs =
       [ "lvcmosClkMode", "group__group__usbfxstack__lvds__lvcmos__structs.html#a1541b9aa216a6945ed95aeb2fe920ed3", null ],
       [ "lvcmosMasterClkSrc", "group__group__usbfxstack__lvds__lvcmos__structs.html#ad89d52a8cc07451efbfbeaaa780ba081", null ],
       [ "interfaceClock", "group__group__usbfxstack__lvds__lvcmos__structs.html#a439e7ae7c43cce71e371f1e0c9546805", null ],
-      [ "slaveFifoMode", "group__group__usbfxstack__lvds__lvcmos__structs.html#acb24c34f0dcbbd438e8c1d62526fe079", null ]
+      [ "slaveFifoMode", "group__group__usbfxstack__lvds__lvcmos__structs.html#acb24c34f0dcbbd438e8c1d62526fe079", null ],
+      [ "interfaceClock_kHz", "group__group__usbfxstack__lvds__lvcmos__structs.html#a2252f49826c6a53f1add772315fad997", null ]
     ] ],
     [ "cy_stc_lvds_config_t", "group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__config__t", [
       [ "phyConfig", "group__group__usbfxstack__lvds__lvcmos__structs.html#ac8f766175959f9b4b509320642f39b0f", null ],
@@ -65,6 +66,7 @@ var group__group__usbfxstack__lvds__lvcmos__structs =
       [ "phyConfigP0", "group__group__usbfxstack__lvds__lvcmos__structs.html#a33c1ab996aa5cde4945e98f8887b153b", null ],
       [ "gpifConfigP0", "group__group__usbfxstack__lvds__lvcmos__structs.html#a0b210424c2cb8403062ef55781ee6f97", null ],
       [ "phyConfigP1", "group__group__usbfxstack__lvds__lvcmos__structs.html#a8cdd78fd4f1ff530f18ae63977ae63a8", null ],
-      [ "gpifConfigP1", "group__group__usbfxstack__lvds__lvcmos__structs.html#a7bbc3b3313c9b0024b30d88c3a911b3f", null ]
+      [ "gpifConfigP1", "group__group__usbfxstack__lvds__lvcmos__structs.html#a7bbc3b3313c9b0024b30d88c3a911b3f", null ],
+      [ "interfaceClock_kHz", "group__group__usbfxstack__lvds__lvcmos__structs.html#a3361862caf19cd48e304424338913da7", null ]
     ] ]
 ];

@@ -40,5 +40,6 @@ var group__group__usbfxstack__lvds__lvcmos__macros =
     [ "CY_LVDS_MD_PAYLOAD_COUNTER_DW1_L", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga23a083c54948f4c453a5bc6242f63b90", null ],
     [ "CY_LVDS_MD_PAYLOAD_COUNTER_DW1_H", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga863d0e700caeb317d88f59205fc5e1a5", null ],
     [ "LVDSSS_LVDS_LINK_CONFIG_TWO_BIT_SLV_FF_A0_Pos", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga3ec442628907fed5df6876cd768dcc0c", null ],
-    [ "LVDSSS_LVDS_LINK_CONFIG_TWO_BIT_SLV_FF_A0_Msk", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga62a34f0df269fa18b366bcb606e32ebd", null ]
+    [ "LVDSSS_LVDS_LINK_CONFIG_TWO_BIT_SLV_FF_A0_Msk", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga62a34f0df269fa18b366bcb606e32ebd", null ],
+    [ "MAX_LVDS_LANE_DATA_BIT_RATE", "group__group__usbfxstack__lvds__lvcmos__macros.html#ga1287508aeff085d5879d258d3b859932", null ]
 ];

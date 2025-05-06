@@ -1,8 +1,12 @@
 var group__group__usbfxstack__lvds__lvcmos__functions =
 [
     [ "Cy_LVDS_Init", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga61948472300f47cafbe3dff11508da0b", null ],
+    [ "Cy_LVDS_Init_Ext", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga11b775cacd8de1c21c5fc7ffd2ce679e", null ],
+    [ "Cy_LVDS_Deinit", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaba9f2d1e761c8b83756533d14f721378", null ],
     [ "Cy_LVDS_PhyInit", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga4ff427a3d13e95d26b8cee4c1091a9cd", null ],
+    [ "Cy_LVDS_PhyDeinit", "group__group__usbfxstack__lvds__lvcmos__functions.html#gacf654a970d0b93fa6aca0e91d932f394", null ],
     [ "Cy_LVDS_PhyTrainingStart", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c", null ],
+    [ "Cy_LVDS_GetLinkTrainingStatus", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga2dbc77d8d41002f304336a7340522602", null ],
     [ "Cy_LVDS_PhyGpioModeEnable", "group__group__usbfxstack__lvds__lvcmos__functions.html#gae33a2adecc4eefc64a7544b39d43a543", null ],
     [ "Cy_LVDS_PhyGpioModeDisable", "group__group__usbfxstack__lvds__lvcmos__functions.html#gad2d16c0b31fbd1b2b9fdb585077d57ff", null ],
     [ "Cy_LVDS_GpifEnableComp", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga76945fc28bfa4f3e019359e5e34725c3", null ],
@@ -48,7 +52,7 @@ var group__group__usbfxstack__lvds__lvcmos__functions =
     [ "Cy_LVDS_GpifSetInterruptMask", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga4a9faf9e90977ac9f3d1fb8b22f18335", null ],
     [ "Cy_LVDS_GpifGetInterruptStatusMasked", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga7f13789badb67edecbb79226d7929d0f", null ],
     [ "Cy_LVDS_GpifGetInterruptStatus", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga488a658df8ce6841c88a15fe7c683366", null ],
-    [ "Cy_LVDS_GpifConfigClock", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga90c4871ef216b5ac6a7622c8901c2aa8", null ],
+    [ "Cy_LVDS_GpifConfigClock", "group__group__usbfxstack__lvds__lvcmos__functions.html#gabec37fc2929b54f13594807743560a82", null ],
     [ "Cy_LVDS_ThreadIntlvEnable", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fe9d6826c38bbad1e5cc2463ffa2265", null ],
     [ "Cy_LVDS_GpifSetEndianness", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaff9c39e99e71b5c29196a73e331d1ad3", null ],
     [ "Cy_LVDS_GpifGetStatus", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga82809f967e3cdeac387bba691610deb2", null ],

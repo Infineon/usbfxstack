@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -61,8 +61,13 @@ extern "C" {
 #define NULL 0
 #endif /* NULL */
 
+#ifndef FALSE
 #define FALSE 0
+#endif
+
+#ifndef TRUE
 #define TRUE 1
+#endif
 
 #define CY_USBHS_EGR_EPM_BASE_ADDR  0x30000000UL
 #define CY_USBHS_ING_EPM_BASE_ADDR  0x30004000UL
@@ -163,6 +168,15 @@ extern "C" {
 #define CY_USB_BUILD_4B_WORD(byte3,byte2,byte1,byte0) \
              (uint32_t)((((byte3) << 24) | ((byte2) << 16) | \
                          ((byte1) << 8) | (byte0)))
+
+/** Field mask that indicates a 32-bit debug value in the event log buffer. */
+#define CY_EVT_LOG_DBG_MSG              (0x80000000UL)
+
+/** Add a 32-bit debug value to the event log buffer. */
+#define CY_LOG_VALUE(logmsg)            (Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_EVT_LOG_DBG_MSG | (logmsg)))
+
+/** Add an 8-bit event code along with timestamp to the event log buffer. */
+#define CY_LOG_EVENT(event)             (Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, event))
 
 /** \} group_usbfxstack_usb_common_macros */
 
@@ -271,6 +285,7 @@ typedef enum {
     CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE,             /**< Handle Gen2 link training failure. */
     CY_USB_CAL_MSG_EP0_RCV_DONE,                        /**< EP0-OUT receive complete. */
     CY_USBSS_CAL_MSG_PORT_CONFIGURED,                   /**< Port Configuration LMP handshake completed. */
+    CY_USBSS_CAL_MSG_LPBK_FORCED,                       /**< Link has been forced into Loopback state. */
     CY_USB_CAL_MSG_MAX                                  /**< Invalid message. */
 }cy_en_usb_cal_msg_type_t;
 
@@ -381,7 +396,7 @@ typedef enum {
     CY_USBD_DATA_RATE_GEN1X2,             /**< 0x84: Data rate changed to Gen1x2 (9Gbps) */
     CY_USBD_DATA_RATE_GEN2X1,             /**< 0x85: Data rate changed to Gen2x1 (10Gbps) */
     CY_USBD_DATA_RATE_GEN2X2,             /**< 0x86: Data rate changed to Gen2x2 (20Gbps) */
-   
+
     CY_USB_UVC_EVT_SET_CFG  = 0x90,       /**< 0x90: UVC application SET_CONFIG request. */
     CY_USB_UVC_EVT_SET_INTF,              /**< 0x91: UVC application SET_INTERFACE request. */
     CY_USB_UVC_EVT_VSTREAM_START,         /**< 0x92: UVC video streaming start request. */
@@ -410,26 +425,59 @@ typedef enum {
     CY_LNK_EVENT_CDR_RST_DECODE_ERR,      /**< 0xF7: Decode error reported by PHY for config lane. */
     CY_LNK_EVENT_CDR_RST_DECODE_ERR_PHY_1,/**< 0xF8: Decode error reported by PHY for non-config lane. */
     CY_LNK_EVENT_SS_DISABLED_ENTRY,       /**< 0xF9: SS.Disabled state entered. */
-    CY_LNK_EVENT_TRIG_DISCON_EVENT        /**< 0xFA: LTSSM Disconnect interrupt forced by firmware. */
+    CY_LNK_EVENT_TRIG_DISCON_EVENT,       /**< 0xFA: LTSSM Disconnect interrupt forced by firmware. */
+    CY_LNK_EVENT_LANE_POLARITY_INV,       /**< 0xFB: Lane Polarity inverted */
+    CY_LNK_EVENT_LNK_FORCE_U0,            /**< 0xFC: Link forced into U0 state during Ux exit sequence. */
+    CY_LNK_EVENT_UX_EXIT_TS1_TIMEOUT      /**< 0xFD: Transition into Recovery.Config did not happen within expected time. */
 } cy_en_usbss_cal_evt_type_t;
 
-/** \} group_usbfxstack_usb_common_enums */
+/**
+ * @typedef cy_en_usb_speed_t
+ * @brief List of USB connection speeds which can be supported on the device.
+ */
+typedef enum
+{
+    CY_USBD_USB_DEV_NOT_CONNECTED = 0x00,               /**< USB connection is inactive. */
+    CY_USBD_USB_DEV_FS,                                 /**< Full-Speed USB connection. */
+    CY_USBD_USB_DEV_HS,                                 /**< High-Speed USB connection. */
+    CY_USBD_USB_DEV_SS_GEN1,                            /**< USB 3.2 Gen1x1 (5 Gbps) USB connection. */
+    CY_USBD_USB_DEV_SS_GEN1X2,                          /**< USB 3.2 Gen1x2 (10 Gbps) USB connection. */
+    CY_USBD_USB_DEV_SS_GEN2,                            /**< USB 3.2 Gen2x1 (10 Gbps) USB connection. */
+    CY_USBD_USB_DEV_SS_GEN2X2,                          /**< USB 3.2 Gen2x2 (20 Gbps) USB connection. */
+} cy_en_usb_speed_t;
 
 /**
- * \addtogroup group_usbfxstack_usb_common_macros
- * \{
+ * @typedef cy_en_usb_config_lane_t
+ * @brief Options for USB 3.x Configuration Lane Selection.
  */
+typedef enum
+{
+    CY_USB_CFG_LANE_AUTODETECT = 0,     /**< Configuration lane to be detected through CC voltage measurement. */
+    CY_USB_CFG_LANE_0,                  /**< Lane-0 to be used as Configuration lane. */
+    CY_USB_CFG_LANE_1                   /**< Lane-1 to be used as Configuration lane. */
+} cy_en_usb_config_lane_t;
 
-/** Field mask that indicates a 32-bit debug value in the event log buffer. */
-#define CY_EVT_LOG_DBG_MSG              (0x80000000UL)
+/**
+ * @brief List of USB endpoint types.
+ */
+typedef enum {
+    CY_USB_ENDP_TYPE_CTRL=0,                            /**< Control endpoint. */
+    CY_USB_ENDP_TYPE_ISO,                               /**< Isochronous endpoint. */
+    CY_USB_ENDP_TYPE_BULK,                              /**< Bulk endpoint. */
+    CY_USB_ENDP_TYPE_INTR,                              /**< Interrupt endpoint. */
+    CY_USB_ENDP_TYPE_INVALID                            /**< Invalid endpoint type. */
+}cy_en_usb_endp_type_t;
 
-/** Add a 32-bit debug value to the event log buffer. */
-#define CY_LOG_VALUE(logmsg)            (Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_EVT_LOG_DBG_MSG | (logmsg)))
+/**
+ * @brief Defines direction of USB endpoints.
+ */
+typedef enum {
+    CY_USB_ENDP_DIR_OUT=0,                              /**< OUT endpoint: host to device. */
+    CY_USB_ENDP_DIR_IN,                                 /**< IN endpoint: device to host. */
+    CY_USB_ENDP_DIR_INVALID                             /**< Invalid endpoint direction. */
+}cy_en_usb_endp_dir_t;
 
-/** Add an 8-bit event code along with timestamp to the event log buffer. */
-#define CY_LOG_EVENT(event)             (Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, event))
-
-/** \} group_usbfxstack_usb_common_macros */
+/** \} group_usbfxstack_usb_common_enums */
 
 /**
  * \addtogroup group_usbfxstack_usb_common_structs
@@ -464,35 +512,6 @@ typedef struct cy_stc_usbd_app_msg_t {
     uint32_t data[2];                                   /**< Data associated with the message. */
 }cy_stc_usbd_app_msg_t;
 
-/** \} group_usbfxstack_usb_common_structs */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_enums
- * \{
- */
-
-/**
- * @typedef cy_en_usb_speed_t
- * @brief List of USB connection speeds which can be supported on the device.
- */
-typedef enum
-{
-    CY_USBD_USB_DEV_NOT_CONNECTED = 0x00,               /**< USB connection is inactive. */
-    CY_USBD_USB_DEV_FS,                                 /**< Full-Speed USB connection. */
-    CY_USBD_USB_DEV_HS,                                 /**< High-Speed USB connection. */
-    CY_USBD_USB_DEV_SS_GEN1,                            /**< USB 3.2 Gen1x1 (5 Gbps) USB connection. */
-    CY_USBD_USB_DEV_SS_GEN1X2,                          /**< USB 3.2 Gen1x2 (10 Gbps) USB connection. */
-    CY_USBD_USB_DEV_SS_GEN2,                            /**< USB 3.2 Gen2x1 (10 Gbps) USB connection. */
-    CY_USBD_USB_DEV_SS_GEN2X2,                          /**< USB 3.2 Gen2x2 (20 Gbps) USB connection. */
-} cy_en_usb_speed_t;
-
-/** \} group_usbfxstack_usb_common_enums */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_structs
- * \{
- */
-
 /**
  * @brief Fields which are part of the 8 byte data associated with the control request
  * received on endpoint 0.
@@ -504,40 +523,6 @@ typedef struct cy_stc_usb_setup_req_t {
     uint16_t wIndex;                                    /**< wIndex field from the USB specification. */
     uint16_t wLength;                                   /**< wLength field from the USB specification. */
 }cy_stc_usb_setup_req_t;
-
-/** \} group_usbfxstack_usb_common_structs */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_enums
- * \{
- */
-
-/**
- * @brief List of USB endpoint types.
- */
-typedef enum {
-    CY_USB_ENDP_TYPE_CTRL=0,                            /**< Control endpoint. */
-    CY_USB_ENDP_TYPE_ISO,                               /**< Isochronous endpoint. */
-    CY_USB_ENDP_TYPE_BULK,                              /**< Bulk endpoint. */
-    CY_USB_ENDP_TYPE_INTR,                              /**< Interrupt endpoint. */
-    CY_USB_ENDP_TYPE_INVALID                            /**< Invalid endpoint type. */
-}cy_en_usb_endp_type_t;
-
-/**
- * @brief Defines direction of USB endpoints.
- */
-typedef enum {
-    CY_USB_ENDP_DIR_OUT=0,                              /**< OUT endpoint: host to device. */
-    CY_USB_ENDP_DIR_IN,                                 /**< IN endpoint: device to host. */
-    CY_USB_ENDP_DIR_INVALID                             /**< Invalid endpoint direction. */
-}cy_en_usb_endp_dir_t;
-
-/** \} group_usbfxstack_usb_common_enums */
-
-/**
- * \addtogroup group_usbfxstack_usb_common_structs
- * \{
- */
 
 /**
  * @brief Structure which encapsulates all properties of USB endpoints on the

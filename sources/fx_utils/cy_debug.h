@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -213,6 +213,15 @@ extern "C" {
 
 #endif /* DOXYGEN */
 
+/** By default, use SCB0 when logging through UART. */
+#define CY_DEBUG_INTFCE_UART    (CY_DEBUG_INTFCE_UART_SCB0)
+
+/** Number of DMA descriptors used to transfer log data to the destination. */
+#define CY_DEBUG_DMA_DSCR_CNT   (4)
+
+/** MAX Debug Message Size */
+#define MAX_DBG_MSG_SIZE        (1024u)
+
 /** \} group_usbfxstack_fx_utils_macros */
 
 /** 
@@ -239,41 +248,20 @@ typedef enum
     CY_DEBUG_INTFCE_RAM,                        /**< Keeps stored in a circular buffer in RAM */
 } cy_en_debug_interface_t;
 
+/**
+ * @typedef cy_en_debug_status_t
+ * @brief Possible return status values from the low level logging
+ * function.
+ */
+typedef enum
+{
+    CY_DEBUG_STATUS_SUCCESS,                    /**< Logging successful. */
+    CY_DEBUG_STATUS_FAILURE,                    /**< Logging failed. */
+} cy_en_debug_status_t;
+
 /** \} group_usbfxstack_fx_utils_enums */
 
 /** 
- * \addtogroup group_usbfxstack_fx_utils_macros
- * \{
- */
-
-/** By default, use SCB0 when logging through UART. */
-#define CY_DEBUG_INTFCE_UART    (CY_DEBUG_INTFCE_UART_SCB0)
-
-/** Number of DMA descriptors used to transfer log data to the destination. */
-#define CY_DEBUG_DMA_DSCR_CNT   (4)
-
-/** \} group_usbfxstack_fx_utils_macros */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_structs
- * \{
- */
-
-/**
- * @brief Structure used to configure the debug logger module.
- */
-typedef struct
-{
-    uint8_t *pBuffer;                           /**< Pointer to the RAM buffer where log data will be stored. */
-    uint8_t traceLvl;                           /**< Verbosity level below which messages should be logged. */
-    uint16_t bufSize;                           /**< Size of the RAM buffer in bytes. */
-    cy_en_debug_interface_t dbgIntfce;          /**< Identifies the interface through which data is logged. */
-    bool printNow;                              /**< Whether messages should be logged as soon as possible. */
-} cy_stc_debug_config_t;
-
-/** \} group_usbfxstack_fx_utils_structs */
-
-/**
  * \addtogroup group_usbfxstack_fx_utils_typedefs
  * \{
  */
@@ -296,6 +284,25 @@ typedef void (*cy_cb_debug_data_recv_cb_t) (
  */
 
 /**
+ * @brief Structure used to configure the debug logger module.
+ */
+typedef struct
+{
+    uint8_t                 *pBuffer;       /**< Pointer to the RAM buffer where log data will be stored. */
+    uint8_t                  traceLvl;      /**< Verbosity level below which messages should be logged. */
+    uint16_t                 bufSize;       /**< Size of the RAM buffer in bytes. */
+    cy_en_debug_interface_t  dbgIntfce;     /**< Identifies the interface through which data is logged. */
+    bool                     printNow;      /**< Whether messages should be logged as soon as possible. */
+    uint8_t                  recvEnabled;   /**< CDC Data Receive enable */
+    void                    *pCpuDw0Base;   /**< Datawire 0 Base address */
+    void                    *pCpuDw1Base;   /**< Datawire 1 Base address */
+    uint8_t                  cdcEpIn;       /**< CDC IN endpoint number */
+    uint8_t                  cdcEpOut;      /**< CDC OUT endpoint number */
+    uint8_t                  bufCount;      /**< CDC Channel Buffer count */
+    void                    *pUsbCtxt;      /**< USBD context */
+} cy_stc_debug_config_t;
+
+/**
  * @brief Structure containing the information relating to read operation queued
  * on USBFS CDC device.
  */
@@ -314,42 +321,25 @@ typedef struct cy_stc_debug_recv_context_
  */
 typedef struct cy_stc_debug_context_
 {
-    uint8_t                 *pMsg;              /**< Pointer to the RAM based temporary log buffer. */
-    uint16_t                 bufSize;           /**< Size of the RAM based log buffer. */
-    uint16_t                 rdPtr;             /**< Index from which the read data should next be taken out. */
-    uint16_t                 wrPtr;             /**< Index at which new log data should be added. */
-    cy_en_debug_interface_t  intfc;             /**< Identifies the interface through which data is logged. */
-    uint8_t                  dbgLevel;          /**< Verbosity level below which messages should be logged. */
-    bool                     printNow;          /**< Whether immediate output of data is required. */
-
-    uint8_t                  maxDmaSize;        /**< Maximum size of DMA data transfer. */
-    bool                     inProgress;        /**< Whether printing of messages is already in progress. */
-    void                    *pDbgScb;           /**< Identifies SCB block used for data logging. */
-    uint32_t                 dbgDmaDscr[CY_DEBUG_DMA_DSCR_CNT][8];
-                                                /**< DMAC descriptors used to send data to SCB. */
-
-    cy_stc_debug_recv_context_t dbgRcvInfo;     /**< Current debug read status. */
+    uint8_t                    debugInit;                               /**< Debug Initialized. */
+    uint8_t                    startCdcPrint;                           /**< Start CDC Print. */
+    uint8_t                    curMsg[MAX_DBG_MSG_SIZE];                /**< Buffer to hold debug message  */
+    uint8_t                    *pMsg;                                   /**< Pointer to the RAM based temporary log buffer. */
+    uint16_t                    bufSize;                                /**< Size of the RAM based log buffer. */
+    uint16_t                    rdPtr;                                  /**< Index from which the read data should next be taken out. */
+    uint16_t                    wrPtr;                                  /**< Index at which new log data should be added. */
+    uint16_t                    maxDmaSize;                             /**< Maximum size of DMA data transfer. */
+    cy_en_debug_interface_t     intfc;                                  /**< Identifies the interface through which data is logged. */
+    uint8_t                     dbgLevel;                               /**< Verbosity level below which messages should be logged. */
+    bool                        printNow;                               /**< Whether immediate output of data is required. */
+    bool                        inProgress;                             /**< Whether printing of messages is already in progress. */
+    void                        *pDbgScb;                               /**< Identifies SCB block used for data logging. */
+    uint32_t                    dbgDmaDscr[CY_DEBUG_DMA_DSCR_CNT][8];   /**< DMAC descriptors used to send data to SCB. */       
+    cy_stc_debug_recv_context_t dbgRcvInfo;                             /**< Current debug read status. */
+    void                        *usbCdcInfo;                            /**< CDC Context. */
 } cy_stc_debug_context_t;
 
 /** \} group_usbfxstack_fx_utils_structs */
-
-/**
- * \addtogroup group_usbfxstack_fx_utils_enums
- * \{
- */
-
-/**
- * @typedef cy_en_debug_status_t
- * @brief Possible return status values from the low level logging
- * function.
- */
-typedef enum
-{
-    CY_DEBUG_STATUS_SUCCESS,                    /**< Logging successful. */
-    CY_DEBUG_STATUS_FAILURE,                    /**< Logging failed. */
-} cy_en_debug_status_t;
-
-/** \} group_usbfxstack_fx_utils_enums */
 
 /**
  * \addtogroup group_usbfxstack_fx_utils_functions
@@ -379,6 +369,18 @@ void InitUart(uint8_t scbIndex);
  *
  *******************************************************************************/
 void Cy_Debug_LogInit(cy_stc_debug_config_t *pDbgCfg);
+
+/*******************************************************************************
+ * Function name: Cy_Debug_LogDeInit
+ ****************************************************************************//**
+ *
+ * The API deinitializes the debug logger module.
+ *
+ *  \return cy_en_debug_status_t
+ *
+ *******************************************************************************/
+cy_en_debug_status_t Cy_Debug_LogDeInit(void);
+
 
 /*******************************************************************************
  * Function name: Cy_Debug_AddToLog
@@ -474,8 +476,36 @@ bool Cy_Debug_QueueDataRead(uint8_t *pReadBuffer, uint16_t dataLength,
  *******************************************************************************/
 void Cy_Debug_HandleReadIntr(void);
 
-/** \} group_usbfxstack_fx_utils_functions */
+/*******************************************************************************
+ * Function name: Cy_USB_CdcEpInDmaISR
+ ****************************************************************************//**
+ *
+ * CDC IN Endpoint DMA ISR
+ *
+ *******************************************************************************/
+void Cy_USB_CdcEpInDmaISR (void);
 
+/*******************************************************************************
+ * Function name: Cy_USB_CdcEpOutDmaISR
+ ****************************************************************************//**
+ *
+ * CDC OUT Endpoint DMA ISR
+ *
+ *******************************************************************************/
+void Cy_USB_CdcEpOutDmaISR (void);
+
+/*******************************************************************************
+ * Function name: Cy_Debug_CdcPrintNow
+ ****************************************************************************//**
+ *
+ * Enable Debug logs over CDC interface
+ * \param startPrint
+ * Enable the CDC prints.
+ *
+ *******************************************************************************/
+void Cy_Debug_CdcPrintNow(bool startPrint);
+
+/** \} group_usbfxstack_fx_utils_functions */
 
 #if defined(__cplusplus)
 }
