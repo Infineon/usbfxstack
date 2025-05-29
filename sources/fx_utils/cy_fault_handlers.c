@@ -25,7 +25,7 @@
 *******************************************************************************/
 
 #include "cy_syslib.h"
-#ifdef FREERTOS_ENABLE
+#if FREERTOS_ENABLE
 #include "FreeRTOS.h"
 #include "task.h"
 #endif /* FREERTOS_ENABLE */
@@ -102,7 +102,7 @@ void bus_fault(void)
 }
 #endif
 
-#ifdef FREERTOS_ENABLE
+#if FREERTOS_ENABLE
 /** Stack Overflow callback function from FreeRTOS **/
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
