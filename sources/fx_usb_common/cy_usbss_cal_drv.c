@@ -2302,7 +2302,8 @@ void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     uint32_t csr_rd_rtn_data;
     uint32_t ctle_config;
     uint32_t dfe_stat0, dfe_stat1;
-    uint32_t afeosdac1, afeosdac2;
+    uint32_t afeosdac1 = 0;
+    uint32_t afeosdac2 = 0;
 
     DPI_csr_rd( MXS40USB40PHY_RX_OSA_STAT4_OFFS, &csr_rd_rtn_data, 1);
     afeosdac1 = csr_rd_rtn_data;

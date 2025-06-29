@@ -2617,7 +2617,11 @@ cy_en_lvds_status_t Cy_LVDS_GpifSMControl(LVDSSS_LVDS_Type * base, uint8_t smNo,
         return CY_LVDS_CONFIG_ERROR;
     }
 
-    base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT = _BOOL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_PAUSE, pause);
+    if (pause) {
+        base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT |= LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_PAUSE_Msk;
+    } else {
+        base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT &= ~LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_PAUSE_Msk;
+    }
 
     return CY_LVDS_SUCCESS;
 }

@@ -1,21 +1,13 @@
-# USBFXStack Middleware Library v1.2.0
+# USBFXStack Middleware Library v1.2.1
 
 See the [README.md](./README.md) and the [USBFXStack API Reference Manual](./docs/api_reference_manual.html) for a complete description of the USBFXStack.
 
 
-## Feature updates
-
-- Updated the USB driver stack to support all USB specification compliance requirements including correct handling of USB link low power states
-- Updated USB driver stack to support USB-C orientation detection on an external USB Power Delivery (PD) controller
-- New LVDS/LVCMOS init function supporting all interface frequencies within the supported range
-- Added capability to route debug log data through the USB Communication Device Class (CDC) interface added to the main USB device configuration
-- Updated Debug Design For Test (DDFT) select function to support observation of additional LVDS/LVCMOS related signals
-
-
 ## Defect fixes
 
-- Fixed occasional USB enumeration failures in different interoperability scenarios
-
+- Fixed implementation of the `Cy_LVDS_GpifSMControl()` function so that the GPIF waveform is not invalidated when being resumed
+- Updated fault handler module to handle cases where FreeRTOS is disabled
+- Fixed build warnings when compiling with GCC 14.2.1 toolchain
 
 ## Known issues and limitations
 
@@ -28,11 +20,11 @@ This version of the USBFXStack Middleware Library is validated for the compatibi
 
 Software and tools                                      | Version
 :---                                                    | :----
-ModusToolbox&trade; software environment                | 3.4.0
+ModusToolbox&trade; software environment                | 3.5.0
 CAT1A Peripheral Driver Library (PDL)                   | 3.16.0
-USBFXStack Middleware Library                           | 1.2.0
+USBFXStack Middleware Library                           | 1.2.1
 FreeRTOS for Infineon MCUs                              | 10.5.002
-GCC Compiler                                            | 11.3.1
+GCC Compiler                                            | 14.2.1
 Arm&reg; Compiler                                       | 6.22
 
 <br>
