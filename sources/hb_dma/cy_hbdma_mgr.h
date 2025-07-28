@@ -44,6 +44,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "cy_device.h"
+#include "cy_pdl.h"
 #include "cy_hbdma.h"
 #if FREERTOS_ENABLE
 #include "FreeRTOS.h"
@@ -65,10 +67,13 @@ extern "C" {
 #define CY_HBDMA_MGR_ID                 CY_PDL_DRV_ID(0x81U)
 
 /** Maximum number of adapters supported by the HBWSS DMA manager. */
-#define CY_HBDMA_MAX_ADAP_CNT           (4U)
+#define CY_HBDMA_MAX_ADAP_CNT           (6U)
 
-/** Maximum number of sockets supported per adapter. */
-#define CY_HBDMA_MAX_SCK_PER_ADAP       (32U)
+/** Number of DataWire instances being used in the DMA driver. */
+#define CY_HBDMA_DW_ADAP_CNT            (2U)
+
+/** Number of DataWire descriptors required per channel. */
+#define CY_HBDMA_DW_DSCR_PER_CHN        (3U)
 
 /** Number of entries supported in the HBDma Interrupt Message Queue. */
 #define CY_HBDMA_INTR_QUEUE_ENTRIES     (128U)
@@ -113,6 +118,7 @@ typedef enum
     CY_HBDMA_MGR_SEQUENCE_ERROR = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 5U),         /**< Call sequence error. */
     CY_HBDMA_MGR_MEM_CORRUPTION = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 6U),         /**< Memory corruption error. */
     CY_HBDMA_MGR_SOCK_BUSY = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 7U),              /**< Socket busy error. */
+    CY_HBDMA_MGR_NOT_SUPPORTED = (CY_HBDMA_MGR_ID | CY_PDL_STATUS_ERROR | 8U),          /**< Not supported error. */
 } cy_en_hbdma_mgr_status_t;
 
 /**
@@ -238,6 +244,7 @@ typedef struct cy_stc_hbdma_chn_config
     uint8_t endpAddr;                           /**< USB endpoint associated with the channel (optional). */
     cy_hbdma_socket_id_t prodSck[2];            /**< ID of the producer socket(s). */
     cy_hbdma_socket_id_t consSck[2];            /**< ID of the consumer socket(s). */
+    uint16_t usbMaxPktSize;                     /**< Maximum packet size of the associated USB endpoint. */
     uint32_t intrEnable;                        /**< Enable for DMA interrupts. */
     cy_cb_hbdma_event_callback_t cb;            /**< Event callback function pointer. */
     void *userCtx;                              /**< User context for the callback. */
@@ -283,6 +290,16 @@ typedef struct cy_stc_hbdma_channel
     uint8_t commitCnt[2];                       /**< Number of commit operations performed to each consumer socket. */
     uint8_t discardCnt[2];                      /**< Number of pending discard operations on each consumer socket. */
     uint8_t endpAddr;                           /**< USB endpoint associated with the channel. */
+
+    bool egressDWTrigDone[2];                   /**< Whether DataWire trigger for each egress channel has been done. */
+    bool ingressDWRqtQueued[2];                 /**< Whether ingress DataWire request has been queued. */
+    bool egressDWRqtQueued[2];                  /**< Whether egress DataWire request has been queued. */
+    uint16_t epMaxPktSize;                      /**< Maximum packet size for the USBHS endpoint. */
+    cy_stc_dma_descriptor_t *pProdDwDscr[2];    /**< Current DataWire descriptor pointer for producer channels. */
+    cy_stc_dma_descriptor_t *pConsDwDscr[2];    /**< Current DataWire descriptor pointer for consumer channels. */
+    uint16_t curIngressXferSize[2];             /**< Current ingress DataWire transfer size in bytes. */
+    uint8_t *pCurEgressDataBuf[2];              /**< Current buffer from which egress DataWire channel is reading. */
+    uint16_t curEgressXferSize[2];              /**< Size of data in buffer from which egress channel is reading. */
 } cy_stc_hbdma_channel_t;
 
 /**
@@ -333,6 +350,7 @@ typedef struct cy_stc_hbdma_mgr_context
     uint32_t socketUsed[CY_HBDMA_MAX_ADAP_CNT]; /**< Bit-map showing the sockets in use. */
     cy_stc_hbdma_channel_t *sckChannelMap[CY_HBDMA_MAX_ADAP_CNT][CY_HBDMA_SOCK_PER_ADAPTER];
                                                 /**< Table used to map sockets to DMA channels. */
+    cy_stc_dma_descriptor_t *dwDscrList;        /**< List of DataWire descriptors used across all channels. */
     uint16_t usbIngMultEnable;                  /**< Bit-mask providing mult enable setting for USB ingress sockets. */
     uint16_t usbEgrMultEnable;                  /**< Bit-mask providing mult enable setting for USB egress sockets. */
 
@@ -345,6 +363,8 @@ typedef struct cy_stc_hbdma_mgr_context
     bool cbFromISREnable;                       /**< Whether handling of DMA callbacks from ISR is enabled. */
 #endif /* FREERTOS_ENABLE */
     bool en_64k;                                /**< Whether 64KB DMA buffer support is enabled. */
+
+    void *pUsbStackCtx;                         /**< USB stack context pointer. Needed for USB-HS operation. */
 } cy_stc_hbdma_mgr_context_t;
 
 /**
@@ -618,6 +638,26 @@ Cy_HBDma_Mgr_Init (
 cy_en_hbdma_mgr_status_t
 Cy_HBDma_Mgr_DeInit (
         cy_stc_hbdma_mgr_context_t *context_p
+        );
+
+/*******************************************************************************
+ * Function Name: Cy_HBDma_Mgr_RegisterUsbContext
+ ****************************************************************************//**
+ *
+ * Register the USB stack context pointer with the High BandWidth manager. A valid
+ * stack context is required to make use of USB-HS endpoints and DataWire channels
+ * with the High BandWidth channel API.
+ *
+ * \param context_p
+ * Pointer to the DMA manager context structure.
+ * \param pUsbStackCtx
+ * Pointer to USB stack context structure passed as an opaque pointer.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_RegisterUsbContext (
+        cy_stc_hbdma_mgr_context_t *context_p,
+        void *pUsbStackCtx
         );
 
 /*******************************************************************************
@@ -1182,6 +1222,153 @@ void Cy_HBDma_Mgr_SetLvdsAdapterIngressMode(
         cy_stc_hbdma_mgr_context_t *pDmaMgr,
         bool isAdap0Ingress,
         bool isAdap1Ingress);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_DW_Configure
+ ****************************************************************************//**
+ *
+ * Configure the trigger connections for the DataWire used for transfers
+ * through a USB High-Speed Endpoint.
+ *
+ * \param pHandle
+ * Handle to the DMA channel.
+ * \param enable
+ * Whether trigger connections are to be enabled or disabled.
+ *
+ * \return
+ * CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise.
+ *******************************************************************************/
+cy_en_hbdma_mgr_status_t
+Cy_HBDma_DW_Configure(
+        cy_stc_hbdma_channel_t *pHandle,
+        bool enable);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_DW_QueueRead
+ ****************************************************************************//**
+ *
+ * Function which queues read operation using DataWire DMA on USBHS OUT endpoint
+ * corresponding to a DMA channel.
+ *
+ * \param pHandle
+ * Handle to the DMA channel.
+ * \param prodIndex
+ * Index of the producer from which to read data.
+ * \param pBuffer
+ * Pointer to the data buffer to read data into.
+ * \param dataSize
+ * Size of data expected. This should be a multiple of the max packet size.
+ *
+ * \return
+ * CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise.
+ *******************************************************************************/
+cy_en_hbdma_mgr_status_t
+Cy_HBDma_DW_QueueRead(
+        cy_stc_hbdma_channel_t *pHandle,
+        uint8_t                 prodIndex,
+        uint8_t                *pBuffer,
+        uint16_t                dataSize);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_DW_CompleteShortRead
+ ****************************************************************************//**
+ *
+ * Function which terminates ongoing USBHS ingress transfer when a short packet
+ * has been received on the endpoint.
+ *
+ * \param pHandle
+ * Handle to the DMA channel.
+ * \param prodIndex
+ * Index of the producer from which to read data.
+ * \param shortPktSize
+ * Size of the short packet received in bytes.
+ *
+ * \return
+ * CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise.
+ *******************************************************************************/
+cy_en_hbdma_mgr_status_t
+Cy_HBDma_DW_CompleteShortRead(
+        cy_stc_hbdma_channel_t *pHandle,
+        uint8_t                 prodIndex,
+        uint16_t                shortPktSize);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_DW_QueueWrite
+ ****************************************************************************//**
+ *
+ * Function which queues write operation using DataWire DMA on USBHS IN endpoint
+ * corresponding to a DMA channel.
+ *
+ * \param pHandle
+ * Handle to the DMA channel.
+ * \param consIndex
+ * Index of the consumer to write data into.
+ * \param pBuffer
+ * Pointer to the data buffer containing the data.
+ * \param dataSize
+ * Size of data to be transferred.
+ *
+ * \return
+ * CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise.
+ *******************************************************************************/
+cy_en_hbdma_mgr_status_t
+Cy_HBDma_DW_QueueWrite(
+        cy_stc_hbdma_channel_t *pHandle,
+        uint8_t                 consIndex,
+        uint8_t                *pBuffer,
+        uint16_t                dataSize);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleDW0Interrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles transfer completion interrupt from any of the
+ * DataWire channels associated with non EP0 USB-HS OUT endpoints (channels 1 to 15).
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleDW0Interrupt(
+        cy_stc_hbdma_mgr_context_t *pDmaMgr);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleDW1Interrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles transfer completion interrupt from any of the
+ * DataWire channels associated with non EP0 USB-HS IN endpoints (channels 1 to 15).
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleDW1Interrupt(
+        cy_stc_hbdma_mgr_context_t *pDmaMgr);
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleUsbShortInterrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles SLP or ZLP interrupts from USB-HS OUT
+ * endpoints. This is expected to be triggered from interrupt callback provided
+ * by the USB stack.
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ * \param epNum
+ * Endpoint number on which SLP/ZLP was received.
+ * \param pktSize
+ * Actual size (in bytes) of the packet received.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleUsbShortInterrupt(
+        cy_stc_hbdma_mgr_context_t *pDmaMgr,
+        uint8_t                     epNum,
+        uint16_t                    pktSize);
 
 /** \} group_usbfxstack_hb_dma_functions */
 

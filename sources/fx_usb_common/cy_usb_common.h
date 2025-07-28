@@ -118,7 +118,7 @@ extern "C" {
 /** Get maximum from among two numbers. */
 #define CY_USB_MAX(arg1,arg2) (((arg1) >= (arg2)) ? (arg1): (arg2))
 
-/** Retrieves byte 0 from a 32 bit number */
+/** Retrieves byte 0 from a 32 bit number. */
 #define CY_USB_DWORD_GET_BYTE0(d)        ((uint8_t)((d) & 0xFF))
 
 /** Retrieves byte 1 from a 32 bit number */
@@ -251,7 +251,7 @@ typedef enum {
     CY_USB_CAL_MSG_OUT_ZLP,                             /**< ZLP interrupt received on OUT endpoint. */
     CY_USB_CAL_MSG_OUT_SLP,                             /**< SLP interrupt received on OUT endpoint. */
     CY_USB_CAL_MSG_OUT_DONE,                            /**< Expected amount of data received on OUT endpoint. */
-    CY_USB_CAL_MSG_SOF,                                 /**< Start-of-Frame packet received. */
+    CY_USB_CAL_MSG_SOF_ITP,                             /**< Start-of-Frame or ITP packet received. */
     CY_USB_CAL_MSG_ERRLIMIT,                            /**< USB 2.x device raised error limit interrupt. */
     CY_USBSS_CAL_MSG_LNK_RESET,                         /**< USB 3.x link reset: Warm or Hot Reset. */
     CY_USBSS_CAL_MSG_LNK_CONNECT,                       /**< USB 3.x far-end terminations detected. */

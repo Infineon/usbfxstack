@@ -82,6 +82,8 @@ extern "C" {
 /** Number of transition functions supported by GPIF hardware. */
 #define CY_LVDS_GPIF_NUM_TRANS_FUNC         (32)
 
+#define SipBlkInitConfig                        *((volatile uint32_t *)0x406C0068UL)
+
 #if (!LVCMOS_16BIT_SDR)
 
 /** Number of DMA threads supported by the LVDS IP. */
@@ -96,6 +98,9 @@ extern "C" {
 #define CY_LVDS_MAX_GPIF_INSTANCE           (2)
 /** Number of sockets supported per LVDS port. */
 #define CY_LVDS_MAX_SOCKET_COUNT            (16)
+
+/* Maximum number of PHY training attempts to be made. */
+#define LVDS_PHY_TRAIN_MAX_COUNT            (10)
 
 #else
 
@@ -1033,6 +1038,34 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo,
 cy_en_lvds_status_t Cy_LVDS_PhyDeinit(LVDSSS_LVDS_Type *base, uint8_t portNo, cy_stc_lvds_context_t *lvdsContext);
 
 /*******************************************************************************
+* Function Name: Cy_LVDS_SetPhyTrainingLoopCount
+****************************************************************************//**
+*
+* Specify the number of times LVDS PHY training should be attempted.
+*
+* Running the PHY training multiple times and taking the most frequent result for
+* each lane is recommended to ensure that the best sampling phases are selected
+* for each of the LVDS lanes. The count can be set to a maximum value of up to 10
+* attempts, and is left with a count of 1 by default. This function must be called
+* before \ref Cy_LVDS_PhyTrainingStart is called.
+*
+* The LVDS transmitter used must ensure that the PHY training sequence is sent
+* for a duration of (count * 50 us) so that the receiver has sufficient time to
+* finish the training and identify the best values.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param lvdsContext
+* Pointer to the LVDS driver context structure.
+*
+* \param count
+* Number of PHY training attempts to be made per LVDS lane.
+*
+*******************************************************************************/
+void Cy_LVDS_SetPhyTrainingLoopCount(LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsContext, uint8_t count);
+
+/*******************************************************************************
 * Function Name: Cy_LVDS_PhyTrainingStart
 ****************************************************************************//**
 *
@@ -1675,6 +1708,30 @@ cy_en_lvds_status_t Cy_LVDS_L3_Exit(LVDSSS_LVDS_Type * base,
 *
 *******************************************************************************/
 cy_en_lvds_status_t Cy_LVDS_GpifSMControl(LVDSSS_LVDS_Type * base, uint8_t smNo, bool pause);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_GpifSMStop
+****************************************************************************//**
+*
+* Stop the GPIF state machine.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param smNo
+* GPIF State Machine number.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
+* CY_LVDS_SUCCESS - If the operation is successful
+* CY_LVDS_CONFIG_ERROR - If the sequence in which registers are configured is incorrect
+*
+* \note
+* This function will only disable/stop the state machine. The GPIF configurations
+* will be retained.
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_GpifSMStop(LVDSSS_LVDS_Type* base, uint8_t smNo);
 
 #if LVCMOS_16BIT_SDR
 /*******************************************************************************

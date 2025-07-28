@@ -107,6 +107,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gacf654a970d0b93fa6aca0e91d932f394"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gacf654a970d0b93fa6aca0e91d932f394">Cy_LVDS_PhyDeinit</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *lvdsContext)</td></tr>
 <tr class="memdesc:gacf654a970d0b93fa6aca0e91d932f394"><td class="mdescLeft">&#160;</td><td class="mdescRight">De-initialises LVDS Sensor interface port and Analog front end.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gacf654a970d0b93fa6aca0e91d932f394">More...</a><br /></td></tr>
 <tr class="separator:gacf654a970d0b93fa6aca0e91d932f394"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga1e4727f1b9d7779097a06b79b3e38dc5">Cy_LVDS_SetPhyTrainingLoopCount</a> (LVDSSS_LVDS_Type *base, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *lvdsContext, uint8_t count)</td></tr>
+<tr class="memdesc:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specify the number of times LVDS PHY training should be attempted.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga1e4727f1b9d7779097a06b79b3e38dc5">More...</a><br /></td></tr>
+<tr class="separator:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga401ef72c677e07df543619ce9116682c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c">Cy_LVDS_PhyTrainingStart</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, const <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__phy__config__t">cy_stc_lvds_phy_config_t</a> *config)</td></tr>
 <tr class="memdesc:ga401ef72c677e07df543619ce9116682c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable PHY TRAINING in AFE and then wait for DESKEW COMPLETE to get set.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c">More...</a><br /></td></tr>
 <tr class="separator:ga401ef72c677e07df543619ce9116682c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,6 +182,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gafc0a10da5f3f30a0a30dacf84cd36f3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gafc0a10da5f3f30a0a30dacf84cd36f3a">Cy_LVDS_GpifSMControl</a> (LVDSSS_LVDS_Type *base, uint8_t smNo, bool pause)</td></tr>
 <tr class="memdesc:gafc0a10da5f3f30a0a30dacf84cd36f3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pause or resume the Gpif State machine.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gafc0a10da5f3f30a0a30dacf84cd36f3a">More...</a><br /></td></tr>
 <tr class="separator:gafc0a10da5f3f30a0a30dacf84cd36f3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga76c29532c39901bbfb073b4f724683eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga76c29532c39901bbfb073b4f724683eb">Cy_LVDS_GpifSMStop</a> (LVDSSS_LVDS_Type *base, uint8_t smNo)</td></tr>
+<tr class="memdesc:ga76c29532c39901bbfb073b4f724683eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the GPIF state machine.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga76c29532c39901bbfb073b4f724683eb">More...</a><br /></td></tr>
+<tr class="separator:ga76c29532c39901bbfb073b4f724683eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae4ee1c0ad65f917a551024c471b8357b"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gae4ee1c0ad65f917a551024c471b8357b">Cy_LVDS_Disable</a> (LVDSSS_LVDS_Type *base)</td></tr>
 <tr class="memdesc:gae4ee1c0ad65f917a551024c471b8357b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global disable for LINK and PHY.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gae4ee1c0ad65f917a551024c471b8357b">More...</a><br /></td></tr>
 <tr class="separator:gae4ee1c0ad65f917a551024c471b8357b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -549,6 +555,52 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid CY_LVDS_SUCCESS - If the operation is successful </dd></dl>
+
+</div>
+</div>
+<a id="ga1e4727f1b9d7779097a06b79b3e38dc5" name="ga1e4727f1b9d7779097a06b79b3e38dc5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1e4727f1b9d7779097a06b79b3e38dc5">&#9670;&nbsp;</a></span>Cy_LVDS_SetPhyTrainingLoopCount()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_LVDS_SetPhyTrainingLoopCount </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *&#160;</td>
+          <td class="paramname"><em>lvdsContext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Specify the number of times LVDS PHY training should be attempted. </p>
+<p >Running the PHY training multiple times and taking the most frequent result for each lane is recommended to ensure that the best sampling phases are selected for each of the LVDS lanes. The count can be set to a maximum value of up to 10 attempts, and is left with a count of 1 by default. This function must be called before <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c">Cy_LVDS_PhyTrainingStart</a> is called.</p>
+<p >The LVDS transmitter used must ensure that the PHY training sequence is sent for a duration of (count * 50 us) so that the receiver has sufficient time to finish the training and identify the best values.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">lvdsContext</td><td>Pointer to the LVDS driver context structure.</td></tr>
+    <tr><td class="paramname">count</td><td>Number of PHY training attempts to be made per LVDS lane. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1861,6 +1913,45 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid CY_LVDS_SUCCESS - If the operation is successful CY_LVDS_CONFIG_ERROR - If the sequence in which registers are configured is incorrect </dd></dl>
+
+</div>
+</div>
+<a id="ga76c29532c39901bbfb073b4f724683eb" name="ga76c29532c39901bbfb073b4f724683eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga76c29532c39901bbfb073b4f724683eb">&#9670;&nbsp;</a></span>Cy_LVDS_GpifSMStop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_GpifSMStop </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>smNo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stop the GPIF state machine. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">smNo</td><td>GPIF State Machine number.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid CY_LVDS_SUCCESS - If the operation is successful CY_LVDS_CONFIG_ERROR - If the sequence in which registers are configured is incorrect</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function will only disable/stop the state machine. The GPIF configurations will be retained. </dd></dl>
 
 </div>
 </div>

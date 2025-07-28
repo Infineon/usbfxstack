@@ -65,10 +65,11 @@ var searchData=
   ['cy_5fen_5fusbhs_5fcal_5ftest_5fmode_5ft_62',['cy_en_usbhs_cal_test_mode_t',['../group__group__usbfxstack__usb__common__enums.html#gaca7d219d5830d2365bfc9523d1a3cd0e',1,'cy_usbhs_cal_drv.h']]],
   ['cy_5fen_5fusbss_5fcal_5fevt_5ftype_5ft_63',['cy_en_usbss_cal_evt_type_t',['../group__group__usbfxstack__usb__common__enums.html#ga678c0f096acfc45a68c040fd025ca723',1,'cy_usb_common.h']]],
   ['cy_5fen_5fusbss_5fcal_5flpm_5fcfg_5ft_64',['cy_en_usbss_cal_lpm_cfg_t',['../group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467',1,'cy_usbss_cal_drv.h']]],
-  ['cy_5fen_5fusbss_5flink_5fstate_5ft_65',['cy_en_usbss_link_state_t',['../group__group__usbfxstack__usb__common__enums.html#ga7794923562e5d39acc130621025255e1',1,'cy_usbss_cal_drv.h']]],
-  ['cy_5fen_5fusbss_5flnk_5fpower_5fmode_5ft_66',['cy_en_usbss_lnk_power_mode_t',['../group__group__usbfxstack__usb__common__enums.html#ga35921cf9e1a183014cfa7f5ca2e705bf',1,'cy_usbss_cal_drv.h']]],
-  ['cy_5fen_5fusbss_5fpkt_5ftype_5ft_67',['cy_en_usbss_pkt_type_t',['../group__group__usbfxstack__usb__common__enums.html#ga6457203982abaf9b4464967fc666d5ef',1,'cy_usbss_cal_drv.h']]],
-  ['cy_5fen_5fusbss_5ftp_5fpkt_5fsubtype_5ft_68',['cy_en_usbss_tp_pkt_subtype_t',['../group__group__usbfxstack__usb__common__enums.html#ga953336fe6e77b965a7d4dd020fcf3826',1,'cy_usbss_cal_drv.h']]],
-  ['cy_5fhbdma_5fadapter_5fid_5ft_69',['cy_hbdma_adapter_id_t',['../group__group__usbfxstack__hb__dma__enums.html#ga93990ff7fbc856e3f3bfc00a76331509',1,'cy_hbdma.h']]],
-  ['cy_5fhbdma_5fsocket_5fid_5ft_70',['cy_hbdma_socket_id_t',['../group__group__usbfxstack__hb__dma__enums.html#gab83411cd9077b5c27dda0bad41d89a06',1,'cy_hbdma.h']]]
+  ['cy_5fen_5fusbss_5fdelay_5fevent_5ft_65',['cy_en_usbss_delay_event_t',['../group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806',1,'cy_usbss_cal_drv.h']]],
+  ['cy_5fen_5fusbss_5flink_5fstate_5ft_66',['cy_en_usbss_link_state_t',['../group__group__usbfxstack__usb__common__enums.html#ga7794923562e5d39acc130621025255e1',1,'cy_usbss_cal_drv.h']]],
+  ['cy_5fen_5fusbss_5flnk_5fpower_5fmode_5ft_67',['cy_en_usbss_lnk_power_mode_t',['../group__group__usbfxstack__usb__common__enums.html#ga35921cf9e1a183014cfa7f5ca2e705bf',1,'cy_usbss_cal_drv.h']]],
+  ['cy_5fen_5fusbss_5fpkt_5ftype_5ft_68',['cy_en_usbss_pkt_type_t',['../group__group__usbfxstack__usb__common__enums.html#ga6457203982abaf9b4464967fc666d5ef',1,'cy_usbss_cal_drv.h']]],
+  ['cy_5fen_5fusbss_5ftp_5fpkt_5fsubtype_5ft_69',['cy_en_usbss_tp_pkt_subtype_t',['../group__group__usbfxstack__usb__common__enums.html#ga953336fe6e77b965a7d4dd020fcf3826',1,'cy_usbss_cal_drv.h']]],
+  ['cy_5fhbdma_5fadapter_5fid_5ft_70',['cy_hbdma_adapter_id_t',['../group__group__usbfxstack__hb__dma__enums.html#ga93990ff7fbc856e3f3bfc00a76331509',1,'cy_hbdma.h']]],
+  ['cy_5fhbdma_5fsocket_5fid_5ft_71',['cy_hbdma_socket_id_t',['../group__group__usbfxstack__hb__dma__enums.html#gab83411cd9077b5c27dda0bad41d89a06',1,'cy_hbdma.h']]]
 ];

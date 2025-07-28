@@ -200,7 +200,7 @@ bool
 Cy_USBHS_App_QueueRead (
         cy_stc_app_endp_dma_set_t *pEpDmaSet,
         uint8_t                   *pBuffer,
-        uint16_t                   dataSize)
+        uint32_t                   dataSize)
 {
     cy_stc_dma_descriptor_t        *pFirstDscr;
     cy_stc_dma_descriptor_config_t  dmaDscrConfig;
@@ -219,7 +219,7 @@ Cy_USBHS_App_QueueRead (
 
     /* Verify that the selected endpoint is valid and the dataSize is non-zero. */
     if ((pEpDmaSet->valid == 0) || (pEpDmaSet->epDir != CY_USB_ENDP_DIR_OUT) ||
-            (pEpDmaSet->maxPktSize == 0) || (dataSize == 0))
+            (pEpDmaSet->maxPktSize == 0) || (dataSize == 0) || (dataSize > 0x10000UL))
     {
         DBG_APP_ERR("QueueRead:BadParam\r\n");
         return false;
@@ -439,7 +439,7 @@ Cy_USBHS_App_ReadShortPacket (
 
     if (pktSize != 0)
     {
-        Cy_USBHS_App_QueueRead(pEpDmaSet, pDataBuf, pktSize);
+        Cy_USBHS_App_QueueRead(pEpDmaSet, pDataBuf, (uint32_t)pktSize);
     }
     else
     {
@@ -463,7 +463,7 @@ bool
 Cy_USBHS_App_QueueWrite (
         cy_stc_app_endp_dma_set_t *pEpDmaSet,
         uint8_t                   *pBuffer,
-        uint16_t                   dataSize)
+        uint32_t                   dataSize)
 {
     cy_stc_dma_descriptor_t        *pFirstDscr;
     cy_stc_dma_descriptor_config_t  dmaDscrConfig;
@@ -482,7 +482,7 @@ Cy_USBHS_App_QueueWrite (
 
     /* Verify that the selected endpoint is valid and the dataSize is non-zero. */
     if ((pEpDmaSet->valid == 0) || (pEpDmaSet->epDir != CY_USB_ENDP_DIR_IN) ||
-            (pEpDmaSet->maxPktSize == 0) || (dataSize == 0))
+            (pEpDmaSet->maxPktSize == 0) || (dataSize == 0) || (dataSize > 0x10000UL))
     {
         DBG_APP_ERR("QueueWrite:BadParam\r\n");
         return false;

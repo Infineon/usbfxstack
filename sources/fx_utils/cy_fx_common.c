@@ -34,6 +34,32 @@ extern "C" {
 #endif
 
 /*******************************************************************************
+ * Function name: Cy_UsbFx_OnResetInit
+ ****************************************************************************//**
+ * This function performs initialization that is required to enable scatter
+ * loading of data into the High BandWidth RAM during device boot-up. The FX10/FX20
+ * device comes up with the High BandWidth RAM disabled and hence any attempt
+ * to read/write the RAM will cause the processor to hang. The RAM needs to
+ * be enabled with default clock settings to allow scatter loading to work.
+ * This function needs to be called from Cy_OnResetUser.
+ *
+ *******************************************************************************/
+void
+Cy_UsbFx_OnResetInit (
+        void)
+{
+    /* Enable clk_hf4 with IMO as input. */
+    SRSS->CLK_ROOT_SELECT[4] = SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
+
+    /* Enable LVDS2USB32SS IP and select clk_hf[4] as clock input. */
+    MAIN_REG->CTRL = (
+            MAIN_REG_CTRL_IP_ENABLED_Msk |
+            (1UL << MAIN_REG_CTRL_NUM_FAST_AHB_STALL_CYCLES_Pos) |
+            (1UL << MAIN_REG_CTRL_NUM_SLOW_AHB_STALL_CYCLES_Pos) |
+            (3UL << MAIN_REG_CTRL_DMA_SRC_SEL_Pos));
+}
+
+/*******************************************************************************
  * Function name: Cy_UsbFx_SelectDFTFunctions
  ****************************************************************************//**
  *

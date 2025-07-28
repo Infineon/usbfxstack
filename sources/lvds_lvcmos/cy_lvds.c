@@ -505,6 +505,7 @@ cy_en_lvds_status_t Cy_LVDS_InitMetadata(LVDSSS_LVDS_Type *base, uint8_t threadN
         {
             value = mdBuffer[i].metadataValue;
         }
+
         if((threadNo == 0) || (threadNo == 1))
         {
             if(i%2 == 0)
@@ -526,6 +527,7 @@ cy_en_lvds_status_t Cy_LVDS_InitMetadata(LVDSSS_LVDS_Type *base, uint8_t threadN
         }
 #endif /* (!LVCMOS_16BIT_SDR) */
     }
+
     if(mdCount != 16)
     {
         switch(mdIndex)
@@ -755,8 +757,8 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         /* DESKEW_ERR_THRESH2 value set set to 10 when the monitor is off and to 6 when the monitor is on */
         base->AFE[portNo].PHY_GENERAL_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH1_Msk;
         base->AFE[portNo].PHY_GENERAL_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH2_Msk;
-        base->AFE[portNo].PHY_GENERAL_CONFIG    |=  _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH1, 3) |
-                                                    _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH2, 10);
+        base->AFE[portNo].PHY_GENERAL_CONFIG    |=  _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH1, 0) |
+                                                    _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH2, 5);
 
         /* Set value for PHY_GENERAL_CONFIG_2.MONITOR_ERR_THRESH */
         base->AFE[portNo].PHY_GENERAL_CONFIG_2  |=  _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_2_MONITOR_ERR_THRESH, 10);
@@ -1002,8 +1004,8 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     }
 
     base->AFE[portNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk;
-    base->AFE[portNo].PHY_TRAIN_CONFIG = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ,config->phyTrainingPattern) |
-                                         _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO,100);
+    base->AFE[portNo].PHY_TRAIN_CONFIG = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, config->phyTrainingPattern) |
+                                         _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO, 127);
 
     return status;
 }
@@ -1138,11 +1140,22 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
     }
 
 #if LVCMOS_16BIT_SDR
-    if(config->modeSelect == CY_LVDS_PHY_MODE_LVDS)
-    {
+    if (config->modeSelect == CY_LVDS_PHY_MODE_LVDS) {
+        DBG_LVDS_ERR("FX2G3 device does not support LVDS interface\r\n");
         return CY_LVDS_BAD_PARAMETER;
     }
 #endif /* (!LVCMOS_16BIT_SDR) */
+
+    /* Verify that the active part supports the desired function. */
+    if (
+#if LVCMOS_16BIT_SDR
+            ((config->modeSelect == CY_LVDS_PHY_MODE_LVDS) && ((SipBlkInitConfig & (1UL << portNo)) != 0)) ||
+#endif /* LVCMOS_16BIT_SDR */
+            ((config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) && ((SipBlkInitConfig & (4UL << portNo)) != 0))
+       ) {
+        DBG_LVDS_ERR("Current device does not support selected configuration\r\n");
+        return CY_LVDS_CONFIG_ERROR;
+    }
 
     /* Initialize LVDS context structure */
     lvdsContext->base = base;
@@ -1263,7 +1276,8 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
     else
 #endif /* (!LVCMOS_16BIT_SDR) */
     {
-        /*********** AFE Initialization sequence for LVCMOS SDR and DDR Master Mode TX ************/
+        /*********** AFE Initialization sequence for LVCMOS SDR(Slave or Master Clk Mode RX/TX
+                      and DDR (Master Clk Mode TX) ************/
         if (
                 (
                  (config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) &&
@@ -1282,7 +1296,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
         {
             DBG_LVDS_INFO("LVCMOS SDR Mode\r\n");
             if ((config->lvcmosClkMode == CY_LVDS_LVCMOS_CLK_MASTER)) {
-                DBG_LVDS_INFO("LVCMOS SDR/DDR MASTER Mode\r\n");
+                DBG_LVDS_INFO("LVCMOS SDR RX/TX OR DDR TX MASTER Mode\r\n");
                 base->AFE[portNo].LICIO_VCCD_V1P1       |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN, 1u);
             }
 
@@ -1322,16 +1336,49 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             }
 
             /* SDR clock pads (P0CP and P1D1P) */
-            if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
+            /* P0CP at CTL_8 (PORT0 CLK) and P1D1P at DQ_25 (PORT1 CLK) */
+            /* Wide Link Case */
+            if (config->wideLink == true)
             {
+                if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
+                {
 
-                base->AFE[0].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
-                base->AFE[1].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                    base->AFE[0].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                    base->AFE[1].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                }
+                else
+                {
+                    base->AFE[0].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                    base->AFE[1].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                }
             }
-            else
+            else /* Narrow Link case */
             {
-                base->AFE[0].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
-                base->AFE[1].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                /* PORT1 */
+                if (portNo)
+                {
+                    if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
+                    {
+
+                        base->AFE[portNo].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                    }
+                    else
+                    {
+                        base->AFE[portNo].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                    }
+                }
+                else /* PORT0 */
+                {
+                    if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
+                    {
+
+                        base->AFE[portNo].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                    }
+                    else
+                    {
+                        base->AFE[portNo].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                    }
+                }
             }
 
             /* Note: Direction (input or output) of data and control lines can be programmed by GPIF or from AFE Register.
@@ -1348,11 +1395,16 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
 #endif /* (!LVCMOS_16BIT_SDR) */
         }
 #if (!LVCMOS_16BIT_SDR)
-        /*********** AFE Initialization sequence for LVCMOS DDR ************/
+        /*********** AFE Initialization sequence for LVCMOS DDR RX SLAVE CLK MODE ************/
         /* This case is for DDR RX Slave */
         if((config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) && (config->gearingRatio == CY_LVDS_PHY_GEAR_RATIO_2_1) &&
-                (config->dataBusDirection == CY_LVDS_PHY_AD_BUS_DIR_INPUT))
+                (config->lvcmosClkMode == CY_LVDS_LVCMOS_CLK_SLAVE))
         {
+            if (config->dataBusDirection != CY_LVDS_PHY_AD_BUS_DIR_INPUT)
+            {
+                DBG_LVDS_ERR("DDR RX Slave Clk Mode Invalid Data Bus Direction\r\n");
+                return CY_LVDS_CONFIG_ERROR;
+            }
 
             DBG_LVDS_INFO("DDR RX Init started for Port: %d \r\n", portNo);
 
@@ -1625,6 +1677,49 @@ cy_en_lvds_status_t Cy_LVDS_PhyDeinit (LVDSSS_LVDS_Type *base, uint8_t portNo, c
 }
 
 #if (!LVCMOS_16BIT_SDR)
+
+static uint8_t  LvdsPhyTrainAttempts = 1;
+static uint32_t LvdsSlaveDllPhase[18][LVDS_PHY_TRAIN_MAX_COUNT] = {{0}};
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_SetPhyTrainingLoopCount
+****************************************************************************//**
+*
+* Specify the number of times LVDS PHY training should be attempted.
+*
+* Running the PHY training multiple times and taking the most frequent result for
+* each lane is recommended to ensure that the best sampling phases are selected
+* for each of the LVDS lanes. The count can be set to a maximum value of up to 10
+* attempts, and is left with a count of 1 by default. This function must be called
+* before \ref Cy_LVDS_PhyTrainingStart is called.
+*
+* The LVDS transmitter used must ensure that the PHY training sequence is sent
+* for a duration of (count * 50 us) so that the receiver has sufficient time to
+* finish the training and identify the best values.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param lvdsContext
+* Pointer to the LVDS driver context structure.
+*
+* \param count
+* Number of PHY training attempts to be made per LVDS lane.
+*
+*******************************************************************************/
+void Cy_LVDS_SetPhyTrainingLoopCount (LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsContext, uint8_t count)
+{
+    if ((base != NULL) && (lvdsContext != NULL)) {
+
+        /* Limit the maximum number of attempts to LVDS_PHY_TRAIN_MAX_COUNT. */
+        if (count > LVDS_PHY_TRAIN_MAX_COUNT) {
+            count = LVDS_PHY_TRAIN_MAX_COUNT;
+        }
+
+        LvdsPhyTrainAttempts = count;
+    }
+}
+
 /*******************************************************************************
 * Function Name: Cy_LVDS_PhyTrainingStart
 ****************************************************************************//**
@@ -1652,46 +1747,132 @@ cy_en_lvds_status_t Cy_LVDS_PhyTrainingStart(LVDSSS_LVDS_Type* base, uint8_t por
 {
     uint32_t timeoutCount = 0;
     cy_en_lvds_status_t status = CY_LVDS_SUCCESS;
+    uint32_t most_frequent_phase = 0;
+    uint32_t max_count = 0;
+    uint32_t count = 0;
+    uint32_t intMask;
+    uint8_t i = 0;
+    uint8_t j = 0;
+    uint8_t k = 0;
 
     /* PHY training is only required for LVDS modes */
-    if(config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
+    if (config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
         return CY_LVDS_CONFIG_ERROR;
 
-    base->AFE[portNo].PHY_TRAIN_CONFIG  |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1);
-
-    if(config->wideLink)
-        base->AFE[1].PHY_TRAIN_CONFIG  |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1);
-
-    while(!(base->AFE[portNo].PHY_GENERAL_STATUS_2 & LVDSSS_LVDS_AFE_PHY_GENERAL_STATUS_2_DESKEW_COMPLETED_Msk))
-    {
-        Cy_SysLib_DelayUs(10);
-        timeoutCount++;
-        if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
-        {
-            status = CY_LVDS_TIMEOUT_ERROR;
-            DBG_LVDS_ERR("DESKEW timed out for Port: %d\r\n", portNo);
-            return status;
-        }
+    if (config->wideLink) {
+        portNo = 0;
     }
-    status = CY_LVDS_SUCCESS;
 
-    if(config->wideLink)
-    {
-        timeoutCount = 0;
-        while(!(base->AFE[1].PHY_GENERAL_STATUS_2 & LVDSSS_LVDS_AFE_PHY_GENERAL_STATUS_2_DESKEW_COMPLETED_Msk))
-        {
+    intMask = Cy_SysLib_EnterCriticalSection();
+
+    /* Make sure loop count is limited to avoid memory corruption. */
+    if (LvdsPhyTrainAttempts > LVDS_PHY_TRAIN_MAX_COUNT) {
+        LvdsPhyTrainAttempts = LVDS_PHY_TRAIN_MAX_COUNT;
+    }
+
+    for (j = 0; j < LvdsPhyTrainAttempts; j++) {
+        /* Enable PHY training. */
+        base->AFE[portNo].PHY_TRAIN_CONFIG  |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1);
+        if (config->wideLink) {
+            base->AFE[1].PHY_TRAIN_CONFIG  |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1);
+        }
+        Cy_SysLib_DelayUs(5);
+
+        /* Wait until training is complete. */
+        while (!(base->AFE[portNo].PHY_GENERAL_STATUS_2 & LVDSSS_LVDS_AFE_PHY_GENERAL_STATUS_2_DESKEW_COMPLETED_Msk)) {
             Cy_SysLib_DelayUs(10);
             timeoutCount++;
-            if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
-            {
+            if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT) {
                 status = CY_LVDS_TIMEOUT_ERROR;
-                DBG_LVDS_ERR("DESKEW timed out for Port: 1\r\n");
+                DBG_LVDS_ERR("DESKEW timed out for Port: %d\r\n", portNo);
+                Cy_SysLib_ExitCriticalSection(intMask);
                 return status;
             }
         }
-        status = CY_LVDS_SUCCESS;
+
+        if (config->wideLink) {
+            timeoutCount = 0;
+            while (!(base->AFE[1].PHY_GENERAL_STATUS_2 & LVDSSS_LVDS_AFE_PHY_GENERAL_STATUS_2_DESKEW_COMPLETED_Msk)) {
+                Cy_SysLib_DelayUs(10);
+                timeoutCount++;
+                if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT) {
+                    status = CY_LVDS_TIMEOUT_ERROR;
+                    DBG_LVDS_ERR("DESKEW timed out for Port: 1\r\n");
+                    Cy_SysLib_ExitCriticalSection(intMask);
+                    return status;
+                }
+            }
+        }
+
+        /* Save the training results. */
+        for (i = 0; i < 9 ; i++) {
+            LvdsSlaveDllPhase[portNo * 9 + i][j] = base->AFE[portNo].DLL_S_STATUS[i] & 0x0F;
+        }
+
+        if (config->wideLink) {
+            for (i = 9; i < 18 ; i++) {
+                LvdsSlaveDllPhase[i][j] = base->AFE[1].DLL_S_STATUS[i - 9] & 0x0F;
+            }
+        }
+
+        /* If we have more PHY training cycles to be performed, clear the TRAIN_EN bit. */
+        if (j < (LvdsPhyTrainAttempts - 1)) {
+            base->AFE[portNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
+            if (config->wideLink) {
+                base->AFE[1].PHY_TRAIN_CONFIG  &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
+            }
+            Cy_SysLib_DelayUs(5);
+        }
     }
 
+    if (LvdsPhyTrainAttempts > 1) {
+        /* Find the most common phase discovered for each lane and force that value. */
+        for (i = 0; i < 9; i++) {
+
+            max_count = 0;
+            for (j = 0; j < LvdsPhyTrainAttempts; j++) {
+                count = 0;
+                for (k = 0; k < LvdsPhyTrainAttempts; k++) {
+                    if (LvdsSlaveDllPhase[portNo * 9 + i][j] == LvdsSlaveDllPhase[portNo * 9 + i][k]) {
+                        count++;
+                    }
+                }
+
+                if (count >= max_count) {
+                    max_count = count;
+                    most_frequent_phase = LvdsSlaveDllPhase[portNo * 9 + i][j];
+                }
+            }
+
+            base->AFE[portNo].DLL_S_CONFIG[i] &= ~(0xF <<4);
+            base->AFE[portNo].DLL_S_CONFIG[i] |= ((most_frequent_phase << 4) | 0x100);
+        }
+
+        if (config->wideLink) {
+            for (i = 9; i < 18; i++) {
+
+                max_count = 0;
+                for (j = 0; j < LvdsPhyTrainAttempts; j++) {
+                    count = 0;
+                    for (k = 0; k < LvdsPhyTrainAttempts; k++) {
+                        if (LvdsSlaveDllPhase[i][j] == LvdsSlaveDllPhase[i][k]) {
+                            count++;
+                        }
+                    }
+
+                    if (count >= max_count) {
+                        max_count = count;
+                        most_frequent_phase = LvdsSlaveDllPhase[i][j];
+                    }
+                }
+
+                base->AFE[1].DLL_S_CONFIG[i - 9] &= ~(0xF <<4);
+                base->AFE[1].DLL_S_CONFIG[i - 9] |= ((most_frequent_phase << 4) | 0x100);
+            }
+        }
+    }
+
+    Cy_SysLib_ExitCriticalSection(intMask);
     return status;
 }
 
@@ -2583,6 +2764,52 @@ cy_en_lvds_status_t Cy_LVDS_GpifSMStart(LVDSSS_LVDS_Type* base, uint8_t smNo, ui
     return CY_LVDS_SUCCESS;
 }
 
+/*******************************************************************************
+* Function Name: Cy_LVDS_GpifSMStop
+****************************************************************************//**
+*
+* Stop the GPIF state machine.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param smNo
+* GPIF State Machine number.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid
+* CY_LVDS_SUCCESS - If the operation is successful
+* CY_LVDS_CONFIG_ERROR - If the sequence in which registers are configured is incorrect
+*
+* \note
+* This function will only disable/stop the state machine. The GPIF configurations
+* will be retained.
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_GpifSMStop(LVDSSS_LVDS_Type* base, uint8_t smNo)
+{
+    uint32_t intMask;
+    if(smNo >= CY_LVDS_MAX_GPIF_INSTANCE)
+    {
+        return CY_LVDS_BAD_PARAMETER;
+    }
+    if (((base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT & LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_WAVEFORM_VALID_Msk) == 0))
+    {
+        return CY_LVDS_CONFIG_ERROR;
+    }
+
+    intMask = Cy_SysLib_EnterCriticalSection();
+    base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT |= LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_PAUSE_Msk;
+    Cy_SysLib_DelayUs(10);
+    base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT = 0;
+    base->GPIF[smNo].GPIF_INTR = 0xFFFFFFFFUL;
+    base->GPIF[smNo].GPIF_INTR_MASK = 0;
+
+    Cy_SysLib_ExitCriticalSection(intMask);
+
+    return CY_LVDS_SUCCESS;
+
+}
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_GpifSMControl
@@ -3605,7 +3832,7 @@ cy_en_lvds_status_t Cy_LVDS_L3_Exit (LVDSSS_LVDS_Type *base,
 
         base->AFE[sipNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk;
         base->AFE[sipNo].PHY_TRAIN_CONFIG  = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, pPhyConfig->phyTrainingPattern) |
-                                             _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO,100);
+                                             _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO, 127);
     }
 #endif /* (!LVCMOS_16BIT_SDR) */
 

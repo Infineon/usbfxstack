@@ -182,9 +182,6 @@ extern "C" {
 #define CY_USBSS_LBPM_PHY_CAP_GEN1X2_VAL        (0x40UL)
 #define CY_USBSS_LBPM_PHY_CAP_GEN2X2_VAL        (0x44UL)
 
-#define ENABLE_CDR_RESET_ON_DEC_ERR (0)
-#define CTRL_PHY_CLK_U3 (1)
-
 #define USBSS_CAL_GET_LINK_STATE(regs)      ((regs)->LNK_LTSSM_STATE & USB32DEV_LNK_LTSSM_STATE_LTSSM_STATE_Msk)
 
 #define CY_USBSS_JUMP_TO_LINK_STATE(regs, state)                                                        \
@@ -194,6 +191,17 @@ extern "C" {
 #define CY_USBSS_FORCE_LINK_STATE(regs, state)                                                          \
     ((regs)->LNK_LTSSM_STATE = (((state) << USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_VALUE_Pos) |        \
         USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_EN_Msk))
+
+
+
+
+/* Delay Timer macros */
+#define CY_USBSS_CAL_TCPWM_INDEX        (1UL)
+#define CY_USBSS_CAL_TCPWM_INTERRUPT    (tcpwm_0_interrupts_1_IRQn)
+#define CY_USBSS_CAL_TCPWM_DIV_INDEX    (2UL)
+#define CY_USBSS_CAL_TCPWM_CLK          (PCLK_TCPWM0_CLOCKS1) /*CLK 1 for index 1*/
+#define CY_USBSS_CAL_TIMER_RUNNING      (CY_TCPWM_COUNTER_STATUS_COUNTER_RUNNING | CY_TCPWM_COUNTER_STATUS_DOWN_COUNTING)
+
 
 #endif /* DOXYGEN */
 
@@ -292,6 +300,19 @@ typedef enum
     CY_SSCAL_LPM_ENABLED                /**< U1/U2 entry is allowed. */
 } cy_en_usbss_cal_lpm_cfg_t;
 
+/**
+ * @typedef cy_en_usbss_delay_event_t
+ * @brief Types of events to handle after delay
+ * timer expires.
+ */
+typedef enum
+{
+    DELAY_EVENT_NONE           = 0x00,          /**< No events pending. */
+    DELAY_EVENT_P0_CHG         = 0x01,          /**< Handle P0 change interrupt */
+    DELAY_EVENT_HOLD_POLL_ACT  = 0x02           /**< Handle Polling Active entry event */
+}cy_en_usbss_delay_event_t;
+
+
 /** \} group_usbfxstack_usb_common_enums */
 
 /**
@@ -353,6 +374,8 @@ typedef struct cy_stc_usbss_cal_ctxt_t
     bool                stopClkOnEpResetEnable;                         /**< Enable stopping clock during EP reset. */
     cy_en_usb_config_lane_t usbConfigLane;                              /**< USB configuration lane selection. */
     bool                gen1SpeedForced;                                /**< Driver has forced Gen1 speed in compliance. */
+    bool                inGen1DualMode;                                 /**< Whether link was up in Gen1x2 mode. */
+    cy_en_usbss_delay_event_t delayEventMask;                           /**< Event to handle after timer expiry */
 }cy_stc_usbss_cal_ctxt_t;
 
 /** \} group_usbfxstack_usb_common_structs */
@@ -672,22 +695,6 @@ cy_en_usb_cal_ret_code_t Cy_USBSS_Cal_ProtSendErdyTp
                                            uint32_t endpNum,
                                            cy_en_usb_endp_dir_t endpDir,
                                            uint8_t numP, uint16_t bulkStream);
-
-/*******************************************************************************
-* Function Name: Cy_USBSS_Cal_ProtSendZlpTp
-****************************************************************************//**
-*
-* This function prepares and send ZLP transaction packet.
-*
-* \param pCalCtxt
-* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
-* allocated by the user.
-*
-* \return
-* The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
-*
-*******************************************************************************/
-cy_en_usb_cal_ret_code_t Cy_USBSS_Cal_ProtSendZlpTp (cy_stc_usbss_cal_ctxt_t *pCalCtxt);
 
 /*******************************************************************************
 * Function Name: Cy_USBSS_Cal_ProtSendNrdyTp
@@ -1663,12 +1670,62 @@ void Cy_USBSS_Cal_ClkStopOnEpRstEnable(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool c
 *******************************************************************************/
 void Cy_USBSS_Cal_SelectConfigLane(cy_stc_usbss_cal_ctxt_t *pCalCtxt, cy_en_usb_config_lane_t laneSel);
 
+/*******************************************************************************
+* Function name: Cy_USBSS_Cal_ITPIntrUpdate
+****************************************************************************//**
+*
+* Function to enable or disable the ITP interrupt based on user requirement.
+*
+* \param pCalCtxt
+* CAL layer library context pointer.
+*
+* \param itpIntrEnable
+* Whether the ITP interrupt should be enabled.
+*
+*******************************************************************************/
+void Cy_USBSS_Cal_ITPIntrUpdate(cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool itpIntrEnable);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_GetTemperatureReading
+****************************************************************************//**
+*
+* Get the temperature sensitive reading from ADC in the USB block.
+*
+* \note
+* The procedure to convert the ADC reading to actual temperature is TBD.
+* The ADC reading will reduce by 1 point for a rise of approximately 5 degrees
+* in temperature.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+*
+* \return
+* ADC reading equivalent to die temperature.
+*******************************************************************************/
+uint8_t Cy_USBSS_Cal_GetTemperatureReading(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
+
 #ifndef DOXYGEN
 
 /* Debug function used during Silicon bring-up: To be removed. */
 void Cy_USBSS_Cal_PrintCtleResults(cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t phyIndex);
 
 #endif /* DOXYGEN */
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_TimerISR
+****************************************************************************//**
+*
+* Function that handles the delay timer expiry based on the event
+* This function should be called by the user when the TCPWM ISR is
+* invoked.
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+*******************************************************************************/
+
+void Cy_USBSS_Cal_TimerISR(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
 
 /** \} group_usbfxstack_usb_common_functions */
 

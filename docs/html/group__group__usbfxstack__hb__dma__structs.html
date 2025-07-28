@@ -449,6 +449,12 @@ consSck[2]</td>
 <td class="fielddoc">
 ID of the consumer socket(s). </td></tr>
 <tr><td class="fieldtype">
+<a id="a03869d08d3953e95d5397386d88b4388" name="a03869d08d3953e95d5397386d88b4388"></a>uint16_t</td>
+<td class="fieldname">
+usbMaxPktSize</td>
+<td class="fielddoc">
+Maximum packet size of the associated USB endpoint. </td></tr>
+<tr><td class="fieldtype">
 <a id="a51f4ce1fb322bb92c7520da288564500" name="a51f4ce1fb322bb92c7520da288564500"></a>uint32_t</td>
 <td class="fieldname">
 intrEnable</td>
@@ -675,6 +681,60 @@ Number of pending discard operations on each consumer socket. </td></tr>
 endpAddr</td>
 <td class="fielddoc">
 USB endpoint associated with the channel. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3f9ccb83ba625aefe09dd11e1fc5ffe9" name="a3f9ccb83ba625aefe09dd11e1fc5ffe9"></a>bool</td>
+<td class="fieldname">
+egressDWTrigDone[2]</td>
+<td class="fielddoc">
+Whether DataWire trigger for each egress channel has been done. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad80cab9607001b6602800b66c48c4477" name="ad80cab9607001b6602800b66c48c4477"></a>bool</td>
+<td class="fieldname">
+ingressDWRqtQueued[2]</td>
+<td class="fielddoc">
+Whether ingress DataWire request has been queued. </td></tr>
+<tr><td class="fieldtype">
+<a id="afff06802fca2cd85c5fcd601bb9189bf" name="afff06802fca2cd85c5fcd601bb9189bf"></a>bool</td>
+<td class="fieldname">
+egressDWRqtQueued[2]</td>
+<td class="fielddoc">
+Whether egress DataWire request has been queued. </td></tr>
+<tr><td class="fieldtype">
+<a id="a60ceb24347b90970239bb43858a9c173" name="a60ceb24347b90970239bb43858a9c173"></a>uint16_t</td>
+<td class="fieldname">
+epMaxPktSize</td>
+<td class="fielddoc">
+Maximum packet size for the USBHS endpoint. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3fd5c71684a28ada919e1c57df57ab2a" name="a3fd5c71684a28ada919e1c57df57ab2a"></a>cy_stc_dma_descriptor_t *</td>
+<td class="fieldname">
+pProdDwDscr[2]</td>
+<td class="fielddoc">
+Current DataWire descriptor pointer for producer channels. </td></tr>
+<tr><td class="fieldtype">
+<a id="a27f0faad9d110869d932d67084aacd56" name="a27f0faad9d110869d932d67084aacd56"></a>cy_stc_dma_descriptor_t *</td>
+<td class="fieldname">
+pConsDwDscr[2]</td>
+<td class="fielddoc">
+Current DataWire descriptor pointer for consumer channels. </td></tr>
+<tr><td class="fieldtype">
+<a id="a22284e310a778b99dd1d527a3ee36a16" name="a22284e310a778b99dd1d527a3ee36a16"></a>uint16_t</td>
+<td class="fieldname">
+curIngressXferSize[2]</td>
+<td class="fielddoc">
+Current ingress DataWire transfer size in bytes. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0c9ecada55c075f0df35690fcb1103b0" name="a0c9ecada55c075f0df35690fcb1103b0"></a>uint8_t *</td>
+<td class="fieldname">
+pCurEgressDataBuf[2]</td>
+<td class="fielddoc">
+Current buffer from which egress DataWire channel is reading. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad376ec484d34ee11f1343c4a171c6028" name="ad376ec484d34ee11f1343c4a171c6028"></a>uint16_t</td>
+<td class="fieldname">
+curEgressXferSize[2]</td>
+<td class="fielddoc">
+Size of data in buffer from which egress channel is reading. </td></tr>
 </table>
 
 </div>
@@ -846,6 +906,12 @@ sckChannelMap[<a class="el" href="group__group__usbfxstack__hb__dma__macros.html
 <td class="fielddoc">
 Table used to map sockets to DMA channels. </td></tr>
 <tr><td class="fieldtype">
+<a id="ad7162be6b591859eb379430d2bd86d56" name="ad7162be6b591859eb379430d2bd86d56"></a>cy_stc_dma_descriptor_t *</td>
+<td class="fieldname">
+dwDscrList</td>
+<td class="fielddoc">
+List of DataWire descriptors used across all channels. </td></tr>
+<tr><td class="fieldtype">
 <a id="a7ece7a55e6faf5cb536de04622d02db3" name="a7ece7a55e6faf5cb536de04622d02db3"></a>uint16_t</td>
 <td class="fieldname">
 usbIngMultEnable</td>
@@ -863,6 +929,13 @@ Bit-mask providing mult enable setting for USB egress sockets. </td></tr>
 en_64k</td>
 <td class="fielddoc">
 Whether 64KB DMA buffer support is enabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="a598af6d16600a5af981bfcbbd735854a" name="a598af6d16600a5af981bfcbbd735854a"></a>void *</td>
+<td class="fieldname">
+pUsbStackCtx</td>
+<td class="fielddoc">
+USB stack context pointer. <p >Needed for USB-HS operation. </p>
+</td></tr>
 </table>
 
 </div>

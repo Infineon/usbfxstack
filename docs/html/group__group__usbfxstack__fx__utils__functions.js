@@ -14,6 +14,7 @@ var group__group__usbfxstack__fx__utils__functions =
     [ "Cy_Debug_CdcPrintNow", "group__group__usbfxstack__fx__utils__functions.html#gaa0d18c64c8961a8ff51ef03a20123c25", null ],
     [ "Cy_Efuse_IsBitBlown", "group__group__usbfxstack__fx__utils__functions.html#gacb605509f2b742261e3627f6ff74c382", null ],
     [ "Cy_Efuse_WriteBit", "group__group__usbfxstack__fx__utils__functions.html#gad7df8892f9136f9fc000f8c50b9c96c6", null ],
+    [ "Cy_UsbFx_OnResetInit", "group__group__usbfxstack__fx__utils__functions.html#ga8a2edcd097fb16b19b13076805ea3ffd", null ],
     [ "Cy_UsbFx_SelectDFTFunctions", "group__group__usbfxstack__fx__utils__functions.html#gae4f158c999383cd222cf71939981fea0", null ],
     [ "Cy_UsbFx_MemSetDword", "group__group__usbfxstack__fx__utils__functions.html#ga5cf44d5bab64a8f284e97950b8ceee34", null ],
     [ "Cy_UsbFx_MemCpyDword", "group__group__usbfxstack__fx__utils__functions.html#ga4831d3912d3593c289182b2d55918c2a", null ],
@@ -48,8 +49,8 @@ var group__group__usbfxstack__fx__utils__functions =
     [ "Cy_USBHS_App_EnableEpDmaSet", "group__group__usbfxstack__fx__utils__functions.html#ga97801d008898af502c57a692a6813f1f", null ],
     [ "Cy_USBHS_App_DisableEpDmaSet", "group__group__usbfxstack__fx__utils__functions.html#gaa12cf038737f0426c98ae0df764dad13", null ],
     [ "Cy_USBHS_App_ResetEpDma", "group__group__usbfxstack__fx__utils__functions.html#ga7701f1e1cfbd7e0a7136e0e7cc48b0aa", null ],
-    [ "Cy_USBHS_App_QueueRead", "group__group__usbfxstack__fx__utils__functions.html#ga5dd4a861d0140e343bab4d65729b3aeb", null ],
+    [ "Cy_USBHS_App_QueueRead", "group__group__usbfxstack__fx__utils__functions.html#ga15586bb414389e3a661532cc1a9220cb", null ],
     [ "Cy_USBHS_App_ReadShortPacket", "group__group__usbfxstack__fx__utils__functions.html#ga6d45aa48e0f35510091d893e10b84d9f", null ],
-    [ "Cy_USBHS_App_QueueWrite", "group__group__usbfxstack__fx__utils__functions.html#gae2858ef01cd0ed96f7ed6684f6fc8c63", null ],
+    [ "Cy_USBHS_App_QueueWrite", "group__group__usbfxstack__fx__utils__functions.html#ga853b42a525e0aa30671c4d04fc3d31e9", null ],
     [ "Cy_USBHS_App_ClearDmaInterrupt", "group__group__usbfxstack__fx__utils__functions.html#ga977c3bab2cffff8bd23f9f3cb023fb2d", null ]
 ];

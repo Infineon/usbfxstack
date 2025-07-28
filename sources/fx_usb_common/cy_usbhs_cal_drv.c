@@ -47,26 +47,28 @@ extern "C" {
  *
  * \param init - Set TRUE to initialize pin for external clock input
  *               Set FALSE to remove external clock input capability for the IO.
+ * \param pinSel Set TRUE to try the alternate clock input pin.
  *
  * \return Pass/fail status of configuration update.
  *******************************************************************************/
-static cy_en_gpio_status_t Cy_USBHS_ConfigExtClkPin (bool init)
+static cy_en_gpio_status_t Cy_USBHS_ConfigExtClkPin (bool init, bool pinSel)
 {
     cy_en_gpio_status_t status = CY_GPIO_SUCCESS;
     cy_stc_gpio_pin_config_t pinCfg;
 
     memset ((void *)&pinCfg, 0, sizeof(pinCfg));
-    if(init)
-    {
+
+    /* First, change IO mode for the alternate pin to GPIO to avoid interference. */
+    pinCfg.driveMode = CY_GPIO_DM_ANALOG;
+    pinCfg.hsiom     = HSIOM_SEL_GPIO;
+    (void)Cy_GPIO_Pin_Init(GPIO_PRT5, (pinSel) ? CY_EXTERNAL_CLK_PIN : CY_EXTERNAL_CLK_PIN_ALT, &pinCfg);
+
+    if (init) {
         pinCfg.driveMode = CY_GPIO_DM_HIGHZ;
-        pinCfg.hsiom     = HSIOM_SEL_ACT_4;
+        pinCfg.hsiom     = P5_0_SRSS_EXT_CLK;
     }
-    else
-    {
-        pinCfg.driveMode = CY_GPIO_DM_ANALOG;
-        pinCfg.hsiom     = HSIOM_SEL_GPIO;
-    }
-    status = Cy_GPIO_Pin_Init(GPIO_PRT5, CY_EXTERNAL_CLK_PIN, &pinCfg);
+
+    status = Cy_GPIO_Pin_Init(GPIO_PRT5, (pinSel) ? CY_EXTERNAL_CLK_PIN_ALT : CY_EXTERNAL_CLK_PIN, &pinCfg);
     return status;
 }
 
@@ -80,7 +82,6 @@ static cy_en_gpio_status_t Cy_USBHS_ConfigExtClkPin (bool init)
  *
  * \return True - PLL Lock, False - PLL not locked (timeout)
  *******************************************************************************/
-
 static bool Cy_USBHS_WaitForPllLock (cy_stc_usb_cal_ctxt_t *pCalCtxt, uint32_t timeoutMs)
 {
     USBHSPHY_Type  *pPhyBase = pCalCtxt->pPhyBase;
@@ -96,7 +97,8 @@ static bool Cy_USBHS_WaitForPllLock (cy_stc_usb_cal_ctxt_t *pCalCtxt, uint32_t t
         }
         Cy_SysLib_Delay(1);
     }
-    pPhyBase->INTR0  |= USBHSPHY_INTR0_PLL_LOCK;
+
+    pPhyBase->INTR0 = USBHSPHY_INTR0_PLL_LOCK;
     return true;
 }
 
@@ -119,7 +121,8 @@ static bool Cy_USBHS_WaitForPllLock (cy_stc_usb_cal_ctxt_t *pCalCtxt, uint32_t t
 * \return
 * None.
 *
-*******************************************************************************/void
+*******************************************************************************/
+void
 Cy_USBHS_Cal_Init (cy_stc_usb_cal_ctxt_t *pCalCtxt,
                    void *pUsbdCtxt,
                    cy_usb_cal_msg_callback_t callBackFunc)
@@ -133,6 +136,7 @@ Cy_USBHS_Cal_Init (cy_stc_usb_cal_ctxt_t *pCalCtxt,
      */
     pCalCtxt->pUsbdCtxt = pUsbdCtxt;
     pCalCtxt->msgCb = callBackFunc;
+    pCalCtxt->enableSOFInterrupt = false;
 
     pCalBase->POWER |= USBHSDEV_POWER_RESETN;
     Cy_SysLib_DelayUs(1);
@@ -159,6 +163,41 @@ Cy_USBHS_Cal_Init (cy_stc_usb_cal_ctxt_t *pCalCtxt,
     Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_HSCAL_EVT_CAL_INIT_DONE);
     DBG_HSCAL_TRACE("Cy_USBHS_Cal_Init  <<\r\n");
     return;
+}
+
+/*******************************************************************************
+* Function name: Cy_USBHS_Cal_SOFIntrUpdate
+****************************************************************************//**
+*
+* Function to enable or disable the SOF interrupt based on user requirement.
+*
+* \param pCalCtxt
+* CAL layer library context pointer.
+*
+* \param sofIntrEnable
+* Whether the SOF interrupt should be enabled.
+*
+*******************************************************************************/
+void Cy_USBHS_Cal_SOFIntrUpdate (
+        cy_stc_usb_cal_ctxt_t *pCalCtxt,
+        bool sofIntrEnable)
+{
+    USBHSDEV_Type *pCalBase;
+
+    if ((pCalCtxt != NULL) && (pCalCtxt->pCalBase != NULL)) {
+        pCalCtxt->enableSOFInterrupt = sofIntrEnable;
+        pCalBase = pCalCtxt->pCalBase;
+
+        if (sofIntrEnable) {
+            /* Enable the interrupt only if other USB 2.x interrupts are enabled. */
+            if (pCalBase->DEV_CTL_INTR_MASK != 0) {
+                pCalBase->DEV_CTL_INTR_MASK |= USBHSDEV_DEV_CTL_INTR_MASK_SOF;
+            }
+        } else {
+            /* Disable the interrupt. */
+            pCalBase->DEV_CTL_INTR_MASK &= ~USBHSDEV_DEV_CTL_INTR_MASK_SOF;
+        }
+    }
 }
 
 /*******************************************************************************
@@ -203,6 +242,59 @@ static void Cy_USBHS_Cal_UpdateFx2g3PllSettings (USBHSPHY_Type  *pPhyBase)
 #endif /* FX2G3_EN */
 }
 
+/*******************************************************************************
+ * Function name:Cy_USBHS_Cal_TryPllLock
+ ****************************************************************************//**
+ * Enable the PLL and check whether lock is obtained within expected time.
+ *
+ * \param pCalCtxt
+ * Pointer to CAL context structure.
+ *
+ * \param isEco
+ * true to check for PLL lock with ECO reference, false to check with clock input.
+ *
+ * \return
+ * true if PLL lock was obtained, false otherwise.
+ *******************************************************************************/
+static bool Cy_USBHS_Cal_TryPllLock (cy_stc_usb_cal_ctxt_t *pCalCtxt, bool isEco)
+{
+    USBHSPHY_Type  *pPhyBase = pCalCtxt->pPhyBase;
+    USBHSDEV_Type  *pCalBase = pCalCtxt->pCalBase;
+    bool pllLocked = false;
+
+    /* Disable the PLL and clear interrupt status first. */
+    pPhyBase->PLL_CONTROL_1 &= ~(USBHSPHY_PLL_CONTROL_1_SUPPLY_EN | USBHSPHY_PLL_CONTROL_1_PLL_EN);
+    pPhyBase->INTR0 = USBHSPHY_INTR0_PLL_LOCK;
+
+    if (isEco) {
+        pCalBase->POWER &= ~(USBHSDEV_POWER_REFCLK_SEL_Msk);
+    } else {
+        pCalBase->POWER |= (USBHSDEV_POWER_REFCLK_SEL_Msk);
+    }
+
+    /* Enable PLL supply, wait for at least 8 us and then enable PLL. */
+    pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN;
+    Cy_SysLib_DelayUs(10);
+    pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN;
+
+    if (isEco) {
+        DBG_HSCAL_INFO("ECO: Waiting for USBHS PLL Lock\r\n");
+    } else {
+        DBG_HSCAL_INFO("EXTCLK: Waiting for USBHS PLL Lock\r\n");
+    }
+
+    pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, CY_USBHS_PLL_LOCK_TIMEOUT_MS);
+
+    /* Disable PLL again if lock was not achieved. */
+    if (!pllLocked) {
+        pPhyBase->PLL_CONTROL_1 &= ~(USBHSPHY_PLL_CONTROL_1_SUPPLY_EN | USBHSPHY_PLL_CONTROL_1_PLL_EN);
+        if (isEco) {
+            Cy_SysClk_EcoDisable();
+        }
+    }
+
+    return pllLocked;
+}
 
 /*******************************************************************************
 * Function name: Cy_USBHS_Cal_FsHsModePhyInit
@@ -221,7 +313,6 @@ void
 Cy_USBHS_Cal_FsHsModePhyInit (cy_stc_usb_cal_ctxt_t *pCalCtxt)
 {
     USBHSPHY_Type  *pPhyBase = pCalCtxt->pPhyBase;
-    USBHSDEV_Type  *pCalBase = pCalCtxt->pCalBase;
     bool pllLocked = false;
 
     /* At start, we don't know whether the reference clock is from ECO or externally provided. */
@@ -243,88 +334,74 @@ Cy_USBHS_Cal_FsHsModePhyInit (cy_stc_usb_cal_ctxt_t *pCalCtxt)
 
     /* If ECO has already been enabled and is showing OK status, go ahead with existing config. */
     if (Cy_SysClk_EcoGetStatus() == CY_SYSCLK_ECOSTAT_STABLE) {
-        /* Enable PLL supply, wait for at least 8 us and then enable PLL. */
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN;
-        Cy_SysLib_DelayUs(10);
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN;
-
-        DBG_HSCAL_INFO("ECO: Waiting for USBHS PLL Lock\r\n");
-        pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, 0);
+        pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, true);
         if (pllLocked) {
             pCalCtxt->clkSrcType = USB2REF_CLK_SRC_ECO;
-        } else {
-            /* Disable PLL and ECO. */
-            pPhyBase->PLL_CONTROL_1 &= ~(USBHSPHY_PLL_CONTROL_1_SUPPLY_EN | USBHSPHY_PLL_CONTROL_1_PLL_EN);
-            Cy_SysClk_EcoDisable();
         }
     }
 
     if (!pllLocked) {
-        /* Check whether the active clock input is from EXT_CLK. If not, fallback to ECO input */
-        Cy_USBHS_ConfigExtClkPin(TRUE);
-        pCalBase->POWER |= (USBHSDEV_POWER_REFCLK_SEL_Msk);
+        /*
+         * If either the XTALIN or XTALOUT pins are configured in external clock mode, try to obtain PLL lock with
+         * the clock input.
+         */
+        if (
+                (Cy_GPIO_GetHSIOM(GPIO_PRT5, CY_EXTERNAL_CLK_PIN) == P5_0_SRSS_EXT_CLK) ||
+                (Cy_GPIO_GetHSIOM(GPIO_PRT5, CY_EXTERNAL_CLK_PIN_ALT) == P5_0_SRSS_EXT_CLK)
+           ) {
+            pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, false);
+            if (pllLocked) {
+                pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
+            }
+        }
 
-        /* Enable PLL supply, wait for at least 8 us and then enable PLL. */
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN;
-        Cy_SysLib_DelayUs(10);
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN;
+        /* Try whether we can obtain PLL lock using external clock input on either XTALOUT or XTALIN. */
+        if (!pllLocked) {
+            /* Enable XTALOUT pin as external clock input. */
+            Cy_USBHS_ConfigExtClkPin(true, false);
 
-        DBG_HSCAL_INFO("EXT_CLK: Waiting for USBHS PLL Lock\r\n");
-        pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, CY_USBHS_PLL_LOCK_TIMEOUT_MS);
+            pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, false);
+            if (pllLocked) {
+                pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
+            } else {
+                /* Enable XTALIN pin as external clock input. */
+                Cy_USBHS_ConfigExtClkPin(true, true);
+
+                pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, false);
+                if (pllLocked) {
+                    pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
+                } else {
+                    /* Leave XTALIN and XTALOUT pins in default state. */
+                    Cy_USBHS_ConfigExtClkPin(false, true);
+                }
+            }
+        }
+    }
 
         /* USBHS PLL is not locked, check if clock is coming from the ECO */
-        if (!pllLocked) {
-            pPhyBase->PLL_CONTROL_1 &= ~(USBHSPHY_PLL_CONTROL_1_SUPPLY_EN | USBHSPHY_PLL_CONTROL_1_PLL_EN);
+    if (!pllLocked) {
+        DBG_HSCAL_INFO("Enabling ECO\r\n");
 
-            /* Disable settings for external clock */
-            pCalBase->POWER &= ~(USBHSDEV_POWER_REFCLK_SEL_Msk);
+        /*
+         * Apply typical ECO trim settings where required:
+         * CLK_TRIM_ECO_CTL: WDTRIM=0, ATRIM=15, FTRIM=3, RTRIM=1, GTRIM=2
+         */
+        if ((SRSS->CLK_TRIM_ECO_CTL & SRSS_CLK_TRIM_ECO_CTL_WDTRIM_Msk) > 1UL) {
+            SRSS->CLK_TRIM_ECO_CTL = (SRSS->CLK_TRIM_ECO_CTL & ~(0xFFFFUL)) | 0x27F0UL;
+        }
 
-            DBG_HSCAL_INFO("Enabling ECO\r\n");
-            Cy_USBHS_ConfigExtClkPin(FALSE);
+        /* Enable the ECO and wait for ECO stability for a maximum of 10 ms. */
+        if (Cy_SysClk_EcoEnable(10000UL) != CY_SYSCLK_SUCCESS) {
+            DBG_HSCAL_INFO("ECO stability timeout\r\n");
+            return;
+        }
 
-#if FX2G3_EN
-            /*
-               GTRIM = 1
-               WDTRIM = 0
-               ATRIM = F
-               FTRIM = 3
-               RTRIM = 1
-               */
-            if ((SRSS->CLK_TRIM_ECO_CTL & SRSS_CLK_TRIM_ECO_CTL_WDTRIM_Msk) > 1UL) {
-                SRSS->CLK_TRIM_ECO_CTL = 0x2127F0UL;
-                SRSS->CLK_TRIM_ECO_CTL = (
-                        (SRSS->CLK_TRIM_ECO_CTL & ~SRSS_CLK_TRIM_ECO_CTL_GTRIM_Msk) |
-                        (0x01UL << SRSS_CLK_TRIM_ECO_CTL_GTRIM_Pos));
-            }
-#else
-            /*
-             * Temporary for QB part support: Apply a typical ECO trim register value if the WDTRIM field
-             * is set greater than 1 (75 mV).
-             */
-            if ((SRSS->CLK_TRIM_ECO_CTL & SRSS_CLK_TRIM_ECO_CTL_WDTRIM_Msk) > 1UL) {
-                SRSS->CLK_TRIM_ECO_CTL = 0x2127F0UL;
-            }
-#endif
-
-            /* Enable the ECO and wait for ECO stability for a maximum of 10 ms. */
-            if (Cy_SysClk_EcoEnable(10000UL) != CY_SYSCLK_SUCCESS) {
-                DBG_HSCAL_INFO("ECO stability timeout\r\n");
-                return;
-            }
-
-            /* Enable PLL supply, wait for at least 8 us and then enable PLL. */
-            pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN;
-            Cy_SysLib_DelayUs(10);
-            pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN;
-
-            DBG_HSCAL_INFO("ECO: Waiting for USBHS PLL Lock\r\n");
-            pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, 0);
-            if (pllLocked)
-            {
-                pCalCtxt->clkSrcType = USB2REF_CLK_SRC_ECO;
-            }
+        pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, true);
+        if (pllLocked) {
+            pCalCtxt->clkSrcType = USB2REF_CLK_SRC_ECO;
         } else {
-            pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
+            DBG_HSCAL_ERR("Failed to get PLL lock. Please ensure crystal or clock input is present.\r\n");
+            return;
         }
     }
 
@@ -333,12 +410,23 @@ Cy_USBHS_Cal_FsHsModePhyInit (cy_stc_usb_cal_ctxt_t *pCalCtxt)
     pPhyBase->AFE_CONTROL_1 |= USBHSPHY_AFE_CONTROL_1_CPU_DELAY_ENABLE_HS_VCCD;
     pPhyBase->CDR_CONTROL |=  USBHSPHY_CDR_CONTROL_CDR_ENABLE;
 
+#if FX2G3_EN
+    /* Update PHY TX settings for initial connection.
+     * AFE_CONTROL_1.HS_AMP_SEL = 6
+     * AFE_CONTROL_1.HS_PREE_SEL = 0
+     */
+    pPhyBase->AFE_CONTROL_1 = (
+            (pPhyBase->AFE_CONTROL_1 & ~(USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Msk | USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Msk)) |
+            (0x06UL << USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Pos));
+#else
     /* Update PHY TX settings for initial connection.
      * AFE_CONTROL_1.HS_AMP_SEL = 5
+     * AFE_CONTROL_1.HS_PREE_SEL = 0
      */
     pPhyBase->AFE_CONTROL_1 = (
             (pPhyBase->AFE_CONTROL_1 & ~(USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Msk | USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Msk)) |
             (0x05UL << USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Pos));
+#endif /* FX2G3_EN */
 
     /* PHY RX update for compliance. */
     pPhyBase->VREFGEN_CONTROL = (
@@ -373,19 +461,35 @@ Cy_USBHS_Cal_PreemphasisControl (cy_stc_usb_cal_ctxt_t *pCalCtxt,
         pPhyBase = pCalCtxt->pPhyBase;
 
         if (enable) {
+#if FX2G3_EN
+            /* Optimal PHY settings for far and near end eye testing.
+             * AFE_CONTROL_1.HS_AMP_SEL = 6
+             * AFE_CONTROL_1.HS_PREE_SEL = 5
+             * DIGITAL_CONTROL.DLAUNCH_SEL = 2
+             */
+            pPhyBase->AFE_CONTROL_1 = (
+                    (pPhyBase->AFE_CONTROL_1 & ~(USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Msk | USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Msk)) |
+                    (0x06UL << USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Pos) |
+                    (0x05UL << USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Pos));
+            Cy_SysLib_Delay(1);
+            pPhyBase->DIGITAL_CONTROL = (
+                    (pPhyBase->DIGITAL_CONTROL & ~USBHSPHY_DIGITAL_CONTROL_DLAUNCH_SEL_Msk) |
+                    (0x02UL << USBHSPHY_DIGITAL_CONTROL_DLAUNCH_SEL_Pos));
+#else
             /* Optimal PHY settings for far and near end eye testing.
              * AFE_CONTROL_1.HS_AMP_SEL = 5
-             * AFE_CONTROL_1.HS_PREE_SEL = 4
+             * AFE_CONTROL_1.HS_PREE_SEL = 5
              * DIGITAL_CONTROL.DLAUNCH_SEL = 2
              */
             pPhyBase->AFE_CONTROL_1 = (
                     (pPhyBase->AFE_CONTROL_1 & ~(USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Msk | USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Msk)) |
                     (0x05UL << USBHSPHY_AFE_CONTROL_1_HS_AMP_SEL_Pos) |
-                    (0x04UL << USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Pos));
+                    (0x05UL << USBHSPHY_AFE_CONTROL_1_HS_PREE_SEL_Pos));
             Cy_SysLib_Delay(1);
             pPhyBase->DIGITAL_CONTROL = (
                     (pPhyBase->DIGITAL_CONTROL & ~USBHSPHY_DIGITAL_CONTROL_DLAUNCH_SEL_Msk) |
                     (0x02UL << USBHSPHY_DIGITAL_CONTROL_DLAUNCH_SEL_Pos));
+#endif /* FX2G3_EN */
         } else {
             /* Disable pre-emphasis where required.
              * AFE_CONTROL_1.HS_PREE_SEL = 0
@@ -463,7 +567,6 @@ Cy_USBHS_Cal_DeinitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
 cy_en_usb_cal_ret_code_t
 Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
 {
-    USBHSDEV_Type *pCalBase;
     USBHSPHY_Type *pPhyBase;
     uint32_t regVal, loopCnt;
     bool pllLocked = false;
@@ -472,7 +575,6 @@ Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         return(CY_USB_CAL_STATUS_CAL_BASE_NULL);
     }
 
-    pCalBase = pCalCtxt->pCalBase;
     pPhyBase = pCalCtxt->pPhyBase;
 
     /* Make sure any earlier interrupt status is cleared. */
@@ -505,55 +607,30 @@ Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         /* Make sure ECO is disabled first. */
         Cy_SysClk_EcoDisable();
 
-        /* Check whether the active clock input is from EXT_CLK.If not, fallback to ECO input */
-        Cy_USBHS_ConfigExtClkPin(TRUE);
-        pCalBase->POWER |= (USBHSDEV_POWER_REFCLK_SEL_Msk);
+        /* If clock source is unknown, try enabling clock input on XTALOUT pin. */
+        if (pCalCtxt->clkSrcType == USB2REF_CLK_SRC_UNKNOWN) {
+            Cy_USBHS_ConfigExtClkPin(true, false);
+        }
 
-        /* Enable the PLL */
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN_Msk;
-        Cy_SysLib_DelayUs(10);
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN_Msk;
-
-        DBG_HSCAL_TRACE("EXT_CLK: Waiting for USBHS PLL Lock\r\n");
-        pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, CY_USBHS_PLL_LOCK_TIMEOUT_MS);
-    } else {
-        /* We have previously determined that the clock source is ECO. Go ahead with this. */
-        pllLocked = false;
+        pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, false);
+        if (pllLocked) {
+            pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
+        } else {
+            Cy_USBHS_ConfigExtClkPin(false, false);
+        }
     }
 
     /* USBHS PLL is not locked, check if clock is coming from the ECO */
     if (!pllLocked) {
-        pPhyBase->PLL_CONTROL_1 &= ~(USBHSPHY_PLL_CONTROL_1_SUPPLY_EN_Msk | USBHSPHY_PLL_CONTROL_1_PLL_EN_Msk);
-
-        /* Disable settings for external clock */
-        pCalBase->POWER &= ~(USBHSDEV_POWER_REFCLK_SEL_Msk);
-        Cy_USBHS_ConfigExtClkPin(FALSE);
-
         DBG_HSCAL_TRACE("Enabling ECO\r\n");
 
-#if FX2G3_EN
         /*
-            GTRIM = 1
-            WDTRIM = 0
-            ATRIM = F
-            FTRIM = 3
-            RTRIM = 1
-        */
-        if ((SRSS->CLK_TRIM_ECO_CTL & SRSS_CLK_TRIM_ECO_CTL_WDTRIM_Msk) > 1UL) {
-            SRSS->CLK_TRIM_ECO_CTL = 0x2127F0UL;
-            SRSS->CLK_TRIM_ECO_CTL = (
-            (SRSS->CLK_TRIM_ECO_CTL & ~SRSS_CLK_TRIM_ECO_CTL_GTRIM_Msk) |
-            (0x01UL << SRSS_CLK_TRIM_ECO_CTL_GTRIM_Pos));
-        }
-#else
-        /*
-         * Temporary for QB part support: Apply a typical ECO trim register value if the WDTRIM field
-         * is set greater than 1 (75 mV).
+         * Apply typical ECO trim settings where required:
+         * CLK_TRIM_ECO_CTL: WDTRIM=0, ATRIM=15, FTRIM=3, RTRIM=1, GTRIM=2
          */
         if ((SRSS->CLK_TRIM_ECO_CTL & SRSS_CLK_TRIM_ECO_CTL_WDTRIM_Msk) > 1UL) {
-            SRSS->CLK_TRIM_ECO_CTL = 0x2127F0UL;
+            SRSS->CLK_TRIM_ECO_CTL = (SRSS->CLK_TRIM_ECO_CTL & ~(0xFFFFUL)) | 0x27F0UL;
         }
-#endif /* FX2G3_EN */
 
         /* Enable the ECO and wait for ECO stability for a maximum of 10 ms. */
         if (Cy_SysClk_EcoEnable(10000UL) != CY_SYSCLK_SUCCESS) {
@@ -562,13 +639,7 @@ Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
             return CY_USB_CAL_STATUS_TIMEOUT;
         }
 
-        /* Enable the PLL */
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_SUPPLY_EN_Msk;
-        Cy_SysLib_DelayUs(10);
-        pPhyBase->PLL_CONTROL_1 |= USBHSPHY_PLL_CONTROL_1_PLL_EN_Msk;
-
-        DBG_HSCAL_TRACE("ECO: Waiting for USBHS PLL Lock\r\n");
-        pllLocked = Cy_USBHS_WaitForPllLock(pCalCtxt, 1);
+        pllLocked = Cy_USBHS_Cal_TryPllLock(pCalCtxt, true);
         if (pllLocked) {
             pCalCtxt->clkSrcType = USB2REF_CLK_SRC_ECO;
         } else {
@@ -576,8 +647,6 @@ Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
             pCalCtxt->clkSrcType = USB2REF_CLK_SRC_UNKNOWN;
             return CY_USB_CAL_STATUS_TIMEOUT;
         }
-    } else {
-        pCalCtxt->clkSrcType = USB2REF_CLK_SRC_EXT_CLK;
     }
 
     pPhyBase->INTR0 = USBHSPHY_INTR0_PLL_LOCK_Msk;
@@ -917,45 +986,54 @@ Cy_USBHS_Cal_DevInitiatedResumeL2Sleep (cy_stc_usb_cal_ctxt_t *pCalCtxt,
 * Parameter which indicates whether PLL should be left enabled.
 *
 * \return
-* None.
+* True if suspend entry is initiated
+* False if suspend entry is skipped
 *
 *******************************************************************************/
-void
+bool
 Cy_USBHS_Cal_HsHandleL2SuspendEntry (cy_stc_usb_cal_ctxt_t *pCalCtxt,
                                      bool keepPllOn)
 {
+    bool entryStatus = false;
     USBHSDEV_Type  *pCalBase = pCalCtxt->pCalBase;
     USBHSPHY_Type  *pPhyBase = pCalCtxt->pPhyBase;
 
-    DBG_HSCAL_TRACE("Cy_USBHS_Cal_HsHandleL2SuspendEntry >>\r\n");
+    /* Enter suspend only if device is still in L2 suspend state. */
+    if (pCalBase->DEV_PWR_CS & USBHSDEV_DEV_PWR_CS_L2_SUSPEND_Msk)
+    {
+        DBG_HSCAL_TRACE("Cy_USBHS_Cal_HsHandleL2SuspendEntry >>\r\n");
 
-    /* Need to write 0x2 in 23:22 bit of SPARE register. */
-    pPhyBase->SPARE = (pPhyBase->SPARE & (~(0x00C00000UL))) | 0x00800000UL;
+        /* Need to write 0x2 in 23:22 bit of SPARE register. */
+        pPhyBase->SPARE = (pPhyBase->SPARE & (~(0x00C00000UL))) | 0x00800000UL;
 
-    pCalBase->DEV_PWR_CS |= (USBHSDEV_DEV_PWR_CS_DEV_SUSPEND_Msk);
+        pCalBase->DEV_PWR_CS |= (USBHSDEV_DEV_PWR_CS_DEV_SUSPEND_Msk);
 
-    pPhyBase->CDR_CONTROL &= (~USBHSPHY_CDR_CONTROL_CDR_ENABLE);
+        pPhyBase->CDR_CONTROL &= (~USBHSPHY_CDR_CONTROL_CDR_ENABLE);
 
-    /* Turn off PLL and supplies if they are not required. */
-    if (!keepPllOn) {
-        pPhyBase->AFE_CONTROL_1 &=
-            (~USBHSPHY_AFE_CONTROL_1_CPU_DELAY_ENABLE_HS_VCCD);
+        /* Turn off PLL and supplies if they are not required. */
+        if (!keepPllOn) {
+            pPhyBase->AFE_CONTROL_1 &=
+                (~USBHSPHY_AFE_CONTROL_1_CPU_DELAY_ENABLE_HS_VCCD);
 
-        pPhyBase->PLL_CONTROL_1 &= (~USBHSPHY_PLL_CONTROL_1_PLL_EN);
-        pPhyBase->PLL_CONTROL_1 &= (~USBHSPHY_PLL_CONTROL_1_SUPPLY_EN);
+            pPhyBase->PLL_CONTROL_1 &= (~USBHSPHY_PLL_CONTROL_1_PLL_EN);
+            pPhyBase->PLL_CONTROL_1 &= (~USBHSPHY_PLL_CONTROL_1_SUPPLY_EN);
 
-        pPhyBase->REG_1P1_CONTROL &= (~USBHSPHY_REG_1P1_CONTROL_ENABLE_LV);
+            pPhyBase->REG_1P1_CONTROL &= (~USBHSPHY_REG_1P1_CONTROL_ENABLE_LV);
 
-        /* regulator bypass to use 3.3v */
-        pPhyBase->REG_2P5_CONTROL |= USBHSPHY_REG_2P5_CONTROL_BYPASS_MODE;
-        pPhyBase->REG_2P5_CONTROL &= (~USBHSPHY_REG_2P5_CONTROL_ENABLE_LV);
+            /* regulator bypass to use 3.3v */
+            pPhyBase->REG_2P5_CONTROL |= USBHSPHY_REG_2P5_CONTROL_BYPASS_MODE;
+            pPhyBase->REG_2P5_CONTROL &= (~USBHSPHY_REG_2P5_CONTROL_ENABLE_LV);
 
-        pPhyBase->VREFGEN_CONTROL &= (~USBHSPHY_VREFGEN_CONTROL_ENABLE_LV);
-        pPhyBase->IREFGEN_CONTROL &= (~USBHSPHY_IREFGEN_CONTROL_ENABLE_LV);
+            pPhyBase->VREFGEN_CONTROL &= (~USBHSPHY_VREFGEN_CONTROL_ENABLE_LV);
+            pPhyBase->IREFGEN_CONTROL &= (~USBHSPHY_IREFGEN_CONTROL_ENABLE_LV);
+        }
+
+        entryStatus = true;
+        DBG_HSCAL_TRACE("Cy_USBHS_Cal_HsHandleL2SuspendEntry <<\r\n");
+    } else {
+        DBG_HSCAL_INFO("Device already out of suspend. Skipping.\r\n");
     }
-
-    DBG_HSCAL_TRACE("Cy_USBHS_Cal_HsHandleL2SuspendEntry <<\r\n");
-    return;
+    return entryStatus;
 }   /* end of function() */
 
 /*******************************************************************************
@@ -1294,13 +1372,15 @@ Cy_USBHS_Cal_IntrHandler (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         }
 
         if (activeIntr & USBHSDEV_DEV_CTL_INTR_SOF) {
-            /* Handle Sof */
+            /* Clear the interrupt. */
             pCalBase->DEV_CTL_INTR = USBHSDEV_DEV_CTL_INTR_SOF;
+
             /* Here Prepare ISR SAFE message and send to upper layer. */
-            msg.type = CY_USB_CAL_MSG_SOF;
+            msg.type    = CY_USB_CAL_MSG_SOF_ITP;
+            msg.data[0] = pCalBase->DEV_FRAMECNT;
+            msg.data[1] = 0;
             yield_reqd |= Cy_USBHS_Cal_SendMsg(pCalCtxt, &msg);
         }
-
 
         if (activeIntr & USBHSDEV_DEV_CTL_INTR_PID_MISMATCH_ON_NAK) {
             /* Clear the interrupt. */
@@ -1453,6 +1533,10 @@ Cy_USBHS_Cal_EnableReqDevCtrlIntr (cy_stc_usb_cal_ctxt_t *pCalCtxt)
          USBHSDEV_DEV_CTL_INTR_HOST_URSUME_ARRIVED |
          USBHSDEV_DEV_CTL_INTR_MASK_PID_MISMATCH_ON_NAK);
 
+    if (pCalCtxt->enableSOFInterrupt) {
+        pCalBase->DEV_CTL_INTR_MASK |= USBHSDEV_DEV_CTL_INTR_MASK_SOF;
+    }
+
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* End of function()  */
 
@@ -1483,21 +1567,23 @@ Cy_USBHS_Cal_DisableAllDevCtrlIntr (cy_stc_usb_cal_ctxt_t *pCalCtxt)
     }
 
     /* All interrupts under dev_ctl_reg is disabled. */
-    pCalBase->DEV_CTL_INTR_MASK &=
-        ~(USBHSDEV_DEV_CTL_INTR_MASK_SETADDR | USBHSDEV_DEV_CTL_INTR_MASK_SOF |
-         USBHSDEV_DEV_CTL_INTR_MASK_SUSP | USBHSDEV_DEV_CTL_INTR_MASK_URESET |
-         USBHSDEV_DEV_CTL_INTR_MASK_HSGRANT |
-         USBHSDEV_DEV_CTL_INTR_MASK_SUTOK |
-         USBHSDEV_DEV_CTL_INTR_MASK_SUDAV |
-         USBHSDEV_DEV_CTL_INTR_MASK_ERRLIMIT |
-         USBHSDEV_DEV_CTL_INTR_MASK_URESUME |
-         USBHSDEV_DEV_CTL_INTR_MASK_STATUS_STAGE |
-         USBHSDEV_DEV_CTL_INTR_MASK_L1_SLEEP_REQ |
-         USBHSDEV_DEV_CTL_INTR_MASK_L1_URESUME |
-         USBHSDEV_DEV_CTL_INTR_MASK_RESETDONE |
-         USBHSDEV_DEV_CTL_INTR_DPSLP_Msk |
-         USBHSDEV_DEV_CTL_INTR_HOST_URSUME_ARRIVED |
-         USBHSDEV_DEV_CTL_INTR_MASK_PID_MISMATCH_ON_NAK);
+    pCalBase->DEV_CTL_INTR_MASK &= ~(
+            USBHSDEV_DEV_CTL_INTR_MASK_SETADDR |
+            USBHSDEV_DEV_CTL_INTR_MASK_SOF |
+            USBHSDEV_DEV_CTL_INTR_MASK_SUSP |
+            USBHSDEV_DEV_CTL_INTR_MASK_URESET |
+            USBHSDEV_DEV_CTL_INTR_MASK_HSGRANT |
+            USBHSDEV_DEV_CTL_INTR_MASK_SUTOK |
+            USBHSDEV_DEV_CTL_INTR_MASK_SUDAV |
+            USBHSDEV_DEV_CTL_INTR_MASK_ERRLIMIT |
+            USBHSDEV_DEV_CTL_INTR_MASK_URESUME |
+            USBHSDEV_DEV_CTL_INTR_MASK_STATUS_STAGE |
+            USBHSDEV_DEV_CTL_INTR_MASK_L1_SLEEP_REQ |
+            USBHSDEV_DEV_CTL_INTR_MASK_L1_URESUME |
+            USBHSDEV_DEV_CTL_INTR_MASK_RESETDONE |
+            USBHSDEV_DEV_CTL_INTR_DPSLP_Msk |
+            USBHSDEV_DEV_CTL_INTR_HOST_URSUME_ARRIVED |
+            USBHSDEV_DEV_CTL_INTR_MASK_PID_MISMATCH_ON_NAK);
 
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* End of function   */

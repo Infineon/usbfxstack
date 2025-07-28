@@ -61,8 +61,9 @@ var searchData=
   ['usbin_5fsck_58',['USBIN_SCK',['../group__group__usbfxstack__hb__dma__structs.html#a354059484da1d14f5542805a7c7a30eb',1,'cy_stc_hbdma_context_t']]],
   ['usbin_5fsck_5fgbl_59',['USBIN_SCK_GBL',['../group__group__usbfxstack__hb__dma__structs.html#aed9af70078eb95cc9115b2cf915b675f',1,'cy_stc_hbdma_context_t']]],
   ['usbingmultenable_60',['usbIngMultEnable',['../group__group__usbfxstack__hb__dma__structs.html#a7ece7a55e6faf5cb536de04622d02db3',1,'cy_stc_hbdma_mgr_context_t']]],
-  ['usedstatus_61',['usedStatus',['../group__group__usbfxstack__hb__dma__structs.html#ad5897dfd60d444b5b902a38377441c5d',1,'cy_stc_hbdma_buf_mgr_t']]],
-  ['usercontext_62',['userContext',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a311ceec7a5ad70e32e63cced19007718',1,'cy_stc_lvds_context_t']]],
-  ['userctx_63',['userCtx',['../group__group__usbfxstack__hb__dma__structs.html#a736ad364d5b9df00c89e843b9026874a',1,'cy_stc_hbdma_chn_config_t']]],
-  ['uxexitactive_64',['uxExitActive',['../group__group__usbfxstack__usb__common__structs.html#a18864a11acb28470131807a4a2a22181',1,'cy_stc_usbss_cal_ctxt_t']]]
+  ['usbmaxpktsize_61',['usbMaxPktSize',['../group__group__usbfxstack__hb__dma__structs.html#a03869d08d3953e95d5397386d88b4388',1,'cy_stc_hbdma_chn_config_t']]],
+  ['usedstatus_62',['usedStatus',['../group__group__usbfxstack__hb__dma__structs.html#ad5897dfd60d444b5b902a38377441c5d',1,'cy_stc_hbdma_buf_mgr_t']]],
+  ['usercontext_63',['userContext',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a311ceec7a5ad70e32e63cced19007718',1,'cy_stc_lvds_context_t']]],
+  ['userctx_64',['userCtx',['../group__group__usbfxstack__hb__dma__structs.html#a736ad364d5b9df00c89e843b9026874a',1,'cy_stc_hbdma_chn_config_t']]],
+  ['uxexitactive_65',['uxExitActive',['../group__group__usbfxstack__usb__common__structs.html#a18864a11acb28470131807a4a2a22181',1,'cy_stc_usbss_cal_ctxt_t']]]
 ];

@@ -97,6 +97,8 @@ extern "C" {
 #define CY_HBDMA_IS_SOCKET_VALID(id) ( ((id) <= CY_HBDMA_LVDS_SOCKET_31) || \
                                        (((id) >= CY_HBDMA_USBIN_SOCKET_00) && ((id) <= CY_HBDMA_USBIN_SOCKET_15)) || \
                                        (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15)) || \
+                                       (((id) >= CY_HBDMA_USBHS_OUT_EP_00) && ((id) <= CY_HBDMA_USBHS_OUT_EP_15)) || \
+                                       (((id) >= CY_HBDMA_USBHS_IN_EP_00)  && ((id) <= CY_HBDMA_USBHS_IN_EP_15))  || \
                                        ((id) == CY_HBDMA_VIRT_SOCKET_WR) || \
                                        ((id) == CY_HBDMA_VIRT_SOCKET_RD) \
                                      )
@@ -106,6 +108,12 @@ extern "C" {
 
 /** Check whether the socket is a valid USB egress socket. */
 #define CY_HBDMA_IS_USB_EG_SOCK(id)  (((id) >= CY_HBDMA_USBEG_SOCKET_00) && ((id) <= CY_HBDMA_USBEG_SOCKET_15))
+
+/** Check whether the selection corresponds to a valid USB-HS IN endpoint. */
+#define CY_HBDMA_IS_USBHS_IN_EP(id)  (((id) >= CY_HBDMA_USBHS_IN_EP_00) && ((id) <= CY_HBDMA_USBHS_IN_EP_15))
+
+/** Check whether the selection corresponds to a valid USB-HS OUT endpoint. */
+#define CY_HBDMA_IS_USBHS_OUT_EP(id) (((id) >= CY_HBDMA_USBHS_OUT_EP_00) && ((id) <= CY_HBDMA_USBHS_OUT_EP_15))
 
 /** Mask for write-able fields of socket status. */
 #define CY_HBDMA_SOCK_STATUS_WR_MASK    (0x2FE007FFUL)
@@ -302,6 +310,40 @@ typedef enum
     CY_HBDMA_USBIN_SOCKET_14,           /**< USB ingress socket #14 */
     CY_HBDMA_USBIN_SOCKET_15,           /**< USB ingress socket #15 */
 
+    CY_HBDMA_USBHS_OUT_EP_00 = 0x50U,   /**< USBHS endpoint memory for OUT EP #00 */
+    CY_HBDMA_USBHS_OUT_EP_01,           /**< USBHS endpoint memory for OUT EP #01 */
+    CY_HBDMA_USBHS_OUT_EP_02,           /**< USBHS endpoint memory for OUT EP #02 */
+    CY_HBDMA_USBHS_OUT_EP_03,           /**< USBHS endpoint memory for OUT EP #03 */
+    CY_HBDMA_USBHS_OUT_EP_04,           /**< USBHS endpoint memory for OUT EP #04 */
+    CY_HBDMA_USBHS_OUT_EP_05,           /**< USBHS endpoint memory for OUT EP #05 */
+    CY_HBDMA_USBHS_OUT_EP_06,           /**< USBHS endpoint memory for OUT EP #06 */
+    CY_HBDMA_USBHS_OUT_EP_07,           /**< USBHS endpoint memory for OUT EP #07 */
+    CY_HBDMA_USBHS_OUT_EP_08,           /**< USBHS endpoint memory for OUT EP #08 */
+    CY_HBDMA_USBHS_OUT_EP_09,           /**< USBHS endpoint memory for OUT EP #09 */
+    CY_HBDMA_USBHS_OUT_EP_10,           /**< USBHS endpoint memory for OUT EP #10 */
+    CY_HBDMA_USBHS_OUT_EP_11,           /**< USBHS endpoint memory for OUT EP #11 */
+    CY_HBDMA_USBHS_OUT_EP_12,           /**< USBHS endpoint memory for OUT EP #12 */
+    CY_HBDMA_USBHS_OUT_EP_13,           /**< USBHS endpoint memory for OUT EP #13 */
+    CY_HBDMA_USBHS_OUT_EP_14,           /**< USBHS endpoint memory for OUT EP #14 */
+    CY_HBDMA_USBHS_OUT_EP_15,           /**< USBHS endpoint memory for OUT EP #15 */
+
+    CY_HBDMA_USBHS_IN_EP_00 = 0x60U,    /**< USBHS endpoint memory for IN EP #00 */
+    CY_HBDMA_USBHS_IN_EP_01,            /**< USBHS endpoint memory for IN EP #01 */
+    CY_HBDMA_USBHS_IN_EP_02,            /**< USBHS endpoint memory for IN EP #02 */
+    CY_HBDMA_USBHS_IN_EP_03,            /**< USBHS endpoint memory for IN EP #03 */
+    CY_HBDMA_USBHS_IN_EP_04,            /**< USBHS endpoint memory for IN EP #04 */
+    CY_HBDMA_USBHS_IN_EP_05,            /**< USBHS endpoint memory for IN EP #05 */
+    CY_HBDMA_USBHS_IN_EP_06,            /**< USBHS endpoint memory for IN EP #06 */
+    CY_HBDMA_USBHS_IN_EP_07,            /**< USBHS endpoint memory for IN EP #07 */
+    CY_HBDMA_USBHS_IN_EP_08,            /**< USBHS endpoint memory for IN EP #08 */
+    CY_HBDMA_USBHS_IN_EP_09,            /**< USBHS endpoint memory for IN EP #09 */
+    CY_HBDMA_USBHS_IN_EP_10,            /**< USBHS endpoint memory for IN EP #10 */
+    CY_HBDMA_USBHS_IN_EP_11,            /**< USBHS endpoint memory for IN EP #11 */
+    CY_HBDMA_USBHS_IN_EP_12,            /**< USBHS endpoint memory for IN EP #12 */
+    CY_HBDMA_USBHS_IN_EP_13,            /**< USBHS endpoint memory for IN EP #13 */
+    CY_HBDMA_USBHS_IN_EP_14,            /**< USBHS endpoint memory for IN EP #14 */
+    CY_HBDMA_USBHS_IN_EP_15,            /**< USBHS endpoint memory for IN EP #15 */
+
     CY_HBDMA_VIRT_SOCKET_RD,            /**< Virtual (CPU) access socket for data read. */
     CY_HBDMA_VIRT_SOCKET_WR             /**< Virtual (CPU) access socket for data write. */
 } cy_hbdma_socket_id_t;
@@ -346,7 +388,9 @@ typedef enum
     CY_HBDMA_SOCK_SUSPEND_EVT,          /**< Socket suspended interrupt received. */
     CY_HBDMA_SOCK_ERROR_EVT,            /**< Socket error interrupt received. */
     CY_HBDMA_SOCK_XFERDONE_EVT,         /**< Transfer done interrupt received. */
-    CY_HBDMA_SOCK_EVT_RCVD              /**< Event received interrupt: Identifies trigger coming from Central DMA. */
+    CY_HBDMA_SOCK_EVT_RCVD,             /**< Event received interrupt: Identifies trigger coming from Central DMA. */
+    CY_HBDMA_DATAWIRE0_INTERRUPT,       /**< Interrupt from DataWire-0 channel. */
+    CY_HBDMA_DATAWIRE1_INTERRUPT        /**< Interrupt from DataWire-1 channel. */
 } cy_en_hbdma_sock_evt_t;
 
 /**

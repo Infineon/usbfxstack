@@ -261,7 +261,7 @@ typedef enum
 
 /** \} group_usbfxstack_fx_utils_enums */
 
-/** 
+/**
  * \addtogroup group_usbfxstack_fx_utils_typedefs
  * \{
  */

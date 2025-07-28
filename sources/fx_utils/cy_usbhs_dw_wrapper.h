@@ -100,7 +100,7 @@ typedef struct cy_stc_app_endp_dma_set_
     cy_en_usb_endp_type_t    endpType;                          /**< Endpoint Type. */
 
     uint8_t                 *pCurDataBuffer;                    /** RAM buffer used for current transfer. */
-    uint16_t                 curDataSize;                       /** Current DMA transfer size. */
+    uint32_t                 curDataSize;                       /** Current DMA transfer size. */
 } cy_stc_app_endp_dma_set_t;
 
 /** \} group_usbfxstack_fx_utils_structs */
@@ -199,7 +199,7 @@ bool
 Cy_USBHS_App_QueueRead(
         cy_stc_app_endp_dma_set_t *pEpDmaSet,
         uint8_t                   *pBuffer,
-        uint16_t                   dataSize);
+        uint32_t                   dataSize);
 
 /*******************************************************************************
  * Function name: Cy_USBHS_App_ReadShortPacket
@@ -244,7 +244,7 @@ bool
 Cy_USBHS_App_QueueWrite(
         cy_stc_app_endp_dma_set_t *pEpDmaSet,
         uint8_t                   *pBuffer,
-        uint16_t                   dataSize);
+        uint32_t                   dataSize);
 
 /*******************************************************************************
  * Function name: Cy_USBHS_App_ClearDmaInterrupt

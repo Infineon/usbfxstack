@@ -1,6 +1,6 @@
-# USBFXStack Middleware Library 1.2.1
+# USBFXStack Middleware Library 1.3.0
 
-The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices, which includes EZ-USB&trade; FX20, EZ-USB&trade; FX10, EZ-USB&trade; FX5, and EZ-USB&trade; FX2G3 with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
+The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices, which includes EZ-USB&trade; FX20, EZ-USB&trade; FX10, EZ-USB&trade; FX5N, EZ-USB&trade; FX5, and EZ-USB&trade; FX2G3 with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
 
 As best practices and development flows are continuously evolving, it is recommended to periodically sync the latest updates from this library to ensure you are using the most recent improvements and features.
 

@@ -95,6 +95,6 @@ var group__group__usbfxstack__fx__utils__structs =
       [ "valid", "group__group__usbfxstack__fx__utils__structs.html#a05d4611bb239e6f7312198e37fc4e860", null ],
       [ "firstRqtDone", "group__group__usbfxstack__fx__utils__structs.html#adcbbfcdd3e1bef7112d0e7a160643626", null ],
       [ "endpType", "group__group__usbfxstack__fx__utils__structs.html#a01e07d984f7acc0e328fe7126565e663", null ],
-      [ "curDataSize", "group__group__usbfxstack__fx__utils__structs.html#a0de01cb521cbdfe8fe9194846b2bedcc", null ]
+      [ "curDataSize", "group__group__usbfxstack__fx__utils__structs.html#a41b7db6ee0ad2d027aad018c19ca5ffb", null ]
     ] ]
 ];

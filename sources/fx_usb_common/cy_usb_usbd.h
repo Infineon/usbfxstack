@@ -41,6 +41,7 @@
 
 #include "cy_hbdma.h"
 #include "cy_hbdma_mgr.h"
+#include "cy_usb_common.h"
 #include "cy_usbhs_cal_drv.h"
 #include "cy_usbss_cal_drv.h"
 #if FREERTOS_ENABLE
@@ -415,6 +416,7 @@ typedef enum {
     CY_USB_USBD_CB_DISCONNECT,                  /**< USB disconnect detected. USB 3.x only. */
     CY_USB_USBD_CB_SETADDR,                     /**< SET_ADDRESS command completed. */
     CY_USB_USBD_CB_EP0_RCV_DONE,                /**< EP0 out transfer has been completed. */
+    CY_USB_USBD_CB_SOF_ITP,                     /**< USB3 ITP or USB2 SOF received. */
     CY_USB_USBD_CB_SET_INVALID                  /**< Invalid callback type. */
 } cy_en_usb_usbd_cb_t;
 
@@ -685,7 +687,8 @@ struct cy_stc_usb_usbd_ctxt_t
     cy_usb_usbd_callback_t DisconnectCb;                /**< USB disconnect callback function. */
     cy_usb_usbd_callback_t setAddrCb;                   /**< SetAddress callback function. */
     cy_usb_usbd_callback_t ep0RecvCb;                   /**< Callback for EP0 OUT transfer completion. */
-    cy_usb_usbd_callback_t debugSlpCb;                  /**< USB 2.x SLP transfer callback function. */
+    cy_usb_usbd_callback_t debugSlpCb;                  /**< USB 2.x Debug endpoint SLP transfer callback function. */
+    cy_usb_usbd_callback_t itpCb;                       /**< Callback for SOF/ITP interrupt. */
 
     DMAC_Type *pCpuDmacBase;                            /**< Pointer to DMAC register structure. */
 
@@ -3542,6 +3545,27 @@ void Cy_USBD_DisableSSOnBusReset(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
 cy_en_usbd_ret_code_t Cy_USBD_SelectConfigLane(
                                                cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                                                cy_en_usb_config_lane_t laneSel);
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_GetEndpointType
+ ****************************************************************************//**
+ *
+ * Function to identify the type of endpoint based on its index.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param endpNumber
+ * Endpoint index.
+ * \param endpDirection
+ * Endpoint direction.
+ *
+ * \return
+ * Type of the endpoint.
+ *******************************************************************************/
+cy_en_usb_endp_type_t Cy_USBD_GetEndpointType(
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        uint32_t endpNumber,
+        cy_en_usb_endp_dir_t endpDirection);
 
 /** \} group_usbfxstack_usb_common_functions */
 

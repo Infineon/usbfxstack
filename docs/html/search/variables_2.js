@@ -28,15 +28,17 @@ var searchData=
   ['conssck_25',['consSck',['../group__group__usbfxstack__hb__dma__structs.html#a24fc009b444c3529b2460517edc049a0',1,'cy_stc_hbdma_chn_config_t']]],
   ['conssckcount_26',['consSckCount',['../group__group__usbfxstack__hb__dma__structs.html#ad9cfc44304716a20cc56cc73f78c081f',1,'cy_stc_hbdma_chn_config_t::consSckCount()'],['../group__group__usbfxstack__hb__dma__structs.html#a2f1a2feef07f793dbc94c82ff7d89d40',1,'cy_stc_hbdma_channel_t::consSckCount()']]],
   ['conssckid_27',['consSckId',['../group__group__usbfxstack__hb__dma__structs.html#ae1bfb640b7587ad9b1b476ccf75eab9a',1,'cy_stc_hbdma_channel_t']]],
-  ['count_28',['count',['../group__group__usbfxstack__hb__dma__structs.html#a54cef338fb01b7e3a44085f2edf6c2bc',1,'cy_stc_hbdma_buff_status_t::count()'],['../group__group__usbfxstack__hb__dma__structs.html#a4f13c5b1b091082bf153ef5146508291',1,'cy_stc_hbdma_channel_t::count()'],['../group__group__usbfxstack__hb__dma__structs.html#a887f7970ae424fa8e3a4e8852dbca9dd',1,'cy_stc_hbdma_chn_config_t::count()']]],
+  ['count_28',['count',['../group__group__usbfxstack__hb__dma__structs.html#a887f7970ae424fa8e3a4e8852dbca9dd',1,'cy_stc_hbdma_chn_config_t::count()'],['../group__group__usbfxstack__hb__dma__structs.html#a4f13c5b1b091082bf153ef5146508291',1,'cy_stc_hbdma_channel_t::count()'],['../group__group__usbfxstack__hb__dma__structs.html#a54cef338fb01b7e3a44085f2edf6c2bc',1,'cy_stc_hbdma_buff_status_t::count()']]],
   ['ctrl_29',['CTRL',['../structSysTick__Type.html#a875e7afa5c4fd43997fb544a4ac6e37e',1,'SysTick_Type']]],
   ['ctrlbusbitmap_30',['ctrlBusBitMap',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ae21bcc2eaa0ddb42aaceaf84b155fff6',1,'cy_stc_lvds_phy_config_t']]],
   ['ctrlbussignal_31',['ctrlBusSignal',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a2abd45b14b6280bbe2a392bd18f89266',1,'cy_stc_lvds_phy_ctrl_bus_config_t']]],
   ['curconsdscrindex_32',['curConsDscrIndex',['../group__group__usbfxstack__hb__dma__structs.html#a0e28cbd33c6be94d260bf3f0ffacbd43',1,'cy_stc_hbdma_channel_t']]],
-  ['curdatasize_33',['curDataSize',['../group__group__usbfxstack__fx__utils__structs.html#a0de01cb521cbdfe8fe9194846b2bedcc',1,'cy_stc_app_endp_dma_set_t']]],
+  ['curdatasize_33',['curDataSize',['../group__group__usbfxstack__fx__utils__structs.html#a41b7db6ee0ad2d027aad018c19ca5ffb',1,'cy_stc_app_endp_dma_set_t']]],
   ['curdscr_34',['curDscr',['../group__group__usbfxstack__hb__dma__structs.html#a9a5eda4bf0afd59fddb555c6c5ffc6ca',1,'cy_stc_hbdma_intr_msg_t']]],
-  ['curmsg_35',['curMsg',['../group__group__usbfxstack__fx__utils__structs.html#a00a95abd96e4e3dcb401918b543ab934',1,'cy_stc_debug_context_t']]],
-  ['curproddscrindex_36',['curProdDscrIndex',['../group__group__usbfxstack__hb__dma__structs.html#a2f9a500e2eb600511d9141a3e9a55ec9',1,'cy_stc_hbdma_channel_t']]],
-  ['currcomppattern_37',['currCompPattern',['../group__group__usbfxstack__usb__common__structs.html#a1e2b0f3668240ff57b5e66f5ec0c00ae',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['currentdmafreq_38',['currentDmaFreq',['../group__group__usbfxstack__usb__common__structs.html#ace82dae18d14cd13c4764070d7038657',1,'cy_stc_usbss_cal_ctxt_t']]]
+  ['curegressxfersize_35',['curEgressXferSize',['../group__group__usbfxstack__hb__dma__structs.html#ad376ec484d34ee11f1343c4a171c6028',1,'cy_stc_hbdma_channel_t']]],
+  ['curingressxfersize_36',['curIngressXferSize',['../group__group__usbfxstack__hb__dma__structs.html#a22284e310a778b99dd1d527a3ee36a16',1,'cy_stc_hbdma_channel_t']]],
+  ['curmsg_37',['curMsg',['../group__group__usbfxstack__fx__utils__structs.html#a00a95abd96e4e3dcb401918b543ab934',1,'cy_stc_debug_context_t']]],
+  ['curproddscrindex_38',['curProdDscrIndex',['../group__group__usbfxstack__hb__dma__structs.html#a2f9a500e2eb600511d9141a3e9a55ec9',1,'cy_stc_hbdma_channel_t']]],
+  ['currcomppattern_39',['currCompPattern',['../group__group__usbfxstack__usb__common__structs.html#a1e2b0f3668240ff57b5e66f5ec0c00ae',1,'cy_stc_usbss_cal_ctxt_t']]],
+  ['currentdmafreq_40',['currentDmaFreq',['../group__group__usbfxstack__usb__common__structs.html#ace82dae18d14cd13c4764070d7038657',1,'cy_stc_usbss_cal_ctxt_t']]]
 ];

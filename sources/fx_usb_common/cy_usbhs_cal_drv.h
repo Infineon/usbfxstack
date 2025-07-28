@@ -46,8 +46,8 @@ extern "C" {
 #endif
 
 #define CY_USBHS_PLL_LOCK_TIMEOUT_MS (10)               /**< Time to wait for PLL lock in ms */
-#define CY_EXTERNAL_CLK_PIN          (P5_1_PIN)         /**< Pin on which external clock is connected.
-                                                             XTALIN: P5_0_PIN, XTALOUT: P5_1_PIN. */
+#define CY_EXTERNAL_CLK_PIN          (P5_1_PIN)         /**< Primary pin for external clock input: XTALOUT or P5.1 */
+#define CY_EXTERNAL_CLK_PIN_ALT      (P5_0_PIN)         /**< Alternate pin for external clock input: XTALIN or P5.0 */
 
 /**
  * Duration for which remote wake signal should be driven in the LPM-L1 state.
@@ -115,6 +115,7 @@ typedef struct cy_stc_usb_cal_ctxt_t
     void *queueCtxt;                            /**< Message queue context pointer: Not used. */
     cy_usb_cal_msg_callback_t msgCb;            /**< Callback function pointer used to notify the USBD stack. */
     cy_en_usb2_ref_clk_src_t clkSrcType;        /**< Clock source type - ECO or external clock */
+    bool enableSOFInterrupt;                    /**< Whether SOF interrupt is to be enabled. */
 }cy_stc_usb_cal_ctxt_t;
 
 /*
@@ -293,8 +294,9 @@ void Cy_USBHS_Cal_DevInitiatedResumeL2Sleep(cy_stc_usb_cal_ctxt_t *pCalCtxt,
 * \param keepPllOn
 * Whether to keep the PLL and references in the PHY ON.
 *
+* \return True if suspend entry was done, false if suspend entry was skipped.
 *******************************************************************************/
-void Cy_USBHS_Cal_HsHandleL2SuspendEntry(cy_stc_usb_cal_ctxt_t *pCalCtxt,
+bool Cy_USBHS_Cal_HsHandleL2SuspendEntry(cy_stc_usb_cal_ctxt_t *pCalCtxt,
                                          bool keepPllOn);
 
 /*******************************************************************************
@@ -1118,6 +1120,21 @@ bool Cy_USBHS_Cal_IsNewCtrlRqtReceived(cy_stc_usb_cal_ctxt_t *pCalCtxt);
 *
 *******************************************************************************/
 void Cy_USBHS_Cal_PreemphasisControl(cy_stc_usb_cal_ctxt_t *pCalCtxt, bool enable);
+
+/*******************************************************************************
+* Function name: Cy_USBHS_Cal_SOFIntrUpdate
+****************************************************************************//**
+*
+* Function to enable or disable the SOF interrupt based on user requirement.
+*
+* \param pCalCtxt
+* CAL layer library context pointer.
+*
+* \param sofIntrEnable
+* Whether the SOF interrupt should be enabled.
+*
+*******************************************************************************/
+void Cy_USBHS_Cal_SOFIntrUpdate(cy_stc_usb_cal_ctxt_t *pCalCtxt, bool sofIntrEnable);
 
 /** \} group_usbfxstack_usb_common_functions */
 

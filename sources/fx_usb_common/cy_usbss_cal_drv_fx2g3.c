@@ -1597,6 +1597,26 @@ void Cy_USBSS_Cal_SelectConfigLane (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
 }
 
+/*******************************************************************************
+* Function name: Cy_USBSS_Cal_ITPIntrUpdate
+****************************************************************************//**
+*
+* Function to enable or disable the ITP interrupt based on user requirement.
+*
+* \param pCalCtxt
+* CAL layer library context pointer.
+*
+* \param itpIntrEnable
+* Whether the ITP interrupt should be enabled.
+*
+*******************************************************************************/
+void Cy_USBSS_Cal_ITPIntrUpdate (
+        cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+        bool itpIntrEnable)
+{
+
+}
+
 #if defined(__cplusplus)
 }
 #endif

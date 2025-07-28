@@ -812,7 +812,13 @@ Callback for EP0 OUT transfer completion. </td></tr>
 <td class="fieldname">
 debugSlpCb</td>
 <td class="fielddoc">
-USB 2.x SLP transfer callback function. </td></tr>
+USB 2.x Debug endpoint SLP transfer callback function. </td></tr>
+<tr><td class="fieldtype">
+<a id="a70cb1527eb474e17d275c16c5b22950d" name="a70cb1527eb474e17d275c16c5b22950d"></a><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a></td>
+<td class="fieldname">
+itpCb</td>
+<td class="fielddoc">
+Callback for SOF/ITP interrupt. </td></tr>
 <tr><td class="fieldtype">
 <a id="afd9db2bcae757be199609bb23c7a6e7c" name="afd9db2bcae757be199609bb23c7a6e7c"></a>DMAC_Type *</td>
 <td class="fieldname">
@@ -1005,6 +1011,12 @@ Callback function pointer used to notify the USBD stack. </td></tr>
 clkSrcType</td>
 <td class="fielddoc">
 Clock source type - ECO or external clock. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa7ed7881a92cb7a86d46b2dc75d00f97" name="aa7ed7881a92cb7a86d46b2dc75d00f97"></a>bool</td>
+<td class="fieldname">
+enableSOFInterrupt</td>
+<td class="fielddoc">
+Whether SOF interrupt is to be enabled. </td></tr>
 </table>
 
 </div>
@@ -1311,6 +1323,18 @@ USB configuration lane selection. </td></tr>
 gen1SpeedForced</td>
 <td class="fielddoc">
 Driver has forced Gen1 speed in compliance. </td></tr>
+<tr><td class="fieldtype">
+<a id="a010565abc44e1c88d8f1708c1cde5db3" name="a010565abc44e1c88d8f1708c1cde5db3"></a>bool</td>
+<td class="fieldname">
+inGen1DualMode</td>
+<td class="fielddoc">
+Whether link was up in Gen1x2 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab9ed0893cff53fabf82e43fe33aef453" name="ab9ed0893cff53fabf82e43fe33aef453"></a><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806">cy_en_usbss_delay_event_t</a></td>
+<td class="fieldname">
+delayEventMask</td>
+<td class="fielddoc">
+Event to handle after timer expiry. </td></tr>
 </table>
 
 </div>

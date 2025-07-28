@@ -86,9 +86,81 @@ static void Cy_USBSS_Cal_UpdateDmaClkFreq
 static void SSPhy_Update_TxSettings (USB32DEV_PHYSS_USB40PHY_TOP_Type *pPhyRegs,
                                      uint32_t *pTxSettings);
 
+static void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                   volatile uint32_t *phyRxRegs_p,
+                                   bool onlyLock);
+
+static bool Cy_USBSS_Cal_WaitWhileInState (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                           uint32_t state,
+                                           uint32_t timeout_us);
+
 /* Compile out all TRACE statements. */
 #undef DBG_SSCAL_TRACE
 #define DBG_SSCAL_TRACE(str, ...)
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_GetTemperatureReading
+****************************************************************************//**
+*
+* Get the temperature sensitive reading from ADC in the USB block.
+*
+* \note
+* The procedure to convert the ADC reading to actual temperature is TBD.
+* The ADC reading will reduce by 1 point for a rise of approximately 5 degrees
+* in temperature.
+*
+* \param pCalCtxt
+* USBSS Controller context structure.
+*
+* \return
+* ADC reading equivalent to die temperature.
+*******************************************************************************/
+uint8_t
+Cy_USBSS_Cal_GetTemperatureReading (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
+{
+    USB32DEV_PHYSS_USB40PHY_TOP_Type *phyTopRegs;
+    uint8_t adcReading = 0;
+    bool    phyEnabled = false;
+
+    if (pCalCtxt == NULL) {
+        DBG_SSCAL_WARN("GetTemperatureReading: SSCalCtxt=NULL\r\n");
+        return adcReading;
+    }
+
+    phyTopRegs = &(pCalCtxt->regBase->USB32DEV_PHYSS.USB40PHY[0].USB40PHY_TOP);
+
+    /* Enable the PHY if it is not enabled. */
+    if ((phyTopRegs->TOP_CTRL_0 & USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk) == 0) {
+        phyTopRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
+    } else {
+        phyEnabled = true;
+    }
+
+    /* Basic ADC configuration: Using VDDIO as reference and measuring temperature dependent NPN voltage. */
+    phyTopRegs->ADC  = (
+            (phyTopRegs->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
+            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
+            (0x03UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
+            USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
+
+    /* Enable ADC conversion. */
+    phyTopRegs->ADC |= USB32DEV_PHYSS_USB40PHY_TOP_ADC_SAR_EN_Msk;
+
+    /* Wait for conversion to complete and get the measured voltage. */
+    Cy_SysLib_DelayUs(50);
+
+    adcReading = (
+            (phyTopRegs->ADC_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Msk) >>
+            USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Pos);
+
+    if (!phyEnabled) {
+        /* Disable the PHY if we had enabled it for measurement. */
+        phyTopRegs->TOP_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
+    }
+
+    DBG_SSCAL_TRACE("Temperature ADC reading is %x\r\n", adcReading);
+    return (adcReading);
+}
 
 /*******************************************************************************
 * Function Name: Cy_USBSS_Cal_MeasureCCVoltage
@@ -434,6 +506,242 @@ Cy_USBSS_Cal_PreConnect (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     /* Flush and disable all EPs except EP0 */
     Cy_USBSS_Cal_FlushAllEndpSocket(pCalCtxt);
 }
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_HandleP0Change
+****************************************************************************//**
+*
+* Handle P0 change interrupt on U3 and deepsleep exit
+*
+* \param  pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+*******************************************************************************/
+static void Cy_USBSS_Cal_HandleP0Change (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
+{
+    USB32DEV_Type *base = pCalCtxt->regBase;
+    USB32DEV_LNK_Type *USB32DEV_LNK = &base->USB32DEV_LNK;
+    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs0 = &(base->USB32DEV_PHYSS.USB40PHY[0].USB40PHY_RX);
+    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs1 = &(base->USB32DEV_PHYSS.USB40PHY[1].USB40PHY_RX);
+    USB32DEV_PHYSS_USB40PHY_TOP_Type *pPhyRegs = &(base->USB32DEV_PHYSS.USB40PHY[pCalCtxt->activePhyIdx].USB40PHY_TOP);
+    USB32DEV_PHYSS_USB40PHY_TOP_Type *pPhyRegsAlt = &(base->USB32DEV_PHYSS.USB40PHY[!(pCalCtxt->activePhyIdx)].USB40PHY_TOP);
+    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs = &(base->USB32DEV_PHYSS.USB40PHY[pCalCtxt->activePhyIdx].USB40PHY_RX);
+    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegsAlt = &(base->USB32DEV_PHYSS.USB40PHY[!(pCalCtxt->activePhyIdx)].USB40PHY_RX);
+
+    if (pCalCtxt->linkSuspended) {
+        if (pCalCtxt->deepSleepEntered) {
+            /* In Gen2 case, repeat receiver offset calibration.
+             * In Gen1 case, directly move the receiver into L2D mode.
+             */
+            if (pCalCtxt->dualLaneEnabled) {
+                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs0, !pCalCtxt->gen2Enabled);
+                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs1, !pCalCtxt->gen2Enabled);
+            } else {
+                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs, !pCalCtxt->gen2Enabled);
+            }
+            Cy_SysLib_DelayUs(10);
+
+            /* Restore default U3 exit LFPS duration. */
+            USB32DEV_LNK->LNK_LFPS_RX_U3_EXIT = CY_USBSS_LFPS_PERIOD_TO_REG_G1(1800UL);
+
+            /* Force link into U0 after receiver has been updated. */
+            CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
+        } else {
+            /* Force link into U0 as the first step. */
+            CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
+
+            /*
+             * If we had updated receiver settings preparatory to initiating U3 exit, restore the
+             * settings and reset the CDR data aligner.
+             */
+            if ((pRxRegs->RX_HDWR_ENABLE & USB32DEV_PHYSS_USB40PHY_RX_HDWR_ENABLE_CDR_HDWR_ENABLE_Msk) == 0)
+            {
+                /* Delay to allow LFPS handshake from host to be completed. */
+                Cy_SysLib_DelayUs(150);
+
+                /* Configure RX for L2D mode. */
+                pRxRegs->RX_LD_CFG = (
+                        (pRxRegs->RX_LD_CFG & ~USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Msk) |
+                        (0x02UL << USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Pos));
+
+                pPhyRegs->PIPE_RX_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                Cy_SysLib_DelayUs(10);
+                pPhyRegs->PIPE_RX_CTRL &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+
+                if (pCalCtxt->dualLaneEnabled) {
+                    /* Configure RX for L2D mode. */
+                    pRxRegsAlt->RX_LD_CFG = (
+                            (pRxRegsAlt->RX_LD_CFG & ~USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Msk) |
+                            (0x02UL << USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Pos));
+
+                    pPhyRegsAlt->PIPE_RX_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                    Cy_SysLib_DelayUs(10);
+                    pPhyRegsAlt->PIPE_RX_CTRL &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                }
+            }
+        }
+    } else {
+        /* Force link into U0. */
+        CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_TimerISR
+****************************************************************************//**
+*
+* Function that handles the delay timer expiry based on the event
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+*******************************************************************************/
+void Cy_USBSS_Cal_TimerISR(cy_stc_usbss_cal_ctxt_t *pCalCtxt)
+{
+    cy_stc_usb_cal_msg_t msg = {CY_USB_CAL_MSG_INVALID, {0, 0}};
+
+    Cy_TCPWM_ClearInterrupt(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX, CY_TCPWM_INT_ON_TC);
+    switch (pCalCtxt->delayEventMask)
+    {
+        case DELAY_EVENT_P0_CHG:
+            Cy_USBSS_Cal_HandleP0Change(pCalCtxt);
+            break;
+
+        case DELAY_EVENT_HOLD_POLL_ACT:
+            CY_USBSS_JUMP_TO_LINK_STATE(pCalCtxt->pLinkBase, CY_USBSS_LNK_STATE_POLLING_ACT);
+            if ((pCalCtxt->compExitDone) && (pCalCtxt->compExitTS != 0)) {
+                /* Work-around for intermittent loopback entry failure.
+                 * If we appear to be timing out here, force link into loopback state.
+                 */
+                if (!Cy_USBSS_Cal_WaitWhileInState(pCalCtxt, CY_USBSS_LNK_STATE_POLLING_ACT, 15000)) {
+                    pCalCtxt->compExitDone = false;
+                    pCalCtxt->compExitTS   = 0;
+                    CY_USBSS_FORCE_LINK_STATE(pCalCtxt->pLinkBase, CY_USBSS_LNK_STATE_LPBK_ACTV);
+                    msg.type = CY_USBSS_CAL_MSG_LPBK_FORCED;
+                    Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    pCalCtxt->delayEventMask = DELAY_EVENT_NONE;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_TimerInit
+****************************************************************************//**
+*
+* Initialises the TCPWM counter for creating delays
+*
+* \param void
+*
+*
+* \return cy_en_tcpwm_status_t
+* Status code. See cy_en_tcpwm_status_t.
+*
+*******************************************************************************/
+static cy_en_tcpwm_status_t Cy_USBSS_Cal_TimerInit (void)
+{
+    cy_en_tcpwm_status_t status = CY_TCPWM_SUCCESS;
+    cy_stc_tcpwm_counter_config_t timerCfg;
+
+    /* Configure PERI 8 bit clock divider for 1 MHz operation and enable it. */
+    Cy_SysClk_PeriphSetDivider (CY_SYSCLK_DIV_8_BIT, CY_USBSS_CAL_TCPWM_DIV_INDEX,
+            (Cy_SysClk_ClkPeriGetFrequency() / 1000000UL) - 1);
+    Cy_SysClk_PeriphEnableDivider (CY_SYSCLK_DIV_8_BIT, CY_USBSS_CAL_TCPWM_DIV_INDEX);
+    Cy_SysLib_DelayUs (100);
+    /* Connect the 1MHz PERI (8 bit divider 2) clock to the TCPWM input. */
+    Cy_SysClk_PeriphAssignDivider(CY_USBSS_CAL_TCPWM_CLK, CY_SYSCLK_DIV_8_BIT,
+            CY_USBSS_CAL_TCPWM_DIV_INDEX);
+
+    /* Init Timer */
+    timerCfg.period = 0x0UL;
+    timerCfg.clockPrescaler = CY_TCPWM_COUNTER_PRESCALER_DIVBY_1;
+    timerCfg.runMode = CY_TCPWM_COUNTER_ONESHOT;
+    timerCfg.countDirection = CY_TCPWM_COUNTER_COUNT_DOWN;
+    timerCfg.compareOrCapture = CY_TCPWM_COUNTER_MODE_COMPARE;
+    timerCfg.compare0 = 0;
+    timerCfg.compare1 = 0;
+    timerCfg.enableCompareSwap = false;
+    timerCfg.interruptSources = CY_TCPWM_INT_ON_TC;
+    timerCfg.captureInputMode = CY_TCPWM_INPUT_LEVEL;
+    timerCfg.captureInput = CY_TCPWM_INPUT_0;
+    timerCfg.reloadInputMode = CY_TCPWM_INPUT_LEVEL;
+    timerCfg.reloadInput = CY_TCPWM_INPUT_0;
+    timerCfg.startInputMode = CY_TCPWM_INPUT_LEVEL;
+    timerCfg.startInput = CY_TCPWM_INPUT_0;
+    timerCfg.stopInputMode = CY_TCPWM_INPUT_LEVEL;
+    timerCfg.stopInput = CY_TCPWM_INPUT_0;
+    timerCfg.countInputMode = CY_TCPWM_INPUT_LEVEL;
+    timerCfg.countInput = CY_TCPWM_INPUT_1;
+    status = Cy_TCPWM_Counter_Init(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX , &timerCfg);
+    return status;
+}
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_TimerDeInit
+****************************************************************************//**
+*
+* Deinitialize the TCPWM counter used for delay
+*
+* \param void
+*
+* \return void
+*
+*******************************************************************************/
+static void Cy_USBSS_Cal_TimerDeInit (void)
+{
+    cy_stc_tcpwm_counter_config_t timerCfg;
+    timerCfg.countInput = CY_TCPWM_INPUT_0;
+    Cy_TCPWM_Counter_DeInit(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX , &timerCfg);
+}
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_WaitForTimeout
+****************************************************************************//**
+*
+* Starts a hardware timer/counter to wait for the timeout duration. If
+* the counter is already active or the interrupt is not
+* configured by the user application, provide a blocking delay.
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+* \param timeoutUs
+* Delay in microseconds
+*
+* \param eventSignal
+* Specify the event to be handled after the delay.
+* See \ref cy_en_usbss_delay_event_t
+*
+* \return void
+*
+*******************************************************************************/
+static void Cy_USBSS_Cal_WaitForTimeout (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                         uint32_t timeoutUs,
+                                         cy_en_usbss_delay_event_t eventSignal)
+{
+    if ((NVIC_GetEnableIRQ(CY_USBSS_CAL_TCPWM_INTERRUPT) == false) ||
+        Cy_TCPWM_Counter_GetStatus(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX) == CY_USBSS_CAL_TIMER_RUNNING) {
+        /* Use blocking delay if the timer is already running and a wait is requested or
+         * if user has not registered for the Timer Interrupt */
+        Cy_SysLib_DelayUs(timeoutUs);
+        pCalCtxt->delayEventMask = eventSignal;
+        Cy_USBSS_Cal_TimerISR(pCalCtxt);
+    } else {
+        pCalCtxt->delayEventMask = eventSignal;
+        Cy_TCPWM_Counter_SetPeriod(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX, timeoutUs-1);
+        Cy_TCPWM_Counter_Enable(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX);
+        Cy_TCPWM_TriggerStart(TCPWM0, (1 << CY_USBSS_CAL_TCPWM_INDEX));
+    }
+}
 
 /*******************************************************************************
 * Function Name: Cy_USBSS_Cal_Init
@@ -501,6 +809,9 @@ Cy_USBSS_Cal_Init (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
     Cy_USBSS_Cal_PreConnect(pCalCtxt);
     Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_SSCAL_EVT_DRV_EN);
+
+    pCalCtxt->delayEventMask = DELAY_EVENT_NONE;
+    Cy_USBSS_Cal_TimerInit();
 
     return retCode;
 }
@@ -614,6 +925,41 @@ bool Cy_USBSS_Cal_IsEnabled (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 }
 
 /*******************************************************************************
+* Function name: Cy_USBSS_Cal_ITPIntrUpdate
+****************************************************************************//**
+*
+* Function to enable or disable the ITP interrupt based on user requirement.
+*
+* \param pCalCtxt
+* CAL layer library context pointer.
+*
+* \param itpIntrEnable
+* Whether the ITP interrupt should be enabled.
+*
+*******************************************************************************/
+void Cy_USBSS_Cal_ITPIntrUpdate (
+        cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+        bool itpIntrEnable)
+{
+    USB32DEV_PROT_Type *pProtBase;
+
+    if ((pCalCtxt != NULL) && (pCalCtxt->pProtBase != NULL)) {
+        pProtBase = pCalCtxt->pProtBase;
+        pCalCtxt->sofEvtEnable = itpIntrEnable;
+
+        if (itpIntrEnable) {
+            /* Enable the interrupt only if other protocol layer interrupts are enabled. */
+            if (pProtBase->PROT_INTR_MASK != 0) {
+                pProtBase->PROT_INTR_MASK |= USB32DEV_PROT_INTR_ITP_EV_Msk;
+            }
+        } else {
+            /* Disable the interrupt. */
+            pProtBase->PROT_INTR_MASK &= ~USB32DEV_PROT_INTR_ITP_EV_Msk;
+        }
+    }
+}
+
+/*******************************************************************************
 * Function Name: Cy_USBSS_Cal_Connect
 ****************************************************************************//**
 *
@@ -681,7 +1027,10 @@ Cy_USBSS_Cal_Connect (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
         case CY_USBD_USB_DEV_SS_GEN1X2:
             /* Confirm that device can actually support GEN1X2 operation. */
-            if ((UsbBlkInitConfig & 0x00010000UL) == 0x00010000UL) {
+            if (
+                    ((UsbBlkInitConfig & 0x00010000UL) == 0x00010000UL) ||
+                    ((UsbBlkInitConfig & 0x00200000UL) != 0)
+               ) {
                 DBG_SSCAL_WARN("Device does not support GEN1X2 operation: Dropping to GEN1X1 speed\r\n");
                 usbSpeed = CY_USBD_USB_DEV_SS_GEN1;
             }
@@ -732,17 +1081,22 @@ Cy_USBSS_Cal_Connect (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
         case CY_USB_CFG_LANE_AUTODETECT:
         default:
-            pCalCtxt->activePhyIdx = Cy_USBSS_Cal_GetBusOrientation(pCalCtxt);
+            if ((UsbBlkInitConfig & 0x00200000UL) != 0) {
+                pCalCtxt->activePhyIdx = 0;
+            } else {
+                pCalCtxt->activePhyIdx = Cy_USBSS_Cal_GetBusOrientation(pCalCtxt);
+            }
             break;
 
     }
 
-    pCalCtxt->connectRcvd = false;
-    pCalCtxt->uxExitActive = false;
-    pCalCtxt->u2TimeoutVal = 0;
-    pCalCtxt->compExitDone = false;
-    pCalCtxt->compExitTS   = 0;
-    pCalCtxt->phyDisabled  = false;
+    pCalCtxt->connectRcvd    = false;
+    pCalCtxt->uxExitActive   = false;
+    pCalCtxt->u2TimeoutVal   = 0;
+    pCalCtxt->compExitDone   = false;
+    pCalCtxt->compExitTS     = 0;
+    pCalCtxt->phyDisabled    = false;
+    pCalCtxt->inGen1DualMode = false;
 
     /* In a single lane configuration, make sure that we route signals from the active PHY to the DFT pins. */
     if (pCalCtxt->dualLaneEnabled == false) {
@@ -809,9 +1163,9 @@ Cy_USBSS_Cal_Connect (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                         USB32DEV_PROT_INTR_LMP_PORT_CAP_EV_Msk |
                                         USB32DEV_PROT_INTR_LMP_PORT_CFG_EV_Msk |
                                         USB32DEV_PROT_INTR_SET_ADDR_Msk);
+
     /* Enable ITP Interrupt if configured to be enabled */
-    if (pCalCtxt->sofEvtEnable == true)
-    {
+    if (pCalCtxt->sofEvtEnable == true) {
         USB32DEV_PROT->PROT_INTR_MASK |= USB32DEV_PROT_INTR_ITP_EV_Msk;
     }
 
@@ -1191,7 +1545,10 @@ Cy_USBSS_Phy_TxDeinit (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     USB_PHY_TOP->PIPE_OVERRIDE_0 = 0;
 
     /* Clear any stale interrupt status. */
+    USB_PHY_TOP->INTR0_MASK = 0;
     USB_PHY_TOP->INTR0 = 0xFFFFFFFFUL;
+    USB_PHY_TOP->INTR1_MASK = 0;
+    USB_PHY_TOP->INTR1 = 0xFFFFFFFFUL;
 
     return CY_USB_CAL_STATUS_SUCCESS;
 }
@@ -1443,6 +1800,14 @@ Cy_USBSS_Phy_TrimRxCtle (
 
     /* Disable ADFT. */
     USB_PHY_RX->RX_ATEST_CFG &= ~USB32DEV_PHYSS_USB40PHY_RX_ATEST_CFG_ADFT_ENABLE_Msk;
+
+    /* Disable the ADC. */
+    USB_PHY_TOP->ADC = (
+            (USB_PHY_TOP->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
+            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
+            (0x00UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
+            USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
+    USB_PHY_TOP->ADC &= ~ USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk;
 
     /* Disable PHY0 if we are connecting using PHY1. */
     if ((pCalCtxt->dualLaneEnabled == false) && (laneId)) {
@@ -2295,9 +2660,9 @@ const uint32_t P_LUT_10G[] = {
 #define AFE_CAL_RESULT_SIGNAL_HIGH      (0x1E)
 #define AFE_CAL_RESULT_EYE_DITHERING    (0x1F)
 
-void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
-                            volatile uint32_t *phyRxRegs_p,
-                            bool onlyLock)
+static void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                   volatile uint32_t *phyRxRegs_p,
+                                   bool onlyLock)
 {
     uint32_t csr_rd_rtn_data;
     uint32_t ctle_config;
@@ -2425,8 +2790,8 @@ void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 #define CTLE_ALGORITHM_VERSION  0x000Au
 #define LUT_MASK_GEN1X1 (0x0FFF) /* LUT index 0-11 */
 #define LUT_MASK_GEN2X1 (0xFFFF) /* LUT index 0-15 */
-#define LUT_MASK_GEN1X2 (0x3B09) /* LUT index 0,3,8,9,11,12,13 */
-#define MIN_LUT_GEN1X2  (0x1B00) /* LUT index 8,9,11,12 */
+#define LUT_MASK_GEN1X2 (0x3BA9) /* LUT index 0,3,5,7,8,9,11,12,13 */
+#define MIN_LUT_GEN1X2  (0x18A0) /* LUT index 5,7,11,12 */
 #define LUT_MASK_GEN2X2 (0x03FF) /* LUT index 0-9 */
 
 /* Using a global variable to avoid adding a large array to stack. */
@@ -3063,6 +3428,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                         bcs_eye = eye_height[ tmp_index];
                         bcs_index = tmp_index;
                         new_abs_dfe_tap = ftn_max_dfe_tap( final_dfe1[ tmp_index], final_dfe2[ tmp_index], final_dfe3[ tmp_index]);
+                        min_abs_dfe_tap = new_abs_dfe_tap;
                     } else if((eye_height[ tmp_index] == bcs_eye) && (bcs_eye != 0)) {
                         /* We're tied, see if this one has a lower DFE tap(s) */
                         new_abs_dfe_tap = ftn_max_dfe_tap( final_dfe1[ tmp_index], final_dfe2[ tmp_index], final_dfe3[ tmp_index]);
@@ -3598,9 +3964,6 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     USB32DEV_PHYSS_USB40PHY_TOP_Type *pPhyRegsAlt = &(base->USB32DEV_PHYSS.USB40PHY[!(pCalCtxt->activePhyIdx)].USB40PHY_TOP);
     USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs = &(base->USB32DEV_PHYSS.USB40PHY[pCalCtxt->activePhyIdx].USB40PHY_RX);
     USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegsAlt = &(base->USB32DEV_PHYSS.USB40PHY[!(pCalCtxt->activePhyIdx)].USB40PHY_RX);
-    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs0 = &(base->USB32DEV_PHYSS.USB40PHY[0].USB40PHY_RX);
-    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs1 = &(base->USB32DEV_PHYSS.USB40PHY[1].USB40PHY_RX);
-
     USB32DEV_PHYSS_USB40PHY_PLL_SYS_Type *pPllRegs = &(base->USB32DEV_PHYSS.USB40PHY[0].USB40PHY_PLL_SYS);
 
     /* Call the wakeup interrupt handler first. */
@@ -3609,6 +3972,8 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     state = (USB32DEV_MAIN->INTR & USB32DEV_MAIN->INTR_MASK);
 
     if ((state & USB32DEV_MAIN_INTR_PHY1_Msk) || (state & USB32DEV_MAIN_INTR_PHY0_Msk)) {
+
+        USB32DEV_MAIN->INTR = (state & (USB32DEV_MAIN_INTR_PHY0_Msk | USB32DEV_MAIN_INTR_PHY1_Msk));
 
         phy_intr = pPhyRegs->INTR0_MASKED;
         pPhyRegs->INTR0 = phy_intr;
@@ -3640,66 +4005,9 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                      */
                     if ((USB32DEV_LNK->LNK_DEVICE_POWER_CONTROL & USB32DEV_LNK_DEVICE_POWER_CONTROL_EXIT_LP_Msk) != 0) {
                         while ((USB32DEV_LNK->LNK_DEVICE_POWER_CONTROL & USB32DEV_LNK_DEVICE_POWER_CONTROL_EXIT_LP_Msk) != 0);
+                        Cy_USBSS_Cal_HandleP0Change(pCalCtxt);
                     } else {
-                        Cy_SysLib_DelayUs(pCalCtxt->lpmExitLfpsDelay);
-                    }
-
-
-                    if (pCalCtxt->linkSuspended) {
-                        if (pCalCtxt->deepSleepEntered) {
-                            /* In Gen2 case, repeat receiver offset calibration.
-                             * In Gen1 case, directly move the receiver into L2D mode.
-                             */
-                            if (pCalCtxt->dualLaneEnabled) {
-                                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs0, !pCalCtxt->gen2Enabled);
-                                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs1, !pCalCtxt->gen2Enabled);
-                            } else {
-                                rx_offset_calibration(pCalCtxt, (volatile uint32_t *)pRxRegs, !pCalCtxt->gen2Enabled);
-                            }
-                            Cy_SysLib_DelayUs(10);
-
-                            /* Restore default U3 exit LFPS duration. */
-                            USB32DEV_LNK->LNK_LFPS_RX_U3_EXIT = CY_USBSS_LFPS_PERIOD_TO_REG_G1(1800UL);
-
-                            /* Force link into U0 after receiver has been updated. */
-                            CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
-                        } else {
-                            /* Force link into U0 as the first step. */
-                            CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
-
-                            /*
-                             * If we had updated receiver settings preparatory to initiating U3 exit, restore the
-                             * settings and reset the CDR data aligner.
-                             */
-                            if ((pRxRegs->RX_HDWR_ENABLE & USB32DEV_PHYSS_USB40PHY_RX_HDWR_ENABLE_CDR_HDWR_ENABLE_Msk) == 0)
-                            {
-                                /* Delay to allow LFPS handshake from host to be completed. */
-                                Cy_SysLib_DelayUs(150);
-
-                                /* Configure RX for L2D mode. */
-                                pRxRegs->RX_LD_CFG = (
-                                        (pRxRegs->RX_LD_CFG & ~USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Msk) |
-                                        (0x02UL << USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Pos));
-
-                                pPhyRegs->PIPE_RX_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
-                                Cy_SysLib_DelayUs(10);
-                                pPhyRegs->PIPE_RX_CTRL &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
-
-                                if (pCalCtxt->dualLaneEnabled) {
-                                    /* Configure RX for L2D mode. */
-                                    pRxRegsAlt->RX_LD_CFG = (
-                                            (pRxRegsAlt->RX_LD_CFG & ~USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Msk) |
-                                            (0x02UL << USB32DEV_PHYSS_USB40PHY_RX_LD_CFG_FD_OVRD_Pos));
-
-                                    pPhyRegsAlt->PIPE_RX_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
-                                    Cy_SysLib_DelayUs(10);
-                                    pPhyRegsAlt->PIPE_RX_CTRL &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
-                                }
-                            }
-                        }
-                    } else {
-                        /* Force link into U0. */
-                        CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_U0);
+                        Cy_USBSS_Cal_WaitForTimeout(pCalCtxt, pCalCtxt->lpmExitLfpsDelay, DELAY_EVENT_P0_CHG);
                     }
                 }
             }
@@ -3769,12 +4077,6 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     /* Update Rate in top control register */
                     pPhyRegs->TOP_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_RATE_Msk;
 
-                    /* De-assert PLL reset. */
-                    pPhyRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PLL_RSTB_Msk;
-
-                    /* De-assert Serializer reset */
-                    pPhyRegs->TX_AFE_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_TX_SERIALIZER_RST_Msk;
-
                     if (pCalCtxt->dualLaneEnabled) {
                         pRxRegsAlt->RX_CP_CFG = (
                                 (6UL << USB32DEV_PHYSS_USB40PHY_RX_CP_CFG_IPUP_ADJ_Pos) |
@@ -3787,6 +4089,12 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                         pPhyRegsAlt->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PLL_RSTB_Msk;
                         pPhyRegsAlt->TX_AFE_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_TX_SERIALIZER_RST_Msk;
                     }
+
+                    /* De-assert PLL reset. */
+                    pPhyRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PLL_RSTB_Msk;
+
+                    /* De-assert Serializer reset */
+                    pPhyRegs->TX_AFE_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_TX_SERIALIZER_RST_Msk;
 
                     /* Disable DC balance in Gen1 case. */
                     USB32DEV_LNK->LNK_CONF &= ~USB32DEV_LNK_CONF_DC_BAL_EN_Msk;
@@ -3888,7 +4196,7 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
         if (lnkState & USB32DEV_LNK_INTR_LBAD_Msk)
         {
             /* Nothing to do here but to clear the interrupt. */
-            USB32DEV_LNK->LNK_INTR |= USB32DEV_LNK_INTR_LBAD_Msk;
+            USB32DEV_LNK->LNK_INTR = USB32DEV_LNK_INTR_LBAD_Msk;
             pCalCtxt->lbadCounter++;
         }
 
@@ -4090,10 +4398,19 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
 
                     pCalCtxt->activeLutMask = 0;                /* Start with no LUT customization. */
-                    /* GEN1/GEN2 switch */
-                    z_dfe_ctle_adaptation(pCalCtxt, (pCalCtxt->gen2Enabled)? DATARATE_GEN2 : DATARATE_GEN1, pCalCtxt->activePhyIdx);
+
                     if (pCalCtxt->dualLaneEnabled) {
-                        z_dfe_ctle_adaptation(pCalCtxt, (pCalCtxt->gen2Enabled)? DATARATE_GEN2 : DATARATE_GEN1, !(pCalCtxt->activePhyIdx));
+                        if (pCalCtxt->gen2Enabled) {
+                            /* Do adaptation on config lane first for Gen2x2. */
+                            z_dfe_ctle_adaptation(pCalCtxt, DATARATE_GEN2, (pCalCtxt->activePhyIdx));
+                            z_dfe_ctle_adaptation(pCalCtxt, DATARATE_GEN2, !(pCalCtxt->activePhyIdx));
+                        } else {
+                            /* Do adaptation on lane-1 first for Gen1x2. */
+                            z_dfe_ctle_adaptation(pCalCtxt, DATARATE_GEN1, 1);
+                            z_dfe_ctle_adaptation(pCalCtxt, DATARATE_GEN1, 0);
+                        }
+                    } else {
+                        z_dfe_ctle_adaptation(pCalCtxt, (pCalCtxt->gen2Enabled)? DATARATE_GEN2 : DATARATE_GEN1, pCalCtxt->activePhyIdx);
                     }
 
                     Cy_USBSS_Cal_LpmSettingsUpdate(pCalCtxt);
@@ -4150,27 +4467,16 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                         /* Keep the link forced in Polling.Active for some time and then release. */
                         CY_USBSS_FORCE_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_POLLING_ACT);
                         if (pCalCtxt->gen2Enabled) {
-                            Cy_SysLib_DelayUs(400);
+                            Cy_USBSS_Cal_WaitForTimeout(pCalCtxt, 400, DELAY_EVENT_HOLD_POLL_ACT);
                         } else {
-                            Cy_SysLib_DelayUs(700);
-                        }
-                        CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_POLLING_ACT);
-                    }
+                            /* Trigger PCS re-alignment before releasing link from Polling.Active state. */
+                            pPhyRegs->PIPE_RX_CTRL    |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                            pPhyRegsAlt->PIPE_RX_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                            Cy_SysLib_DelayUs(10);
+                            pPhyRegs->PIPE_RX_CTRL    &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
+                            pPhyRegsAlt->PIPE_RX_CTRL &= ~USB32DEV_PHYSS_USB40PHY_TOP_PIPE_RX_CTRL_FORCE_REALIGN_Msk;
 
-                    if (
-                            (pCalCtxt->dualLaneEnabled) &&
-                            (pCalCtxt->compExitDone) && (pCalCtxt->compExitTS != 0)
-                       ) {
-                        /* Work-around for intermittent loopback entry failure.
-                         * If we appear to be timing out here, force link into loopback state.
-                         */
-                        if (!Cy_USBSS_Cal_WaitWhileInState(pCalCtxt, CY_USBSS_LNK_STATE_POLLING_ACT, 15000)) {
-                            pCalCtxt->compExitDone = false;
-                            pCalCtxt->compExitTS   = 0;
-
-                            CY_USBSS_FORCE_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_LPBK_ACTV);
-                            msg.type = CY_USBSS_CAL_MSG_LPBK_FORCED;
-                            Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+                            Cy_USBSS_Cal_WaitForTimeout(pCalCtxt, 700, DELAY_EVENT_HOLD_POLL_ACT);
                         }
                     }
                     break;
@@ -4214,12 +4520,18 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 
                     /* Restore L2D start delay to U1 exit value. */
                     pCalCtxt->lpmExitLfpsDelay = CY_USBSS_U1_EXIT_LFPS_DURATION - 50U;
+                    pCalCtxt->inGen1DualMode   = false;
+
                     pPhyRegs->CDR_SW_CTRL = CY_FX10_USBSS_CDR_SW_CTRL_VAL(200UL, CY_USBSS_MAX_U1_WAKE_LFPS_DURATION);
                     pPhyRegs->PCS_SPARE |= (0x04UL << USB32DEV_PHYSS_USB40PHY_TOP_PCS_SPARE_REG_DFT_Pos);
                     if (pCalCtxt->dualLaneEnabled) {
                         pRxRegsAlt->RX_HDWR_ENABLE |= USB32DEV_PHYSS_USB40PHY_RX_HDWR_ENABLE_CDR_HDWR_ENABLE_Msk;
                         pPhyRegsAlt->CDR_SW_CTRL = CY_FX10_USBSS_CDR_SW_CTRL_VAL(200UL, CY_USBSS_MAX_U1_WAKE_LFPS_DURATION);
                         pPhyRegsAlt->PCS_SPARE |= (0x04UL << USB32DEV_PHYSS_USB40PHY_TOP_PCS_SPARE_REG_DFT_Pos);
+
+                        if (!pCalCtxt->gen2Enabled) {
+                            pCalCtxt->inGen1DualMode = true;
+                        }
                     }
 
                     /* If we have seen two PendingHpTimer timeout errors, relax the PendingHpTimeout period
@@ -4431,6 +4743,22 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     msg.type = CY_USBSS_CAL_MSG_LNK_RESET;
                     Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
                 }
+
+                if (pCalCtxt->inGen1DualMode) {
+                    pCalCtxt->inGen1DualMode = false;
+
+                    /*
+                     * Send a message to USBD so that we cycle the USB connection.
+                     */
+                    msg.type    = CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE;
+                    if ((USB32DEV_LNK->LNK_DEBUG_RSVD & USB32DEV_LNK_DEBUG_RSVD_FORCE_RATE_CONFIG_TO_GEN1_Msk) != 0) {
+                        msg.data[0] = CY_USBD_USB_DEV_SS_GEN1X2;
+                    } else {
+                        msg.data[0] = CY_USBD_USB_DEV_SS_GEN2X2;
+                    }
+                    msg.data[1] = 1;
+                    Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+                }
             } else {
                 /* Always notify USBD about hot reset. */
                 msg.type = CY_USBSS_CAL_MSG_LNK_RESET;
@@ -4547,12 +4875,20 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                         }
                     }
                 }
+
+                /* Send ITP callback to the application. */
+                msg.type    = CY_USB_CAL_MSG_SOF_ITP;
+                msg.data[0] = USB32DEV_PROT->PROT_FRAMECNT;
+                msg.data[1] = USB32DEV_PROT->PROT_ITP_CORRECTION;
+                yield_reqd |= Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
             }
 
             if (prot_intr & USB32DEV_PROT_INTR_LDM_RX_Msk) {
 
-                /* Disable ITP interrupt itself after receiving LDM LMP Response */
-                USB32DEV_PROT->PROT_INTR_MASK &= ~(USB32DEV_PROT_INTR_ITP_EV_Msk);
+                if (pCalCtxt->sofEvtEnable == false) {
+                    /* Disable ITP interrupt itself after receiving LDM LMP Response */
+                    USB32DEV_PROT->PROT_INTR_MASK &= ~(USB32DEV_PROT_INTR_ITP_EV_Msk);
+                }
 
                 /****************************** Link  delay calculations **************************/
                 volatile uint32_t t4Delay=0, t1Delay=0, tRespDelay=0, tLinkDelay=0;
@@ -5211,13 +5547,7 @@ Cy_USBSS_Cal_GetLinkPowerState (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
     if (pMode == 0)
         return CY_USB_CAL_STATUS_BAD_PARAM;
-/* TODO: Need to add this parameter
-    if (glUibDeviceInfo.ssCompliance)
-    {
-        *pMode = CY_USBSS_LPM_COMP;
-        return CY_USB_CAL_STATUS_SUCCESS;
-    }
-*/
+
     state = USB32DEV_LNK->LNK_LTSSM_STATE & USB32DEV_LNK_LTSSM_STATE_LTSSM_STATE_Msk;
     switch (state)
     {
@@ -5420,46 +5750,6 @@ Cy_USBSS_Cal_ProtSendErdyTp (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function  */
 
-
-/*******************************************************************************
-* Function Name: Cy_USBSS_Cal_ProtSendZlpTp
-****************************************************************************//**
-*
-* This function prepares and send ZLP transaction packet.
-*
-* \param pCalCtxt
-* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
-* allocated by the user.
-*
-* \return
-* The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
-*
-*******************************************************************************/
-/* TBD: Need to add endp number as paramter so zlp can be sent for any endp.*/
-cy_en_usb_cal_ret_code_t
-Cy_USBSS_Cal_ProtSendZlpTp (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
-{
-
-    USB32DEV_PROT_Type *pProtBase;
-    uint32_t tpPkt[3] = {0,0,0};
-
-    if (NULL == pCalCtxt) {
-        return(CY_USB_CAL_STATUS_CAL_CTXT_NULL);
-    }
-    pProtBase = pCalCtxt->pProtBase;
-
-    if (NULL == pProtBase) {
-        return(CY_USB_CAL_STATUS_CAL_PROT_BASE_NULL);
-    }
-
-    /* Now prepare the Data Packet Header. */
-    tpPkt[0]  = CY_USBSS_PKT_TYPE_DPH;
-    tpPkt[1] |= 0xC0;
-    tpPkt[2]  = 0;
-
-    Cy_USBSS_Cal_ProtSendTp(pCalCtxt, tpPkt);
-    return(CY_USB_CAL_STATUS_SUCCESS);
-}   /* end of function  */
 
 /*******************************************************************************
 * Function Name: Cy_USBSS_Cal_ProtSendNrdyTp
@@ -5854,8 +6144,6 @@ Cy_USBSS_Cal_SetSeqNum (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
     if (((endpNum == 0) || (endpNum > 15)) || (seqNum >= 32)) {
         return(CY_USB_CAL_STATUS_BAD_PARAM);
     }
-
-    /* TBD: Need lock here  */
 
     /*
      * Select the endpoint first and update the sequence number after a delay.
@@ -6771,7 +7059,8 @@ Cy_USBSS_Cal_UpdateXferCount (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     pEpmBase =  pCalCtxt->pEpmBase;
     (void)pEpmBase;
 
-    /* TBD: Update required registers. */
+    /* No operation for USB32DEV instance as transfer count is handled in DMA layer. */
+
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function   */
 
@@ -6885,14 +7174,17 @@ Cy_USBSS_Cal_SendAckSetupDataStatusStage (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     if (NULL == pProtBase) {
         return(CY_USB_CAL_STATUS_CAL_PROT_BASE_NULL);
     }
+
     protCs = pProtBase->PROT_CS;
-    /*
-     * While clearing SETUP_CLR_BUSY, don't clear SETUP_CLR_BUSY bit.
-     * Writting '0' in STATUS_CLR_BUSY bit will not have any impact.
-     */
-    protCs &= (~USB32DEV_PROT_CS_STATUS_CLR_BUSY_Msk);
-    protCs |= CY_USBSS_PROT_CS_SETUP_CLR_BUSY;
-    pProtBase->PROT_CS = protCs;
+    if ((protCs & CY_USBSS_PROT_CS_SETUP_CLR_BUSY) != 0) {
+        /*
+         * While clearing SETUP_CLR_BUSY, don't clear STATUS_CLR_BUSY bit.
+         * Writing '0' in STATUS_CLR_BUSY bit will not have any impact.
+         */
+        protCs &= (~USB32DEV_PROT_CS_STATUS_CLR_BUSY_Msk);
+        protCs |= CY_USBSS_PROT_CS_SETUP_CLR_BUSY;
+        pProtBase->PROT_CS = protCs;
+    }
 
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* End of function   */
@@ -7145,8 +7437,8 @@ Cy_USBSS_Cal_EnableLinkIntr (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                       USB32DEV_LNK_INTR_LTSSM_U3_ENTRY_Msk |
                                       USB32DEV_LNK_INTR_LTSSM_STATE_CHG_Msk);
     } else {
-        /* Disable all link interrupt */
-        pLinkBase->LNK_INTR_MASK  = 0x00;
+        /* Disable all link interrupts */
+        pLinkBase->LNK_INTR_MASK = 0x00;
     }
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function() */
@@ -7195,6 +7487,10 @@ Cy_USBSS_Cal_EnableProtIntr (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                    USB32DEV_PROT_INTR_LMP_PORT_CAP_EV_Msk |
                                    USB32DEV_PROT_INTR_LMP_PORT_CFG_EV_Msk |
                                    USB32DEV_PROT_INTR_SET_ADDR_Msk);
+
+        if (pCalCtxt->sofEvtEnable) {
+            pProtBase->PROT_INTR_MASK |= USB32DEV_PROT_INTR_ITP_EV_Msk;
+        }
 
     } else {
         /* Disable all prot interrupt and clear. */
@@ -7400,6 +7696,10 @@ Cy_USBSS_Cal_DisConnect (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     phyCount = pCalCtxt->numPhyInitialized;
     DBG_SSCAL_TRACE("SSCal_Disconnect: numPhyInitialized = %d\r\n", pCalCtxt->numPhyInitialized);
 
+    /* Disable all link interrupts and PHY Interrupts before doing the disconnect. */
+    Cy_USBSS_Cal_EnableLinkIntr(pCalCtxt, false);
+    USB32DEV_MAIN->INTR_MASK &= ~(USB32DEV_MAIN_INTR_PHY0_Msk | USB32DEV_MAIN_INTR_PHY1_Msk);
+
     intstate = Cy_SysLib_EnterCriticalSection();
 
     /* Force LTSSM into SS.Disabled state. */
@@ -7461,13 +7761,19 @@ Cy_USBSS_Cal_DisConnect (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     DBG_SSCAL_INFO("SSCal_Disconnect: Disabled %d PHYs\r\n", phyCount);
     Cy_SysLib_ExitCriticalSection(intstate);
 
-    /* Clear link suspended (in U3) flag. */
-    pCalCtxt->linkSuspended = false;
-    pCalCtxt->activePhyIdx  = 0;
-    pCalCtxt->connectRcvd   = false;
-    pCalCtxt->compExitDone  = false;
-    pCalCtxt->compExitTS    = 0;
+    /* Clear USB connection state flags. */
+    pCalCtxt->linkSuspended          = false;
+    pCalCtxt->activePhyIdx           = 0;
+    pCalCtxt->numPhyInitialized      = 0;
+    pCalCtxt->connectRcvd            = false;
+    pCalCtxt->compExitDone           = false;
+    pCalCtxt->compExitTS             = 0;
     pCalCtxt->stopClkOnEpResetEnable = false;
+    pCalCtxt->inCompState            = false;
+    pCalCtxt->gen1SpeedForced        = false;
+    pCalCtxt->inGen1DualMode         = false;
+
+    Cy_USBSS_Cal_TimerDeInit();
 
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function () */
@@ -7517,8 +7823,12 @@ Cy_USBSS_Cal_PTMConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool ptmControl)
         USB32DEV_PROT->PROT_PTM_CONFIG = 0;
 
         /* Disable LDM_RX and ITP interrupts. */
-        USB32DEV_PROT->PROT_INTR_MASK &= ~(USB32DEV_PROT_INTR_ITP_EV_Msk |
-                USB32DEV_PROT_INTR_LDM_RX_Msk);
+        if (pCalCtxt->sofEvtEnable) {
+            USB32DEV_PROT->PROT_INTR_MASK &= ~USB32DEV_PROT_INTR_LDM_RX_Msk;
+        } else {
+            USB32DEV_PROT->PROT_INTR_MASK &= ~(USB32DEV_PROT_INTR_ITP_EV_Msk |
+                    USB32DEV_PROT_INTR_LDM_RX_Msk);
+        }
     }
 
     return(CY_USB_CAL_STATUS_SUCCESS);

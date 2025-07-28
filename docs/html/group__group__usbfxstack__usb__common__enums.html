@@ -159,7 +159,7 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257">CY_USB_CAL_MSG_OUT_DONE</a>
 , <br />
-&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a9a4c5501071faff6cfab73f9df36ec61">CY_USB_CAL_MSG_SOF</a>
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132">CY_USB_CAL_MSG_SOF_ITP</a>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778">CY_USB_CAL_MSG_ERRLIMIT</a>
 , <br />
@@ -619,6 +619,8 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234">CY_USB_USBD_CB_EP0_RCV_DONE</a>
 , <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7">CY_USB_USBD_CB_SOF_ITP</a>
+, <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439">CY_USB_USBD_CB_SET_INVALID</a>
 <br />
  }</td></tr>
@@ -942,6 +944,16 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gafec5dbb1978a2908ff200ba695074467"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of possible USB 3.x LPM accept configurations.  <a href="group__group__usbfxstack__usb__common__enums.html#gafec5dbb1978a2908ff200ba695074467">More...</a><br /></td></tr>
 <tr class="separator:gafec5dbb1978a2908ff200ba695074467"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga35d95ab3e11efbd15e2bbe621cd16806"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806">cy_en_usbss_delay_event_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806afe017c8b5fea0def550572cf46d29609">DELAY_EVENT_NONE</a> = 0x00
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a5462432e90b7988e89950f68325081fe">DELAY_EVENT_P0_CHG</a> = 0x01
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a4c0aea32173e6fe8fb5eb053c64929b5">DELAY_EVENT_HOLD_POLL_ACT</a> = 0x02
+<br />
+ }</td></tr>
+<tr class="memdesc:ga35d95ab3e11efbd15e2bbe621cd16806"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of events to handle after delay timer expires.  <a href="group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806">More...</a><br /></td></tr>
+<tr class="separator:ga35d95ab3e11efbd15e2bbe621cd16806"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga0d79c3063de7043b78fe79bae1e9278a" name="ga0d79c3063de7043b78fe79bae1e9278a"></a>
@@ -1038,7 +1050,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257" name="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257"></a>CY_USB_CAL_MSG_OUT_DONE&#160;</td><td class="fielddoc"><p >Expected amount of data received on OUT endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a9a4c5501071faff6cfab73f9df36ec61" name="ggaa94d9a6862737a3d5fc0889e7dad1498a9a4c5501071faff6cfab73f9df36ec61"></a>CY_USB_CAL_MSG_SOF&#160;</td><td class="fielddoc"><p >Start-of-Frame packet received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132" name="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132"></a>CY_USB_CAL_MSG_SOF_ITP&#160;</td><td class="fielddoc"><p >Start-of-Frame or ITP packet received. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778" name="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778"></a>CY_USB_CAL_MSG_ERRLIMIT&#160;</td><td class="fielddoc"><p >USB 2.x device raised error limit interrupt. </p>
 </td></tr>
@@ -1614,6 +1626,8 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234" name="gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234"></a>CY_USB_USBD_CB_EP0_RCV_DONE&#160;</td><td class="fielddoc"><p >EP0 out transfer has been completed. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7" name="gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7"></a>CY_USB_USBD_CB_SOF_ITP&#160;</td><td class="fielddoc"><p >USB3 ITP or USB2 SOF received. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439" name="gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439"></a>CY_USB_USBD_CB_SET_INVALID&#160;</td><td class="fielddoc"><p >Invalid callback type. </p>
 </td></tr>
 </table>
@@ -2149,6 +2163,30 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea" name="ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea"></a>CY_SSCAL_LPM_DELAYED&#160;</td><td class="fielddoc"><p >U1/U2 entry delayed for the instant. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24" name="ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24"></a>CY_SSCAL_LPM_ENABLED&#160;</td><td class="fielddoc"><p >U1/U2 entry is allowed. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga35d95ab3e11efbd15e2bbe621cd16806" name="ga35d95ab3e11efbd15e2bbe621cd16806"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga35d95ab3e11efbd15e2bbe621cd16806">&#9670;&nbsp;</a></span>cy_en_usbss_delay_event_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806">cy_en_usbss_delay_event_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Types of events to handle after delay timer expires. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga35d95ab3e11efbd15e2bbe621cd16806afe017c8b5fea0def550572cf46d29609" name="gga35d95ab3e11efbd15e2bbe621cd16806afe017c8b5fea0def550572cf46d29609"></a>DELAY_EVENT_NONE&#160;</td><td class="fielddoc"><p >No events pending. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35d95ab3e11efbd15e2bbe621cd16806a5462432e90b7988e89950f68325081fe" name="gga35d95ab3e11efbd15e2bbe621cd16806a5462432e90b7988e89950f68325081fe"></a>DELAY_EVENT_P0_CHG&#160;</td><td class="fielddoc"><p >Handle P0 change interrupt. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga35d95ab3e11efbd15e2bbe621cd16806a4c0aea32173e6fe8fb5eb053c64929b5" name="gga35d95ab3e11efbd15e2bbe621cd16806a4c0aea32173e6fe8fb5eb053c64929b5"></a>DELAY_EVENT_HOLD_POLL_ACT&#160;</td><td class="fielddoc"><p >Handle Polling Active entry event. </p>
 </td></tr>
 </table>
 

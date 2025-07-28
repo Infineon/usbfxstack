@@ -31,6 +31,7 @@ var group__group__usbfxstack__hb__dma__functions =
     [ "Cy_HBDma_BufMgr_Free", "group__group__usbfxstack__hb__dma__functions.html#ga73272ac6afd3e262859e0651fc870eba", null ],
     [ "Cy_HBDma_Mgr_Init", "group__group__usbfxstack__hb__dma__functions.html#ga7b048031a2c4a5598791278aa6362ba2", null ],
     [ "Cy_HBDma_Mgr_DeInit", "group__group__usbfxstack__hb__dma__functions.html#gab4961fcbc111e04c9af83e40fd1c983f", null ],
+    [ "Cy_HBDma_Mgr_RegisterUsbContext", "group__group__usbfxstack__hb__dma__functions.html#ga51a42ea3fc4527e840654eb2a0dc5fcd", null ],
     [ "Cy_HBDma_Mgr_UpdateMultEn", "group__group__usbfxstack__hb__dma__functions.html#gaa8a5b3b3e0cde64db51870a4d1d6e9d8", null ],
     [ "Cy_HBDma_Channel_Create", "group__group__usbfxstack__hb__dma__functions.html#gaa82429d7fa2c2e991eceb96bc9ec8668", null ],
     [ "Cy_HBDma_Channel_Destroy", "group__group__usbfxstack__hb__dma__functions.html#ga0d36ce61ee1a513773f7e6c964c5cab9", null ],
@@ -54,5 +55,12 @@ var group__group__usbfxstack__hb__dma__functions =
     [ "Cy_HBDma_Mgr_DmaCallbackConfigure", "group__group__usbfxstack__hb__dma__functions.html#gaa54235631fbe7834dc902810a619a292", null ],
     [ "Cy_HBDma_Mgr_GetIntrDropCount", "group__group__usbfxstack__hb__dma__functions.html#ga580bac11a3a9eb4d2580d3c242fcf497", null ],
     [ "Cy_HBDma_Mgr_SetUsbEgressAdapterDelay", "group__group__usbfxstack__hb__dma__functions.html#gacc1cb4929f6b9a4002de6498e31ef1ca", null ],
-    [ "Cy_HBDma_Mgr_SetLvdsAdapterIngressMode", "group__group__usbfxstack__hb__dma__functions.html#gadf9f54714f6cd6888ca8947d9968ee33", null ]
+    [ "Cy_HBDma_Mgr_SetLvdsAdapterIngressMode", "group__group__usbfxstack__hb__dma__functions.html#gadf9f54714f6cd6888ca8947d9968ee33", null ],
+    [ "Cy_HBDma_DW_Configure", "group__group__usbfxstack__hb__dma__functions.html#gaae9cb0b7fcd758e64980ddfe4a784cdf", null ],
+    [ "Cy_HBDma_DW_QueueRead", "group__group__usbfxstack__hb__dma__functions.html#ga66412f84c789f6489d484b78b86be607", null ],
+    [ "Cy_HBDma_DW_CompleteShortRead", "group__group__usbfxstack__hb__dma__functions.html#gad56befbc8bbb358ad4c43f8d0978f91d", null ],
+    [ "Cy_HBDma_DW_QueueWrite", "group__group__usbfxstack__hb__dma__functions.html#gad15112511c48efacc81b3655efb173a7", null ],
+    [ "Cy_HBDma_Mgr_HandleDW0Interrupt", "group__group__usbfxstack__hb__dma__functions.html#ga239ee6292b479e83cb5645c837d9b75d", null ],
+    [ "Cy_HBDma_Mgr_HandleDW1Interrupt", "group__group__usbfxstack__hb__dma__functions.html#ga6a3d090dba3c10f62e5268af3337bdbf", null ],
+    [ "Cy_HBDma_Mgr_HandleUsbShortInterrupt", "group__group__usbfxstack__hb__dma__functions.html#gafc5003e1a752a17ac8e38636b36cec9d", null ]
 ];

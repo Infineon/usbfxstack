@@ -364,6 +364,7 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     pUsbdCtxt->statusStageComplCb = NULL;
     pUsbdCtxt->ep0RecvCb = NULL;
     pUsbdCtxt->debugSlpCb = NULL;
+    pUsbdCtxt->itpCb = NULL;
 
     for (intfNum = 0x00; intfNum < CY_USB_MAX_INTF; intfNum++) {
         pUsbdCtxt->altSettings[intfNum] = 0x00;
@@ -621,6 +622,16 @@ Cy_USBD_RegisterCallback (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 
         case CY_USB_USBD_CB_EP0_RCV_DONE:
             pUsbdCtxt->ep0RecvCb  = callBackFunc;
+            break;
+
+        case CY_USB_USBD_CB_SOF_ITP:
+            pUsbdCtxt->itpCb = callBackFunc;
+            if (pUsbdCtxt->pCalCtxt != NULL) {
+                Cy_USBHS_Cal_SOFIntrUpdate(pUsbdCtxt->pCalCtxt, (callBackFunc != NULL));
+            }
+            if (pUsbdCtxt->pSsCalCtxt != NULL) {
+                Cy_USBSS_Cal_ITPIntrUpdate(pUsbdCtxt->pSsCalCtxt, (callBackFunc != NULL));
+            }
             break;
 
         default:
@@ -6230,8 +6241,6 @@ Cy_USBD_HandleSuspend (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 
     /* Ignore back to back suspend interrupts. */
     if (pUsbdCtxt->devState != CY_USB_DEVICE_STATE_SUSPEND) {
-        pUsbdCtxt->prevDevState = pUsbdCtxt->devState;
-        pUsbdCtxt->devState = CY_USB_DEVICE_STATE_SUSPEND;
 
         /* Now handle Suspend */
         DBG_USBD_INFO("L2-SUSPEND Entry\r\n");
@@ -6246,12 +6255,14 @@ Cy_USBD_HandleSuspend (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         }
 
         DBG_USBD_INFO("HSPhySuspend: PLL_EN=%d\r\n", keep_pll_enabled);
-        Cy_USBHS_Cal_HsHandleL2SuspendEntry(pUsbdCtxt->pCalCtxt, keep_pll_enabled);
-
-        if (pUsbdCtxt->suspendCb) {
-            pUsbdCtxt->suspendCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+        if (Cy_USBHS_Cal_HsHandleL2SuspendEntry(pUsbdCtxt->pCalCtxt, keep_pll_enabled))
+        {
+            pUsbdCtxt->prevDevState = pUsbdCtxt->devState;
+            pUsbdCtxt->devState = CY_USB_DEVICE_STATE_SUSPEND;
+            if (pUsbdCtxt->suspendCb) {
+                pUsbdCtxt->suspendCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+            }
         }
-
         DBG_USBD_INFO("HandleSuspend <<\r\n");
     }
 
@@ -6636,10 +6647,14 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 
     switch (pMsg->type) {
 
-        case CY_USB_CAL_MSG_SOF:
-            /* Nothing for SoF message. Just print if required. */
-            DBG_USBD_TRACE("CY_USB_CAL_MSG_SOF\r\n");
+#if (!FREERTOS_ENABLE)
+        case CY_USB_CAL_MSG_SOF_ITP:
+            /* Notify the application layer. */
+            if (pUsbdCtxt->itpCb != NULL) {
+                pUsbdCtxt->itpCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+            }
             break;
+#endif /* (!FREERTOS_ENABLE) */
 
         case CY_USB_CAL_MSG_RESET:
             DBG_USBD_TRACE("CY_USB_CAL_MSG_RESET\r\n");
@@ -6807,8 +6822,8 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                         &(pUsbdCtxt->devAddr));
 
 #if FREERTOS_ENABLE
-                /* Change the LPM re-enable timer duration to 10 ticks in USB 2.x operation. */
-                xTimerChangePeriod(pUsbdCtxt->usbdTimerHandle, 10, 0);
+                /* Change the LPM re-enable timer duration to 5 ticks in USB 2.x operation.*/
+                xTimerChangePeriod(pUsbdCtxt->usbdTimerHandle, 5, 0);
 #endif /* FREERTOS_ENABLE */
             }
 
@@ -7019,6 +7034,7 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             DBG_USBD_ERR("HndlMsg:default(%x)\r\n", pMsg->type);
             break;
     }
+
     DBG_USBD_TRACE("Cy_USBD_HandleMsg <<\r\n");
     return(retStatus);
 }   /* end of function */
@@ -7987,7 +8003,7 @@ static const bool Cy_USBD_CalMsg_HighFreq[] = {
     false,              /* CY_USB_CAL_MSG_OUT_ZLP */
     false,              /* CY_USB_CAL_MSG_OUT_SLP */
     false,              /* CY_USB_CAL_MSG_OUT_DONE */
-    true,               /* CY_USB_CAL_MSG_SOF */
+    true,               /* CY_USB_CAL_MSG_SOF_ITP */
     true,               /* CY_USB_CAL_MSG_ERRLIMIT */
     false,              /* CY_USBSS_CAL_MSG_LNK_RESET */
     false,              /* CY_USBSS_CAL_MSG_LNK_CONNECT */
@@ -8049,6 +8065,7 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
     cy_stc_usb_usbd_ctxt_t *pUsbdCtxt;
     cy_stc_usb_cal_msg_t *pMsg;
     bool retval = false;
+    cy_stc_hbdma_sock_t ep0SckStat;
 
 #if FREERTOS_ENABLE
     BaseType_t status;
@@ -8069,6 +8086,15 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
      */
     if (pMsg->type == CY_USB_CAL_MSG_OUT_ZLP) {
         Cy_USBD_HandleZlp(pUsbdCtxt,pMsg);
+        return retval;
+    }
+
+    /* SOF/ITP callback notification needs to be sent with low latency. */
+    if (pMsg->type == CY_USB_CAL_MSG_SOF_ITP) {
+        /* Notify the application layer. */
+        if (pUsbdCtxt->itpCb != NULL) {
+            pUsbdCtxt->itpCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+        }
         return retval;
     }
 
@@ -8096,12 +8122,20 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
          */
         if (pMsg->type == CY_USB_CAL_MSG_PROT_SUTOK) {
             if (Cy_HBDma_Channel_GetChannelState(&(pUsbdCtxt->inEp0DmaUsb3Ch)) == CY_HBDMA_CHN_OVERRIDE) {
-                Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
-                Cy_USBSS_Cal_FlushEndpSocket(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN);
-                Cy_USBSS_Cal_FlushEPM(pUsbdCtxt->pSsCalCtxt, true);
+                Cy_HBDma_GetSocketStatus(pUsbdCtxt->pHBDmaMgr->pDrvContext, CY_HBDMA_USBEG_SOCKET_00,
+                        &ep0SckStat);
+                if (CY_HBDMA_STATUS_TO_SOCK_STATE(ep0SckStat.status) == CY_HBDMA_SOCK_STATE_ACTIVE) {
+                    Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
+                    Cy_USBSS_Cal_FlushEndpSocket(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN);
+                    Cy_USBSS_Cal_FlushEPM(pUsbdCtxt->pSsCalCtxt, true);
+                }
             }
             if (Cy_HBDma_Channel_GetChannelState(&(pUsbdCtxt->outEp0DmaUsb3Ch)) == CY_HBDMA_CHN_OVERRIDE) {
-                Cy_USB_USBD_RetireRecvEndp0DataSs(pUsbdCtxt);
+                Cy_HBDma_GetSocketStatus(pUsbdCtxt->pHBDmaMgr->pDrvContext, CY_HBDMA_USBIN_SOCKET_00,
+                        &ep0SckStat);
+                if (CY_HBDMA_STATUS_TO_SOCK_STATE(ep0SckStat.status) == CY_HBDMA_SOCK_STATE_ACTIVE) {
+                    Cy_USB_USBD_RetireRecvEndp0DataSs(pUsbdCtxt);
+                }
             }
         }
 
@@ -8110,12 +8144,20 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
 #else
     if (pMsg->type == CY_USB_CAL_MSG_PROT_SUTOK) {
         if (Cy_HBDma_Channel_GetChannelState(&(pUsbdCtxt->inEp0DmaUsb3Ch)) == CY_HBDMA_CHN_OVERRIDE) {
-            Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
-            Cy_USBSS_Cal_EndpReset(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN);
-            Cy_USBSS_Cal_FlushEPM(pUsbdCtxt->pSsCalCtxt, true);
+            Cy_HBDma_GetSocketStatus(pUsbdCtxt->pHBDmaMgr->pDrvContext, CY_HBDMA_USBEG_SOCKET_00,
+                    &ep0SckStat);
+            if (CY_HBDMA_STATUS_TO_SOCK_STATE(ep0SckStat.status) == CY_HBDMA_SOCK_STATE_ACTIVE) {
+                Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
+                Cy_USBSS_Cal_EndpReset(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN);
+                Cy_USBSS_Cal_FlushEPM(pUsbdCtxt->pSsCalCtxt, true);
+            }
         }
         if (Cy_HBDma_Channel_GetChannelState(&(pUsbdCtxt->outEp0DmaUsb3Ch)) == CY_HBDMA_CHN_OVERRIDE) {
-            Cy_USB_USBD_RetireRecvEndp0DataSs(pUsbdCtxt);
+            Cy_HBDma_GetSocketStatus(pUsbdCtxt->pHBDmaMgr->pDrvContext, CY_HBDMA_USBIN_SOCKET_00,
+                    &ep0SckStat);
+            if (CY_HBDMA_STATUS_TO_SOCK_STATE(ep0SckStat.status) == CY_HBDMA_SOCK_STATE_ACTIVE) {
+                Cy_USB_USBD_RetireRecvEndp0DataSs(pUsbdCtxt);
+            }
         }
     }
 
@@ -8873,6 +8915,40 @@ cy_en_usbd_ret_code_t Cy_USBD_SelectConfigLane (
 
     Cy_USBSS_Cal_SelectConfigLane(pUsbdCtxt->pSsCalCtxt, laneSel);
     return CY_USBD_STATUS_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_GetEndpointType
+ ****************************************************************************//**
+ *
+ * Function to identify the type of endpoint based on its index.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param endpNumber
+ * Endpoint index.
+ * \param endpDirection
+ * Endpoint direction.
+ *
+ * \return
+ * Type of the endpoint.
+ *******************************************************************************/
+cy_en_usb_endp_type_t Cy_USBD_GetEndpointType (
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        uint32_t endpNumber,
+        cy_en_usb_endp_dir_t endpDirection)
+{
+    cy_en_usb_endp_type_t epType = CY_USB_ENDP_TYPE_INVALID;
+
+    if ((pUsbdCtxt != NULL) && (endpNumber < CY_USB_MAX_ENDP_NUMBER)) {
+        if (endpDirection == CY_USB_ENDP_DIR_IN) {
+            epType = pUsbdCtxt->endpInfoIn[endpNumber].endpType;
+        } else {
+            epType = pUsbdCtxt->endpInfoOut[endpNumber].endpType;
+        }
+    }
+
+    return epType;
 }
 
 #if defined(__cplusplus)

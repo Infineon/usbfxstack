@@ -600,6 +600,20 @@ typedef enum {
  */
 
 /*******************************************************************************
+ * Function name: Cy_UsbFx_OnResetInit
+ ****************************************************************************//**
+ * This function performs initialization that is required to enable scatter
+ * loading of data into the High BandWidth RAM during device boot-up. The FX10/FX20
+ * device comes up with the High BandWidth RAM disabled and hence any attempt
+ * to read/write the RAM will cause the processor to hang. The RAM needs to
+ * be enabled with default clock settings to allow scatter loading to work.
+ * This function needs to be called from Cy_OnResetUser.
+ *
+ *******************************************************************************/
+void Cy_UsbFx_OnResetInit(
+        void);
+
+/*******************************************************************************
  * Function name: Cy_UsbFx_SelectDFTFunctions
  ****************************************************************************//**
  *

@@ -140,6 +140,7 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBD_DisableLPMDeviceExit", "group__group__usbfxstack__usb__common__functions.html#ga9b7af7161a52cf93c822dfa3d89f7f28", null ],
     [ "Cy_USBD_DisableSSOnBusReset", "group__group__usbfxstack__usb__common__functions.html#gafc734b9217c14e0a9dd5838838af8c35", null ],
     [ "Cy_USBD_SelectConfigLane", "group__group__usbfxstack__usb__common__functions.html#gac4d2647167df9195879c5f5673fa638c", null ],
+    [ "Cy_USBD_GetEndpointType", "group__group__usbfxstack__usb__common__functions.html#ga6dc94d97c567ff70048d4bb17756e517", null ],
     [ "Cy_USBHS_Cal_Init", "group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226", null ],
     [ "Cy_USBHS_Cal_FsHsModePhyInit", "group__group__usbfxstack__usb__common__functions.html#ga7c1c86e72768878c411c653324beca1b", null ],
     [ "Cy_USBHS_Cal_PhyCommonInit", "group__group__usbfxstack__usb__common__functions.html#ga1b24e1816f2cd2217932da1146205bd9", null ],
@@ -150,7 +151,7 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBHS_Cal_HsHandleL1WakeupCommon", "group__group__usbfxstack__usb__common__functions.html#gaa83e7606e372f52ea2049e98e974f795", null ],
     [ "Cy_USBHS_Cal_DevInitiatedL1Exit", "group__group__usbfxstack__usb__common__functions.html#ga3393a803361af47e4965421f0cb1ad6e", null ],
     [ "Cy_USBHS_Cal_DevInitiatedResumeL2Sleep", "group__group__usbfxstack__usb__common__functions.html#ga5f5a1080209e357636ea9dab3a4d8e52", null ],
-    [ "Cy_USBHS_Cal_HsHandleL2SuspendEntry", "group__group__usbfxstack__usb__common__functions.html#gaa30aa365f558a6cf06db26e0e8f1cd6c", null ],
+    [ "Cy_USBHS_Cal_HsHandleL2SuspendEntry", "group__group__usbfxstack__usb__common__functions.html#gac6763326b5e57890b5269bb62c2c9599", null ],
     [ "Cy_USBHS_Cal_FsHandleSuspend", "group__group__usbfxstack__usb__common__functions.html#gaedcb2a6b720948390f1a4ef1ea5dde4a", null ],
     [ "Cy_USBHS_Cal_HsHandleL2Resume", "group__group__usbfxstack__usb__common__functions.html#ga5cc027ca378a7158337cda401a891222", null ],
     [ "Cy_USBHS_Cal_FsHandleResume", "group__group__usbfxstack__usb__common__functions.html#ga36cfe1c678e7866932b900b034512a2d", null ],
@@ -191,6 +192,7 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBHS_Cal_GetXferCount", "group__group__usbfxstack__usb__common__functions.html#gad1690cf72af4e895c1423fa15718bd4f", null ],
     [ "Cy_USBHS_Cal_IsNewCtrlRqtReceived", "group__group__usbfxstack__usb__common__functions.html#gaa63a716775b3f6ea4cd418e88f689eee", null ],
     [ "Cy_USBHS_Cal_PreemphasisControl", "group__group__usbfxstack__usb__common__functions.html#ga907a5ad3284147b814930986011703f0", null ],
+    [ "Cy_USBHS_Cal_SOFIntrUpdate", "group__group__usbfxstack__usb__common__functions.html#gaab2438bbb920df71bf4f46223700faa7", null ],
     [ "Cy_USBSS_Cal_Init", "group__group__usbfxstack__usb__common__functions.html#ga237a999056772a1d593dd9789d9395af", null ],
     [ "Cy_USBSS_Cal_Connect", "group__group__usbfxstack__usb__common__functions.html#ga85efaaa39c0b6bda13218497e80c6979", null ],
     [ "Cy_USBSS_Cal_SendMsg", "group__group__usbfxstack__usb__common__functions.html#ga367dcac1778131a9ff33202dc3b0a7b5", null ],
@@ -206,7 +208,6 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBSS_Cal_ProtSendTp", "group__group__usbfxstack__usb__common__functions.html#ga741a41ece9b8ae08d929e4677a4b3d55", null ],
     [ "Cy_USBSS_Cal_ProtSendAckTp", "group__group__usbfxstack__usb__common__functions.html#ga5b33e249e2ef805350b20d616c5659f3", null ],
     [ "Cy_USBSS_Cal_ProtSendErdyTp", "group__group__usbfxstack__usb__common__functions.html#gab19609a513659ac7080319c2934152a8", null ],
-    [ "Cy_USBSS_Cal_ProtSendZlpTp", "group__group__usbfxstack__usb__common__functions.html#ga6fc94a432de69295249007e974c94345", null ],
     [ "Cy_USBSS_Cal_ProtSendNrdyTp", "group__group__usbfxstack__usb__common__functions.html#gabb2310786629d43ca74668fbe4a3b506", null ],
     [ "Cy_USBSS_Cal_EndpReset", "group__group__usbfxstack__usb__common__functions.html#gac852e995c7c1b9acfcfadc30bbb8c2f9", null ],
     [ "Cy_USBSS_Cal_GetSeqNum", "group__group__usbfxstack__usb__common__functions.html#ga86046fe28ba4d0995a12834166150e82", null ],
@@ -251,5 +252,8 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBSS_Cal_PostEpEnable", "group__group__usbfxstack__usb__common__functions.html#ga767fcd3c69b61729a123f4568caffc4c", null ],
     [ "Cy_USBSS_Cal_ReleaseLTSSM", "group__group__usbfxstack__usb__common__functions.html#gabf696a6536056d04b6f979ef4cadec9d", null ],
     [ "Cy_USBSS_Cal_ClkStopOnEpRstEnable", "group__group__usbfxstack__usb__common__functions.html#ga50b6b4ccaaff1dc7095dc21807b01f36", null ],
-    [ "Cy_USBSS_Cal_SelectConfigLane", "group__group__usbfxstack__usb__common__functions.html#ga30c175ad0e4df2a14fb31351209b4f70", null ]
+    [ "Cy_USBSS_Cal_SelectConfigLane", "group__group__usbfxstack__usb__common__functions.html#ga30c175ad0e4df2a14fb31351209b4f70", null ],
+    [ "Cy_USBSS_Cal_ITPIntrUpdate", "group__group__usbfxstack__usb__common__functions.html#gab6669c9f2cb6cddf556faed3faf6488e", null ],
+    [ "Cy_USBSS_Cal_GetTemperatureReading", "group__group__usbfxstack__usb__common__functions.html#ga5ee56fc33a618be7287ae270ca30e85a", null ],
+    [ "Cy_USBSS_Cal_TimerISR", "group__group__usbfxstack__usb__common__functions.html#ga26f4ea241ab68ae7166547bc40c1c276", null ]
 ];

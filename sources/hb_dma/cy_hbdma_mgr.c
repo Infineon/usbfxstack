@@ -34,6 +34,7 @@
 #include "cy_hbdma_version.h"
 #include "cy_debug.h"
 #include "cy_gpio.h"
+#include "cy_usb_usbd.h"
 #if FREERTOS_ENABLE
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -96,7 +97,7 @@ Cy_HBDma_Mgr_Init (
     cy_stc_hbdma_buf_mgr_t     *pBufMgr)
 {
 #if FREERTOS_ENABLE
-    BaseType_t status = pdFALSE;
+    BaseType_t status = pdFAIL;
 #endif /* FREERTOS_ENABLE */
 
     if ((pContext == NULL) || (pDrvContext == NULL) || (pDscrPool == NULL) || (pBufMgr == NULL))
@@ -107,10 +108,19 @@ Cy_HBDma_Mgr_Init (
     /* Zero out the context structure. */
     memset((void *)pContext, 0, sizeof(cy_stc_hbdma_mgr_context_t));
 
-    pContext->pDrvContext = pDrvContext;
-    pContext->pDscrPool   = pDscrPool;
-    pContext->pBufMgr     = pBufMgr;
-    pContext->en_64k      = Cy_HBDma_Is64KBufferEnabled(pDrvContext);
+    pContext->pDrvContext  = pDrvContext;
+    pContext->pDscrPool    = pDscrPool;
+    pContext->pBufMgr      = pBufMgr;
+    pContext->en_64k       = Cy_HBDma_Is64KBufferEnabled(pDrvContext);
+    pContext->pUsbStackCtx = NULL;
+
+    /* Allocate list of DataWire descriptors to be used for all USBHS channels. We need three
+     * descriptors per DMA channel (ingress and egress). */
+    pContext->dwDscrList = (cy_stc_dma_descriptor_t *)Cy_HBDma_BufMgr_Alloc(pBufMgr,
+            CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN * sizeof(cy_stc_dma_descriptor_t));
+    if (pContext->dwDscrList == NULL) {
+        return CY_HBDMA_MGR_MEMORY_ERROR;
+    }
 
     /* Register the callback to be called when DMA interrupts are received. */
     Cy_HBDma_SetInterruptCallback(pDrvContext, Cy_HBDma_Channel_Cb, (void*)pContext);
@@ -120,19 +130,22 @@ Cy_HBDma_Mgr_Init (
     pContext->intrDisabled       = false;
     pContext->cbFromISREnable    = false;
     pContext->queueOverflowCount = 0;
-    pContext->dmaIntrQueue = xQueueCreate(CY_HBDMA_INTR_QUEUE_ENTRIES, sizeof(cy_stc_hbdma_intr_msg_t));
-    if (pContext->dmaIntrQueue == 0)
-    {
+    pContext->dmaIntrQueue       = xQueueCreate(CY_HBDMA_INTR_QUEUE_ENTRIES, sizeof(cy_stc_hbdma_intr_msg_t));
+
+    if (pContext->dmaIntrQueue != NULL) {
+        vQueueAddToRegistry(pContext->dmaIntrQueue, "HbDmaIntrQueue");
+        status = xTaskCreate(Cy_HBDma_Mgr_TaskHandler, "HbDmaTask", CY_HBDMA_TASK_STACK_DEPTH, (void *)pContext,
+                CY_HBDMA_TASK_PRIORITY, &(pContext->dmaMgrTask));
+        if (status != pdPASS) {
+            DBG_HBDMA_ERR("xTaskCreate failed: %d\r\n", status);
+        }
+    } else {
         DBG_HBDMA_ERR("xQueueCreate failed\r\n");
-        return CY_HBDMA_MGR_MEMORY_ERROR;
     }
 
-    vQueueAddToRegistry(pContext->dmaIntrQueue, "HbDmaIntrQueue");
-    status = xTaskCreate(Cy_HBDma_Mgr_TaskHandler, "HbDmaTask", CY_HBDMA_TASK_STACK_DEPTH, (void *)pContext,
-            CY_HBDMA_TASK_PRIORITY, &(pContext->dmaMgrTask));
-    if (status != pdPASS)
-    {
-        DBG_HBDMA_ERR("xTaskCreate failed: %d\r\n", status);
+    if (status != pdPASS) {
+        Cy_HBDma_BufMgr_Free(pBufMgr, pContext->dwDscrList);
+        pContext->dwDscrList = NULL;
         return CY_HBDMA_MGR_MEMORY_ERROR;
     }
 
@@ -196,27 +209,53 @@ Cy_HBDma_Mgr_DeInit (
     cy_en_hbdma_mgr_status_t status = CY_HBDMA_MGR_BAD_PARAM;
     uint32_t i;
 
-    if (pContext != NULL)
-    {
+    if (pContext != NULL) {
         status = CY_HBDMA_MGR_SUCCESS;
 
-        for (i = 0; i < CY_HBDMA_MAX_ADAP_CNT; i++)
-        {
-            if (pContext->socketUsed[i] != 0)
-            {
+        for (i = 0; i < CY_HBDMA_MAX_ADAP_CNT; i++) {
+            if (pContext->socketUsed[i] != 0) {
                 status = CY_HBDMA_MGR_SOCK_BUSY;
                 break;
             }
         }
 
-        /* Clear the ISR callback registered with the driver. */
-        if (status == CY_HBDMA_MGR_SUCCESS)
-        {
+        if (status == CY_HBDMA_MGR_SUCCESS) {
+            /* Free the DMA descriptor list. */
+            if (pContext->dwDscrList != NULL) {
+                Cy_HBDma_BufMgr_Free(pContext->pBufMgr, pContext->dwDscrList);
+                pContext->dwDscrList = NULL;
+            }
+
+            /* Clear the ISR callback registered with the driver. */
             Cy_HBDma_SetInterruptCallback(pContext->pDrvContext, NULL, NULL);
         }
     }
 
     return status;
+}
+
+/*******************************************************************************
+ * Function Name: Cy_HBDma_Mgr_RegisterUsbContext
+ ****************************************************************************//**
+ *
+ * Register the USB stack context pointer with the High BandWidth manager. A valid
+ * stack context is required to make use of USB-HS endpoints and DataWire channels
+ * with the High BandWidth channel API.
+ *
+ * \param context_p
+ * Pointer to the DMA manager context structure.
+ * \param pUsbStackCtx
+ * Pointer to USB stack context structure passed as an opaque pointer.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_RegisterUsbContext (
+        cy_stc_hbdma_mgr_context_t *context_p,
+        void *pUsbStackCtx)
+{
+    if (context_p != NULL) {
+        context_p->pUsbStackCtx = pUsbStackCtx;
+    }
 }
 
 /*******************************************************************************
@@ -499,20 +538,22 @@ Cy_HBDma_SetSocketDefaultState(
     {
         for (i = 0; i < pHandle->prodSckCount; i++)
         {
-            /* Disable and Configure the producer socket. */
-            Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
+            if (!CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[i])) {
+                /* Disable and Configure the producer socket. */
+                Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
 
-            /* Disable any event triggers coming into the socket. */
-            Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
+                /* Disable any event triggers coming into the socket. */
+                Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
 
-            sckConf.actDscrIndex = pHandle->firstProdDscrIndex[i];
-            sckConf.reqXferSize  = 0;
-            sckConf.status       = (
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_PROD_EVENTS_Msk |
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk);
-            sckConf.intrMask     = 0x00000000UL;
-            Cy_HBDma_SetSocketConfig(pDmaMgr->pDrvContext, pHandle->prodSckId[i], &sckConf);
+                sckConf.actDscrIndex = pHandle->firstProdDscrIndex[i];
+                sckConf.reqXferSize  = 0;
+                sckConf.status       = (
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_PROD_EVENTS_Msk |
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk);
+                sckConf.intrMask     = 0x00000000UL;
+                Cy_HBDma_SetSocketConfig(pDmaMgr->pDrvContext, pHandle->prodSckId[i], &sckConf);
+            }
 
             /* Update the list that maps socket to channel. */
             Cy_HBDma_SetSocketChannel(pDmaMgr, pHandle->prodSckId[i], pHandle);
@@ -523,20 +564,22 @@ Cy_HBDma_SetSocketDefaultState(
     {
         for (i = 0; i < pHandle->consSckCount; i++)
         {
-            /* Disable and Configure the consumer socket. */
-            Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
+            if (!CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[i])) {
+                /* Disable and Configure the consumer socket. */
+                Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
 
-            /* Disable any event triggers coming into the socket. */
-            Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
+                /* Disable any event triggers coming into the socket. */
+                Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
 
-            sckConf.actDscrIndex = pHandle->firstConsDscrIndex[i];
-            sckConf.reqXferSize  = 0;
-            sckConf.status       = (
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_CONS_EVENTS_Msk |
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk);
-            sckConf.intrMask     = 0x00000000UL;
-            Cy_HBDma_SetSocketConfig(pDmaMgr->pDrvContext, pHandle->consSckId[i], &sckConf);
+                sckConf.actDscrIndex = pHandle->firstConsDscrIndex[i];
+                sckConf.reqXferSize  = 0;
+                sckConf.status       = (
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_CONS_EVENTS_Msk |
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk);
+                sckConf.intrMask     = 0x00000000UL;
+                Cy_HBDma_SetSocketConfig(pDmaMgr->pDrvContext, pHandle->consSckId[i], &sckConf);
+            }
 
             /* Update the list that maps socket to channel. */
             Cy_HBDma_SetSocketChannel(pDmaMgr, pHandle->consSckId[i], pHandle);
@@ -565,6 +608,7 @@ Cy_HBDma_SetSocketEnabled(
 {
     cy_stc_hbdma_sockconfig_t sckConf;
     cy_stc_hbdma_sock_t       sckStat;
+    cy_stc_hbdma_desc_t       dscrInfo;
     uint16_t i, j;
 
     /* Configure and enable producer sockets associated with the channel. */
@@ -572,6 +616,18 @@ Cy_HBDma_SetSocketEnabled(
     {
         for (i = 0; i < pHandle->prodSckCount; i++)
         {
+            if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[i])) {
+                /* Queue a read operation on the endpoint using buffer information from the current descriptor. */
+                Cy_HBDma_GetDescriptor(pHandle->curProdDscrIndex[i], &dscrInfo);
+                if ((dscrInfo.pBuffer != NULL) && (dscrInfo.size != 0)) {
+                    Cy_HBDma_DW_QueueRead(pHandle, i,
+                            CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                            CY_HBDMA_DSCR_GET_BUFSIZE(pDmaMgr->en_64k, dscrInfo.size));
+                }
+
+                continue;
+            }
+
             /* Disable the socket first. */
             Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
 
@@ -659,6 +715,10 @@ Cy_HBDma_SetSocketEnabled(
 
         for (i = 0; i < pHandle->consSckCount; i++)
         {
+            if (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[i])) {
+                continue;
+            }
+
             /* Disable the socket first. */
             Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
 
@@ -1153,6 +1213,203 @@ static bool Cy_HBDma_DelayedProdEvt_Handler (
 }
 
 /*******************************************************************************
+* Function Name: Cy_HBDma_IngressDW_IntrHandler
+****************************************************************************//**
+*
+* Function used to handle DataWire interrupts corresponding to USBHS OUT
+* endpoints.
+*
+* \param pDmaMgr DMA manager context structure pointer.
+* \param channelHandle Handle to the DMA channel structure.
+* \param prodSckIndex The producer socket index to be checked and handled.
+*
+* \return true if valid produce event was found.
+*******************************************************************************/
+static bool Cy_HBDma_IngressDW_IntrHandler (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr,
+        cy_stc_hbdma_channel_t     *channelHandle,
+        uint8_t                     prodSckIndex)
+{
+    cy_stc_hbdma_buff_status_t  bufStat = {NULL, 0, 0, 0};
+    cy_stc_hbdma_desc_t         dscrInfo;
+    uint16_t                    dscrIndex;
+    bool                        retVal = false;
+
+    /* Handle delayed produce event on the second producer socket of a 2:1 channel. */
+    dscrIndex = channelHandle->curProdDscrIndex[prodSckIndex];
+    Cy_HBDma_GetDescriptor(dscrIndex, &dscrInfo);
+
+    /* At this stage, the descriptor should be unoccupied and unmarked. */
+    if (
+            ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) == 0) &&
+            (!CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrInfo.pBuffer))
+       ) {
+        /* Update the byte count and set the occupied bit in the DSCR_SIZE field. */
+        dscrInfo.size = (
+                (dscrInfo.size & 0x0000FFFFUL) |
+                (channelHandle->curIngressXferSize[prodSckIndex] << 16UL) |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk);
+        Cy_HBDma_SetDescriptor(dscrIndex, &dscrInfo);
+
+        bufStat.pBuffer  = CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer);
+        bufStat.size     = CY_HBDMA_DSCR_GET_BUFSIZE(pDmaMgr->en_64k, dscrInfo.size);
+        bufStat.count    = CY_HBDMA_DSCR_GET_BYTECNT(pDmaMgr->en_64k, dscrInfo.size);
+        bufStat.status   = (dscrInfo.size & 0x0EUL);
+
+        /* Move the current produce descriptor for the socket. */
+        channelHandle->curProdDscrIndex[prodSckIndex] = (
+                (dscrInfo.chain & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Msk)
+                >> (LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_CHAIN_WR_NEXT_DSCR_Pos)
+                );
+
+        /* If the next descriptor is not occupied or marked, we can queue another read operation. */
+        dscrIndex = channelHandle->curProdDscrIndex[prodSckIndex];
+        Cy_HBDma_GetDescriptor(dscrIndex, &dscrInfo);
+        if (
+                ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) == 0) &&
+                (!CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrInfo.pBuffer))
+           ) {
+            Cy_HBDma_DW_QueueRead(channelHandle, prodSckIndex,
+                    CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                    CY_HBDMA_DSCR_GET_BUFSIZE(pDmaMgr->en_64k, dscrInfo.size));
+        }
+
+        /* Raise produce event callback. */
+        if (channelHandle->cbFunc != NULL) {
+            channelHandle->cbFunc(channelHandle, CY_HBDMA_CB_PROD_EVENT, &bufStat, channelHandle->cbCtx);
+        }
+
+        if (channelHandle->prodSckCount > 1) {
+            /* The next produce event is expected on the other socket. */
+            channelHandle->nextProdSck = !prodSckIndex;
+        }
+
+        retVal = true;
+    }
+
+    return retVal;
+}
+
+/*******************************************************************************
+* Function Name: Cy_HBDma_IngressDW_HandleConsEvent
+****************************************************************************//**
+*
+* Function used to update Ingress DataWire status when a consume event
+* is received on the egress socket associated with it.
+*
+* \param pDmaMgr DMA manager context structure pointer.
+* \param channelHandle Handle to the DMA channel structure.
+* \param consSckIndex The consumer socket index to be checked and handled.
+*
+* \return true if valid produce event was found.
+*******************************************************************************/
+static bool Cy_HBDma_IngressDW_HandleConsEvent (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr,
+        cy_stc_hbdma_channel_t     *channelHandle,
+        cy_hbdma_socket_id_t        sockIdx)
+{
+    cy_stc_hbdma_desc_t dscrInfo;
+    uint16_t dscrIndex;
+    uint8_t actSckIndex = 0;
+    bool retVal = false;
+
+    /* If the producer socket is not USBHS OUT EP, return error. */
+    if ((channelHandle == NULL) || (channelHandle->type != CY_HBDMA_TYPE_IP_TO_IP) ||
+            (!CY_HBDMA_IS_USBHS_OUT_EP(sockIdx))) {
+        return retVal;
+    }
+
+    /* Find the producer socket index. */
+    if ((channelHandle->prodSckCount > 1) && (channelHandle->prodSckId[1] == sockIdx)) {
+        actSckIndex = 1;
+    } else {
+        if (channelHandle->prodSckId[0] == sockIdx) {
+            actSckIndex = 0;
+        } else {
+            return retVal;
+        }
+    }
+
+    /* If read is not queued on the DataWire channel. */
+    if (channelHandle->ingressDWRqtQueued[actSckIndex] == false) {
+        /* Get the next producer descriptor and verify that it is empty and unmarked. */
+        dscrIndex = channelHandle->curProdDscrIndex[actSckIndex];
+        Cy_HBDma_GetDescriptor(dscrIndex, &dscrInfo);
+        if (
+                ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) == 0) &&
+                (!CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrInfo.pBuffer))
+           ) {
+            /* Queue read operation. */
+            Cy_HBDma_DW_QueueRead(channelHandle, actSckIndex,
+                    CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                    CY_HBDMA_DSCR_GET_BUFSIZE(channelHandle->pContext->en_64k, dscrInfo.size));
+            retVal = true;
+        }
+    }
+
+    return retVal;
+}
+
+/*******************************************************************************
+* Function Name: Cy_HBDma_EgressDW_ConsEvtHandler
+****************************************************************************//**
+*
+* Generic helper function to take care of descriptor and socket updates when
+* there is a transfer completion on Egress DataWire path associated with a DMA
+* channel.
+*
+* \param pDmaMgr DMA manager context structure pointer.
+* \param channelHandle Handle to the DMA channel structure.
+* \param consSckIndex The consumer socket index to be checked and handled.
+*
+*******************************************************************************/
+static void Cy_HBDma_EgressDW_ConsEvtHandler (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr,
+        cy_stc_hbdma_channel_t     *channelHandle,
+        uint8_t                     consSckIndex)
+{
+    cy_stc_hbdma_desc_t dscrInfo;
+    uint16_t dscrIndex;
+
+    /* Read the current consumer descriptor. */
+    dscrIndex = channelHandle->curConsDscrIndex[consSckIndex];
+    Cy_HBDma_GetDescriptor(dscrIndex, &dscrInfo);
+
+    /* Mark the current consumer descriptor unoccupied and unmarked. */
+    dscrInfo.pBuffer = CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer);
+    dscrInfo.size    = dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk;
+    Cy_HBDma_SetDescriptor(dscrIndex, &dscrInfo);
+
+    /* Move to the next consumer descriptor. */
+    channelHandle->curConsDscrIndex[consSckIndex] = CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(dscrInfo.chain);
+
+    /* Read the lastProdDscr. */
+    dscrIndex = channelHandle->lastProdDscr;
+    Cy_HBDma_GetDescriptor(dscrIndex, &dscrInfo);
+
+    /* Mark it empty and unoccupied as well. */
+    dscrInfo.pBuffer = CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer);
+    dscrInfo.size    = dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk;
+    Cy_HBDma_SetDescriptor(dscrIndex, &dscrInfo);
+
+    if (channelHandle->type == CY_HBDMA_TYPE_IP_TO_IP) {
+        /* Notify the producer that buffer is empty. */
+        if (CY_HBDMA_IS_USBHS_OUT_EP(CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync))) {
+            Cy_HBDma_IngressDW_HandleConsEvent(pDmaMgr, channelHandle, CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync));
+        } else {
+            Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext, CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+        }
+    }
+
+    /* Move lastProdDscr to the next one. */
+    if (channelHandle->prodSckCount > 1) {
+        channelHandle->lastProdDscr = CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(dscrInfo.chain);
+    } else {
+        channelHandle->lastProdDscr = CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(dscrInfo.chain);
+    }
+}
+
+/*******************************************************************************
 * Function Name: Cy_HBDma_Channel_IntrHandler
 ****************************************************************************//**
 *
@@ -1335,9 +1592,14 @@ static void Cy_HBDma_Channel_IntrHandler (
 
                             if (channelHandle->type == CY_HBDMA_TYPE_IP_TO_IP)
                             {
-                                /* Send a consume event to the socket corresponding to this descriptor. */
-                                Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
-                                        CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                                if (CY_HBDMA_IS_USBHS_OUT_EP(CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync))) {
+                                    Cy_HBDma_IngressDW_HandleConsEvent(pDmaMgr, channelHandle,
+                                            CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync));
+                                } else {
+                                    /* Send a consume event to the socket corresponding to this descriptor. */
+                                    Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
+                                            CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                                }
                             }
 
                             /* Move the lastProdDscr to the next descriptor. */
@@ -1367,11 +1629,15 @@ static void Cy_HBDma_Channel_IntrHandler (
                                 dscrInfo.size &= LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk;
                                 Cy_HBDma_SetDescriptor(channelHandle->lastProdDscr, &dscrInfo);
 
-                                if (channelHandle->type == CY_HBDMA_TYPE_IP_TO_IP)
-                                {
-                                    /* Send a consume event to the socket corresponding to this descriptor. */
-                                    Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
-                                            CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                                if (channelHandle->type == CY_HBDMA_TYPE_IP_TO_IP) {
+                                    if (CY_HBDMA_IS_USBHS_OUT_EP(CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync))) {
+                                        Cy_HBDma_IngressDW_HandleConsEvent(pDmaMgr, channelHandle,
+                                                CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync));
+                                    } else {
+                                        /* Send a consume event to the socket corresponding to this descriptor. */
+                                        Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
+                                                CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                                    }
                                 }
 
                                 /* Move the lastProdDscr to the next descriptor. */
@@ -1536,9 +1802,14 @@ static void Cy_HBDma_Channel_IntrHandler (
                     dscrInfo.size &= LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk;
                     Cy_HBDma_SetDescriptor(channelHandle->lastProdDscr, &dscrInfo);
 
-                    /* Send a consume event to the socket corresponding to this descriptor. */
-                    Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
-                            CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                    if (CY_HBDMA_IS_USBHS_OUT_EP(CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync))) {
+                        Cy_HBDma_IngressDW_HandleConsEvent(pDmaMgr, channelHandle,
+                                CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync));
+                    } else {
+                        /* Send a consume event to the socket corresponding to this descriptor. */
+                        Cy_HBDma_SendSocketEvent(pDmaMgr->pDrvContext,
+                                CY_HBDMA_SYNC_TO_PROD_SOCK(dscrInfo.sync), false);
+                    }
 
                     /* Move the lastProdDscr to the next descriptor. */
                     if (channelHandle->prodSckCount > 1)
@@ -1549,6 +1820,171 @@ static void Cy_HBDma_Channel_IntrHandler (
                     {
                         channelHandle->lastProdDscr = CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(dscrInfo.chain);
                     }
+                }
+            }
+            break;
+
+        case CY_HBDMA_DATAWIRE0_INTERRUPT:
+            {
+                if (channelHandle->prodSckCount > 1) {
+                    if (channelHandle->prodSckId[0] != socketId) {
+                        actSckIndex = 1;
+                    } else {
+                        actSckIndex = 0;
+                    }
+                }
+
+                /* Clear the DW request queued flag. */
+                channelHandle->ingressDWRqtQueued[actSckIndex] = false;
+
+                /* If channel is in override state, send XFER_CPLT callback and stop reading data. */
+                if (channelHandle->state == CY_HBDMA_CHN_OVERRIDE) {
+                    channelHandle->state = CY_HBDMA_CHN_CONFIGURED;
+
+                    /* Send notification if enabled for the channel. */
+                    if (
+                            (channelHandle->cbFunc != NULL) &&
+                            ((channelHandle->notification & USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk) != 0)
+                       ) {
+                        channelHandle->cbFunc(channelHandle, CY_HBDMA_CB_XFER_CPLT, NULL, channelHandle->cbCtx);
+                    }
+
+                    break;
+                }
+
+                /* Transfer completed on USBHS OUT endpoint. Handle based on PRODUCE_EVT. */
+                if (channelHandle->prodSckCount > 1) {
+                    /* Verify that transfer completed on the expected endpoint. */
+                    if (actSckIndex != channelHandle->nextProdSck) {
+                        /* Keep this event pending until we service the valid produce event on the other socket. */
+                        channelHandle->pendingEvtCnt++;
+                        break;
+                    }
+                }
+
+                /* Handle the interrupt. */
+                if (Cy_HBDma_IngressDW_IntrHandler(pDmaMgr, channelHandle, actSckIndex)) {
+
+                    /* If there was a delayed produce event, handle that as well. */
+                    if (channelHandle->pendingEvtCnt > 0) {
+                        channelHandle->pendingEvtCnt = 0;
+                        Cy_HBDma_IngressDW_IntrHandler(pDmaMgr, channelHandle, !actSckIndex);
+                    }
+                }
+            }
+            break;
+
+        case CY_HBDMA_DATAWIRE1_INTERRUPT:
+            {
+                /* Identify the correct socket index. */
+                if ((channelHandle->consSckCount > 1) && (channelHandle->consSckId[0] != socketId)) {
+                    actSckIndex = 1;
+                } else {
+                    actSckIndex = 0;
+                }
+
+                /* Clear the request queued flag first. */
+                channelHandle->egressDWRqtQueued[actSckIndex] = false;
+
+                /* If channel is in override state, send XFER_CPLT callback and disable datawire. */
+                if (channelHandle->state == CY_HBDMA_CHN_OVERRIDE) {
+                    channelHandle->state = CY_HBDMA_CHN_CONFIGURED;
+
+                    /* Send notification if enabled for the channel. */
+                    if (
+                            (channelHandle->cbFunc != NULL) &&
+                            ((channelHandle->notification & USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk) != 0)
+                       ) {
+                        channelHandle->cbFunc(channelHandle, CY_HBDMA_CB_XFER_CPLT, NULL, channelHandle->cbCtx);
+                    }
+
+                    break;
+                }
+
+                /* Find the socket on which next consume event was expected. */
+                Cy_HBDma_GetDescriptor(channelHandle->lastProdDscr, &dscrInfo);
+                expSockId = CY_HBDMA_SYNC_TO_CONS_SOCK(dscrInfo.sync);
+
+                /* In case of a 1:2 channel, it is possible that the consume event is received
+                 * out of order. In such case, we just store the consume event to be handled later. */
+                if ((channelHandle->consSckCount == 1) || (socketId == expSockId)) {
+                    /* Decrement commit count. */
+                    if (channelHandle->commitCnt[actSckIndex] != 0) {
+                        channelHandle->commitCnt[actSckIndex]--;
+                    }
+
+                    /* Update the descriptors and notify producer socket. */
+                    Cy_HBDma_EgressDW_ConsEvtHandler(pDmaMgr, channelHandle, actSckIndex);
+
+                    /* Skip over any discarded buffers. */
+                    Cy_HBDma_GetDescriptor(channelHandle->curConsDscrIndex[actSckIndex], &dscrInfo);
+                    while (
+                            (channelHandle->discardCnt[actSckIndex] != 0) &&
+                            ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) == 0) &&
+                            (CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrInfo.pBuffer))
+                          ) {
+                        channelHandle->discardCnt[actSckIndex]--;
+                        Cy_HBDma_EgressDW_ConsEvtHandler(pDmaMgr, channelHandle, actSckIndex);
+                        Cy_HBDma_GetDescriptor(channelHandle->curConsDscrIndex[actSckIndex], &dscrInfo);
+                    }
+
+                    if (channelHandle->commitCnt[actSckIndex] != 0) {
+                        /* At least one more buffer has been committed. Queue the write operation for it. */
+                        if ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) != 0) {
+                            Cy_HBDma_DW_QueueWrite(channelHandle, actSckIndex,
+                                    CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                                    CY_HBDMA_DSCR_GET_BYTECNT(pDmaMgr->en_64k, dscrInfo.size));
+                        }
+                    }
+
+                    /* Raise consume event callback. */
+                    if (channelHandle->cbFunc != NULL) {
+                        channelHandle->cbFunc(channelHandle, CY_HBDMA_CB_CONS_EVENT, NULL,
+                                channelHandle->cbCtx);
+                    }
+
+                    /* Process any pending consume events prematurely received from the alternate socket. */
+                    if ((channelHandle->consSckCount > 1) && (channelHandle->pendingEvtCnt != 0)) {
+                        channelHandle->pendingEvtCnt--;
+
+                        actSckIndex = !actSckIndex;
+
+                        /* Decrement commit count. */
+                        if (channelHandle->commitCnt[actSckIndex] != 0) {
+                            channelHandle->commitCnt[actSckIndex]--;
+                        }
+
+                        /* Update the descriptors and notify producer socket. */
+                        Cy_HBDma_EgressDW_ConsEvtHandler(pDmaMgr, channelHandle, actSckIndex);
+
+                        /* Skip over any discarded buffers. */
+                        Cy_HBDma_GetDescriptor(channelHandle->curConsDscrIndex[actSckIndex], &dscrInfo);
+                        while (
+                                (channelHandle->discardCnt[actSckIndex] != 0) &&
+                                ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) == 0) &&
+                                (CY_HBDMA_IS_DESCRIPTOR_MARKED(dscrInfo.pBuffer))
+                              ) {
+                            channelHandle->discardCnt[actSckIndex]--;
+                            Cy_HBDma_EgressDW_ConsEvtHandler(pDmaMgr, channelHandle, actSckIndex);
+                            Cy_HBDma_GetDescriptor(channelHandle->curConsDscrIndex[actSckIndex], &dscrInfo);
+                        }
+
+                        if (channelHandle->commitCnt[actSckIndex] != 0) {
+                            /* At least one more buffer has been committed. Queue the write operation for it. */
+                            if ((dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk) != 0) {
+                                Cy_HBDma_DW_QueueWrite(channelHandle, actSckIndex,
+                                        CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                                        CY_HBDMA_DSCR_GET_BYTECNT(pDmaMgr->en_64k, dscrInfo.size));
+                            }
+                        }
+
+                        /* Raise consume event callback. */
+                        if (channelHandle->cbFunc != NULL) {
+                            channelHandle->cbFunc(channelHandle, CY_HBDMA_CB_CONS_EVENT, NULL, channelHandle->cbCtx);
+                        }
+                    }
+                } else {
+                    channelHandle->pendingEvtCnt++;
                 }
             }
             break;
@@ -1797,6 +2233,7 @@ Cy_HBDma_Channel_Create (
     cy_en_hbdma_mgr_status_t status = CY_HBDMA_MGR_BAD_PARAM;
     uint32_t dscrSync = 0, count = 0;
     uint16_t i;
+    bool hs_ep_used = false;
 
     if ((pDmaMgr != NULL) && (pHandle != NULL) && (config != NULL))
     {
@@ -1812,6 +2249,8 @@ Cy_HBDma_Channel_Create (
                 (config->prodSckCount > 2U) ||
                 (config->consSckCount > 2U) ||
                 ((config->prodSckCount > 1U) && (config->consSckCount > 1U)) ||
+                ((config->prodSckCount > 1U) && ((config->prodSck[0] & 0xF0U) != (config->prodSck[1] & 0xF0U))) ||
+                ((config->consSckCount > 1U) && ((config->consSck[0] & 0xF0U) != (config->consSck[1] & 0xF0U))) ||
                 ((config->intrEnable != 0) && (config->cb == NULL))
            )
         {
@@ -1826,6 +2265,10 @@ Cy_HBDma_Channel_Create (
         {
             for (i = 0; i < config->prodSckCount; i++)
             {
+                if (CY_HBDMA_IS_USBHS_OUT_EP(config->prodSck[i])) {
+                    hs_ep_used = true;
+                }
+
                 if (Cy_HBDma_GetSocketChannel(pDmaMgr, config->prodSck[i]) != NULL)
                 {
                     status = CY_HBDMA_MGR_SOCK_BUSY;
@@ -1841,9 +2284,28 @@ Cy_HBDma_Channel_Create (
         {
             for (i = 0; i < config->consSckCount; i++)
             {
+                if (CY_HBDMA_IS_USBHS_IN_EP(config->consSck[i])) {
+                    hs_ep_used = true;
+                }
+
                 if (Cy_HBDma_GetSocketChannel(pDmaMgr, config->consSck[i]) != NULL)
                 {
                     status = CY_HBDMA_MGR_SOCK_BUSY;
+                }
+            }
+        }
+
+        if ((status == CY_HBDMA_MGR_SUCCESS) && (hs_ep_used)) {
+            /* A valid USB stack context pointer is required when any USB-HS endpoints are used. */
+            if (pDmaMgr->pUsbStackCtx == NULL) {
+                status = CY_HBDMA_MGR_NOT_SUPPORTED;
+            } else {
+                /*
+                 * When USBHS endpoint is used in the channel, we need a valid max. packet size setting and
+                 * events must not be enabled.
+                 */
+                if ((config->eventEnable) || (config->usbMaxPktSize == 0) || (config->usbMaxPktSize > 1024)) {
+                    status = CY_HBDMA_MGR_BAD_PARAM;
                 }
             }
         }
@@ -2060,6 +2522,45 @@ Cy_HBDma_Channel_Create (
         }
     }
 
+    if (status == CY_HBDMA_MGR_SUCCESS) {
+        pHandle->epMaxPktSize          = config->usbMaxPktSize;
+        pHandle->pProdDwDscr[0]        = NULL;
+        pHandle->pProdDwDscr[1]        = NULL;
+        pHandle->pConsDwDscr[0]        = NULL;
+        pHandle->pConsDwDscr[1]        = NULL;
+        pHandle->pCurEgressDataBuf[0]  = NULL;
+        pHandle->pCurEgressDataBuf[1]  = NULL;
+        pHandle->curEgressXferSize[0]  = 0;
+        pHandle->curEgressXferSize[1]  = 0;
+        pHandle->curIngressXferSize[0] = 0;
+        pHandle->curIngressXferSize[1] = 0;
+
+        if (pHandle->type != CY_HBDMA_TYPE_MEM_TO_IP) {
+            if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[0])) {
+                pHandle->pProdDwDscr[0] = &(pDmaMgr->dwDscrList[3 * (pHandle->prodSckId[0] & 0x0F)]);
+                if ((pHandle->prodSckCount > 1U) && (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[1]))) {
+                    pHandle->pProdDwDscr[1] = &(pDmaMgr->dwDscrList[3 * (pHandle->prodSckId[1] & 0x0F)]);
+                }
+            }
+        }
+
+        if (pHandle->type != CY_HBDMA_TYPE_IP_TO_MEM) {
+            if (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[0])) {
+                pHandle->pConsDwDscr[0] = &(pDmaMgr->dwDscrList[48 + 3 * (pHandle->consSckId[0] & 0x0F)]);
+                if ((pHandle->consSckCount > 1U) && (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[1]))) {
+                    pHandle->pConsDwDscr[1] = &(pDmaMgr->dwDscrList[48 + 3 * (pHandle->consSckId[1] & 0x0F)]);
+                }
+            }
+        }
+
+        /* Configure DataWire resources. */
+        Cy_HBDma_DW_Configure(pHandle, true);
+
+        /* Clear the trigger done flags initially. */
+        pHandle->egressDWTrigDone[0] = false;
+        pHandle->egressDWTrigDone[1] = false;
+    }
+
     return status;
 }
 
@@ -2092,13 +2593,22 @@ Cy_HBDma_Channel_Destroy (
 
     pDmaMgr = pHandle->pContext;
 
+    /* Free up DataWire resources. */
+    Cy_HBDma_DW_Configure(pHandle, false);
+
+    /* Clear the trigger done flags on destroy. */
+    pHandle->egressDWTrigDone[0] = false;
+    pHandle->egressDWTrigDone[1] = false;
+
     /* First disable the sockets associated with the channel and mark them free. */
     if (pHandle->type != CY_HBDMA_TYPE_MEM_TO_IP)
     {
         for (i = 0; i < pHandle->prodSckCount; i++)
         {
-            Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
-            Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
+            if (!CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[i])) {
+                Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
+                Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->prodSckId[i]);
+            }
             Cy_HBDma_SetSocketChannel(pDmaMgr, pHandle->prodSckId[i], NULL);
         }
     }
@@ -2107,8 +2617,10 @@ Cy_HBDma_Channel_Destroy (
     {
         for (i = 0; i < pHandle->consSckCount; i++)
         {
-            Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
-            Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
+            if (!CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[i])) {
+                Cy_HBDma_SocketDisable(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
+                Cy_HbDma_DisconnectEventTriggers(pDmaMgr->pDrvContext, pHandle->consSckId[i]);
+            }
             Cy_HBDma_SetSocketChannel(pDmaMgr, pHandle->consSckId[i], NULL);
         }
     }
@@ -2212,6 +2724,14 @@ Cy_HBDma_Channel_Enable (
         return CY_HBDMA_MGR_BAD_PARAM;
     }
 
+    /*
+     * Only infinite transfer size is supported when we are using USBHS endpoints as
+     * producer or consumer.
+     */
+    if (((pHandle->pProdDwDscr[0] != NULL) || (pHandle->pConsDwDscr[0] != NULL)) && (xferSize != 0)) {
+        return CY_HBDMA_MGR_BAD_PARAM;
+    }
+
     if (pHandle->state != CY_HBDMA_CHN_CONFIGURED)
     {
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
@@ -2227,6 +2747,9 @@ Cy_HBDma_Channel_Enable (
     pHandle->discardCnt[0] = 0;
     pHandle->discardCnt[1] = 0;
     pHandle->overrideCnt   = 0;
+
+    /* Make sure DataWire trigger connections are made. */
+    Cy_HBDma_DW_Configure(pHandle, true);
 
     /* Configure and enable the sockets. */
     Cy_HBDma_SetSocketEnabled(pHandle->pContext, pHandle, xferSize);
@@ -2280,6 +2803,13 @@ Cy_HBDma_Channel_Reset (
     {
         return CY_HBDMA_MGR_BAD_PARAM;
     }
+
+    /* Make sure DataWire trigger connections are broken. */
+    Cy_HBDma_DW_Configure(pHandle, false);
+
+    /* Clear the trigger done flags on channel reset. */
+    pHandle->egressDWTrigDone[0] = false;
+    pHandle->egressDWTrigDone[1] = false;
 
     /* Restore all sockets to their default state. */
     Cy_HBDma_SetSocketDefaultState(pHandle->pContext, pHandle);
@@ -2363,29 +2893,26 @@ Cy_HBDma_Channel_Reset (
  * CY_HBDMA_MGR_BAD_PARAM if the parameters are invalid.
  * CY_HBDMA_MGR_SEQUENCE_ERROR if the DMA channel is not in the required state.
  *******************************************************************************/
-
 cy_en_hbdma_mgr_status_t
 Cy_HBDma_Channel_SetWrapUp (cy_stc_hbdma_channel_t *pHandle, uint8_t sckOffset)
 {
     cy_en_hbdma_mgr_status_t status = CY_HBDMA_MGR_SUCCESS;
-    
-    if ((pHandle == NULL) || (pHandle->pContext == NULL) || 
-        (pHandle->type == CY_HBDMA_TYPE_MEM_TO_IP) || (sckOffset >= pHandle->prodSckCount))
-    {
+
+    if ((pHandle == NULL) || (pHandle->pContext == NULL) ||
+            (pHandle->type == CY_HBDMA_TYPE_MEM_TO_IP) || (sckOffset >= pHandle->prodSckCount)) {
         return CY_HBDMA_MGR_BAD_PARAM;
     }
 
     /* This API can be called only if the channel is in active mode */
-    if (pHandle->state != CY_HBDMA_CHN_ACTIVE)
-    {
+    if (pHandle->state != CY_HBDMA_CHN_ACTIVE) {
         status = CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    if (status == CY_HBDMA_MGR_SUCCESS)
-    {
-        /* Set the wrapup bit. */
+    if ((status == CY_HBDMA_MGR_SUCCESS) && (!CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[sckOffset]))) {
+        /* If this is a high bandwidth DMA socket, trigger wrap-up operation. */
         Cy_HBDma_SocketSetWrapUp(pHandle->pContext->pDrvContext,pHandle->prodSckId[sckOffset]);
     }
+
     return status;
 }
 
@@ -2562,8 +3089,15 @@ Cy_HBDma_Channel_CommitBuffer (
     /* Increment the commit count for the consumer socket. */
     pHandle->commitCnt[consSckIndex] = pHandle->commitCnt[consSckIndex] + 1;
 
-    /* Send a produce event to the appropriate consumer socket. */
-    Cy_HBDma_SendSocketEvent(pHandle->pContext->pDrvContext, pHandle->consSckId[consSckIndex], true);
+    if (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[consSckIndex])) {
+        /* If there is no ongoing write operation on the endpoint, queue the data write. */
+        if (pHandle->egressDWRqtQueued[consSckIndex] == false) {
+            Cy_HBDma_DW_QueueWrite(pHandle, consSckIndex, bufStat_p->pBuffer, bufStat_p->count);
+        }
+    } else {
+        /* Send a produce event to the appropriate consumer socket. */
+        Cy_HBDma_SendSocketEvent(pHandle->pContext->pDrvContext, pHandle->consSckId[consSckIndex], true);
+    }
 
     return CY_HBDMA_MGR_SUCCESS;
 }
@@ -2590,6 +3124,7 @@ Cy_HBDma_Channel_DiscardBuffer (
         cy_stc_hbdma_buff_status_t *bufStat_p)
 {
     cy_stc_hbdma_desc_t dscrInfo;
+    uint32_t dscrChain;
     uint8_t consSckIndex = 0;
 
     /* Operation only valid on IP to MEM and IP to IP channels. */
@@ -2618,21 +3153,32 @@ Cy_HBDma_Channel_DiscardBuffer (
         dscrInfo.pBuffer = CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer);
         dscrInfo.size    = dscrInfo.size & LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_SIZE_Msk;
         Cy_HBDma_SetDescriptor(pHandle->nextProdDscr, &dscrInfo);
+        dscrChain = dscrInfo.chain;
 
-        /* Send a consume event to the socket where buffer is being discarded. */
-        Cy_HBDma_SendSocketEvent(pHandle->pContext->pDrvContext, pHandle->prodSckId[pHandle->activeSckIndex], false);
+        if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[pHandle->activeSckIndex])) {
+            /* If we do not have a read operation queued on the endpoint, queue one now. */
+            if (pHandle->ingressDWRqtQueued[pHandle->activeSckIndex] == false) {
+                Cy_HBDma_GetDescriptor(pHandle->curProdDscrIndex[pHandle->activeSckIndex], &dscrInfo);
+                Cy_HBDma_DW_QueueRead(pHandle, pHandle->activeSckIndex,
+                        CY_HBDMA_GET_BUFFER_ADDRESS(dscrInfo.pBuffer),
+                        CY_HBDMA_DSCR_GET_BUFSIZE(pHandle->pContext->en_64k, dscrInfo.size));
+            }
+        } else {
+            /* Send a consume event to the socket where buffer is being discarded. */
+            Cy_HBDma_SendSocketEvent(pHandle->pContext->pDrvContext, pHandle->prodSckId[pHandle->activeSckIndex], false);
+        }
 
         /* Move the active descriptor to the next one. */
         if (pHandle->prodSckCount > 1)
         {
-            pHandle->nextProdDscr = CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(dscrInfo.chain);
+            pHandle->nextProdDscr = CY_HBDMA_CHAIN_TO_NEXT_RD_IDX(dscrChain);
 
             /* Switch active socket index if we have more than 1 producer. */
             pHandle->activeSckIndex ^= 1;
         }
         else
         {
-            pHandle->nextProdDscr = CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(dscrInfo.chain);
+            pHandle->nextProdDscr = CY_HBDMA_CHAIN_TO_NEXT_WR_IDX(dscrChain);
         }
     }
     else
@@ -2683,10 +3229,12 @@ Cy_HBDma_Channel_DiscardBuffer (
             /* Increment the pending discard count for this socket. */
             pHandle->discardCnt[consSckIndex]++;
 
-            Cy_HBDma_UpdateSockIntrMask(pHandle->pContext->pDrvContext,
-                    pHandle->consSckId[consSckIndex],
-                    LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_MASK_STALL_Msk,
-                    true);
+            if (!CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[consSckIndex])) {
+                Cy_HBDma_UpdateSockIntrMask(pHandle->pContext->pDrvContext,
+                        pHandle->consSckId[consSckIndex],
+                        LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_MASK_STALL_Msk,
+                        true);
+            }
         }
         else
         {
@@ -2760,12 +3308,6 @@ Cy_HBDma_Channel_SendData (
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    /* Make sure the socket is disabled before queueing the next write. */
-    Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
-
-    /* Set channel state as active. */
-    pHandle->state = CY_HBDMA_CHN_OVERRIDE;
-
     dscrSync = (
             (pHandle->consSckId[sckIdx] & 0x0FU) |
             ((pHandle->consSckId[sckIdx] & 0xF0U) << 4U) |
@@ -2778,28 +3320,48 @@ Cy_HBDma_Channel_SendData (
     dscrSize = CY_HBDMA_DSCR_SET_BYTECNT(pHandle->pContext->en_64k, dscrSize, dataSize);
     dscrSize |= LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SIZE_BUFFER_OCCUPIED_Msk;
 
-    /* Delay added to ensure synchronization. */
-    Cy_SysLib_DelayUs(50);
-
     /* Configure the over-ride DMA descriptor. */
     dscrInfo.pBuffer  = dataBuf_p;
     dscrInfo.sync     = dscrSync;
     dscrInfo.chain    = 0x0000FFFFUL | (pHandle->overrideCnt << 16U);
     dscrInfo.size     = dscrSize;
-    pHandle->overrideCnt++;
-    Cy_HBDma_SetDescriptor(pHandle->overrideDscrIndex, &dscrInfo);
 
-    /* Point the consumer socket to the override descriptor and enable it. */
-    sckConf.actDscrIndex  = pHandle->overrideDscrIndex;
-    sckConf.reqXferSize = 1;
-    sckConf.intrMask = (pHandle->cbFunc != NULL) ? USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk : 0UL;
-    sckConf.status    = (
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_CONS_EVENTS_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_UNIT_Msk);
-    Cy_HBDma_SetSocketConfig(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx], &sckConf);
-    Cy_HBDma_SocketEnable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
+    if (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[sckIdx])) {
+        if (dataSize > CY_HBDMA_MAX_BUFFER_SIZE(0)) {
+            return CY_HBDMA_MGR_BAD_PARAM;
+        }
+
+        /* Set channel state as active. */
+        pHandle->overrideCnt++;
+        pHandle->state = CY_HBDMA_CHN_OVERRIDE;
+
+        Cy_HBDma_DW_Configure(pHandle, true);
+        Cy_HBDma_DW_QueueWrite(pHandle, sckIdx, dataBuf_p, (uint16_t)dataSize);
+    } else {
+        /* Make sure the socket is disabled before queueing the next write. */
+        Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
+
+        /* Set channel state as active. */
+        pHandle->overrideCnt++;
+        pHandle->state = CY_HBDMA_CHN_OVERRIDE;
+
+        /* Delay added to ensure synchronization. */
+        Cy_SysLib_DelayUs(50);
+
+        Cy_HBDma_SetDescriptor(pHandle->overrideDscrIndex, &dscrInfo);
+
+        /* Point the consumer socket to the override descriptor and enable it. */
+        sckConf.actDscrIndex  = pHandle->overrideDscrIndex;
+        sckConf.reqXferSize = 1;
+        sckConf.intrMask = (pHandle->cbFunc != NULL) ? USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk : 0UL;
+        sckConf.status    = (
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_CONS_EVENTS_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_UNIT_Msk);
+        Cy_HBDma_SetSocketConfig(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx], &sckConf);
+        Cy_HBDma_SocketEnable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
+    }
 
     return CY_HBDMA_MGR_SUCCESS;
 }
@@ -2843,39 +3405,62 @@ Cy_HBDma_Channel_WaitForSendCplt (
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    /* Wait until the DMA transfer is finished. We cannot rely on Consume Event interrupt due to
-     * spurious interrupts being raised. So, waiting for socket to get suspended. */
-    do {
-        Cy_HBDma_GetSocketStatus(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx], &sckStat);
-
-        pollCnt++;
-        if (pollCnt > 100) {
+    if (CY_HBDMA_IS_USBHS_IN_EP(pHandle->consSckId[sckIdx])) {
+        /* Wait until DMA request has been completed. */
+        do {
+            pollCnt++;
+            if (pollCnt > 100) {
 #if FREERTOS_ENABLE
-            vTaskDelay(1);
+                vTaskDelay(1);
 #else
-            Cy_SysLib_Delay(1);
+                Cy_SysLib_Delay(1);
 #endif /* FREERTOS_ENABLE */
 
-            if (pollCnt > 2500) {
-                DBG_HBDMA_ERR("SendData TO %x %x %x %x %x %x\r\n",
-                        sckStat.status, sckStat.actDscr.size,
-                        USB32DEV->USB32DEV_EPM.EEPM_ENDPOINT[0],
-                        USB32DEV->USB32DEV_PROT.PROT_CS,
-                        USB32DEV->USB32DEV_PROT.PROT_EPI_CS1[0], USB32DEV->USB32DEV_PROT.PROT_EPI_CS2[0]);
-
-                status = CY_HBDMA_MGR_TIMEOUT;
-                break;
+                if (pollCnt > 2500) {
+                    status = CY_HBDMA_MGR_TIMEOUT;
+                    break;
+                }
             }
+        } while (pHandle->egressDWRqtQueued[sckIdx] == true);
+
+        if (status == CY_HBDMA_MGR_TIMEOUT) {
+            Cy_HBDma_DW_Configure(pHandle, false);
         }
-    } while (
-            ((sckStat.status & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk) != 0) &&
-            ((sckStat.intrStatus & LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_SUSPEND_Msk) == 0)
-            );
+    } else {
+        /* Wait until the DMA transfer is finished. We cannot rely on Consume Event interrupt due to
+         * spurious interrupts being raised. So, waiting for socket to get suspended. */
+        do {
+            Cy_HBDma_GetSocketStatus(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx], &sckStat);
 
-    /* Disable the socket and reset channel state. */
-    Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
+            pollCnt++;
+            if (pollCnt > 100) {
+#if FREERTOS_ENABLE
+                vTaskDelay(1);
+#else
+                Cy_SysLib_Delay(1);
+#endif /* FREERTOS_ENABLE */
+
+                if (pollCnt > 2500) {
+                    DBG_HBDMA_ERR("SendData TO %x %x %x %x %x %x\r\n",
+                            sckStat.status, sckStat.actDscr.size,
+                            USB32DEV->USB32DEV_EPM.EEPM_ENDPOINT[0],
+                            USB32DEV->USB32DEV_PROT.PROT_CS,
+                            USB32DEV->USB32DEV_PROT.PROT_EPI_CS1[0], USB32DEV->USB32DEV_PROT.PROT_EPI_CS2[0]);
+
+                    status = CY_HBDMA_MGR_TIMEOUT;
+                    break;
+                }
+            }
+        } while (
+                ((sckStat.status & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk) != 0) &&
+                ((sckStat.intrStatus & LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_SUSPEND_Msk) == 0)
+                );
+
+        /* Disable the socket and reset channel state. */
+        Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->consSckId[sckIdx]);
+    }
+
     pHandle->state = CY_HBDMA_CHN_CONFIGURED;
-
     return status;
 }
 
@@ -2933,12 +3518,6 @@ Cy_HBDma_Channel_ReceiveData (
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    /* Make sure the socket is disabled before queueing the next write. */
-    Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
-
-    /* Set channel state as active. */
-    pHandle->state = CY_HBDMA_CHN_OVERRIDE;
-
     dscrSync = (
             (0x3FUL << 8U) |
             ((pHandle->prodSckId[sckIdx] & 0x0FU) << 16U) |
@@ -2947,28 +3526,48 @@ Cy_HBDma_Channel_ReceiveData (
             LVDSSS_LVDS_ADAPTER_DMA_SCK_DSCR_SYNC_EN_PROD_INT_Msk
             );
 
-    /* Delay added to ensure synchronization. */
-    Cy_SysLib_DelayUs(50);
-
     /* Configure the over-ride DMA descriptor. */
     dscrInfo.pBuffer  = dataBuf_p;
     dscrInfo.sync     = dscrSync;
     dscrInfo.chain    = 0xFFFF0000UL | pHandle->overrideCnt;
     dscrInfo.size     = CY_HBDMA_DSCR_SET_SIZE_BY_COUNT(pHandle->pContext->en_64k, 0, bufferSize);
-    pHandle->overrideCnt++;
-    Cy_HBDma_SetDescriptor(pHandle->overrideDscrIndex, &dscrInfo);
 
-    /* Point the consumer socket to the override descriptor and enable it. */
-    sckConf.actDscrIndex  = pHandle->overrideDscrIndex;
-    sckConf.reqXferSize = 1;
-    sckConf.intrMask = (pHandle->cbFunc != NULL) ? USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk : 0UL;
-    sckConf.status    = (
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_PROD_EVENTS_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk |
-            LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_UNIT_Msk);
-    Cy_HBDma_SetSocketConfig(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx], &sckConf);
-    Cy_HBDma_SocketEnable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
+    if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[sckIdx])) {
+        if (bufferSize > CY_HBDMA_MAX_BUFFER_SIZE(0)) {
+            return CY_HBDMA_MGR_BAD_PARAM;
+        }
+
+        /* Set channel state as active. */
+        pHandle->overrideCnt++;
+        pHandle->state = CY_HBDMA_CHN_OVERRIDE;
+
+        Cy_HBDma_DW_Configure(pHandle, true);
+        Cy_HBDma_DW_QueueRead(pHandle, sckIdx, dataBuf_p, bufferSize);
+    } else {
+        /* Make sure the socket is disabled before queueing the next write. */
+        Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
+
+        /* Delay added to ensure synchronization. */
+        Cy_SysLib_DelayUs(50);
+
+        /* Set channel state as active. */
+        pHandle->overrideCnt++;
+        pHandle->state = CY_HBDMA_CHN_OVERRIDE;
+
+        Cy_HBDma_SetDescriptor(pHandle->overrideDscrIndex, &dscrInfo);
+
+        /* Point the consumer socket to the override descriptor and enable it. */
+        sckConf.actDscrIndex  = pHandle->overrideDscrIndex;
+        sckConf.reqXferSize = 1;
+        sckConf.intrMask = (pHandle->cbFunc != NULL) ? USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk : 0UL;
+        sckConf.status    = (
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_TRUNCATE_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_EN_PROD_EVENTS_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_SUSP_TRANS_Msk |
+                LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_UNIT_Msk);
+        Cy_HBDma_SetSocketConfig(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx], &sckConf);
+        Cy_HBDma_SocketEnable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
+    }
 
     (void)actualSize_p;
 
@@ -3011,6 +3610,7 @@ Cy_HBDma_Channel_WaitForReceiveCplt (
     cy_en_hbdma_mgr_status_t status = CY_HBDMA_MGR_SUCCESS;
     uint32_t tmp = 0;
     uint32_t intState;
+    uint32_t pollCnt = 0;
 
     if ((pHandle == NULL) || (pHandle->pContext == NULL) ||
             (pHandle->type == CY_HBDMA_TYPE_MEM_TO_IP) || (sckIdx >= pHandle->prodSckCount))
@@ -3024,45 +3624,70 @@ Cy_HBDma_Channel_WaitForReceiveCplt (
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    /* Wait until the DMA transfer is finished. */
-    do {
-        Cy_HBDma_GetSocketStatus(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx], &sckStat);
-
-        tmp++;
-        if (tmp > 10) {
+    if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[sckIdx])) {
+        /* Wait until DMA request has been completed. */
+        do {
+            pollCnt++;
+            if (pollCnt > 100) {
 #if FREERTOS_ENABLE
-            vTaskDelay(1);
+                vTaskDelay(1);
 #else
-            Cy_SysLib_Delay(1);
+                Cy_SysLib_Delay(1);
 #endif /* FREERTOS_ENABLE */
 
-            if (tmp > 2500) {
-                status = CY_HBDMA_MGR_TIMEOUT;
-                break;
+                if (pollCnt > 2500) {
+                    status = CY_HBDMA_MGR_TIMEOUT;
+                    break;
+                }
+            }
+        } while (pHandle->ingressDWRqtQueued[sckIdx] == true);
+
+        if (status == CY_HBDMA_MGR_TIMEOUT) {
+            Cy_HBDma_DW_Configure(pHandle, false);
+        } else {
+            if (actualSize_p != NULL) {
+                *actualSize_p = pHandle->curIngressXferSize[sckIdx];
             }
         }
-    } while (
-            ((sckStat.status & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk) != 0) &&
-            ((sckStat.intrStatus & LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_PRODUCE_EVENT_Msk) == 0)
-            );
+    } else {
+        /* Wait until the DMA transfer is finished. */
+        do {
+            Cy_HBDma_GetSocketStatus(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx], &sckStat);
 
-    /* Disable the socket and reset channel state. */
-    Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
-    pHandle->state = CY_HBDMA_CHN_CONFIGURED;
+            tmp++;
+            if (tmp > 10) {
+#if FREERTOS_ENABLE
+                vTaskDelay(1);
+#else
+                Cy_SysLib_Delay(1);
+#endif /* FREERTOS_ENABLE */
 
-    if (status == CY_HBDMA_MGR_SUCCESS) {
+                if (tmp > 2500) {
+                    status = CY_HBDMA_MGR_TIMEOUT;
+                    break;
+                }
+            }
+        } while (
+                ((sckStat.status & LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk) != 0) &&
+                ((sckStat.intrStatus & LVDSSS_LVDS_ADAPTER_DMA_SCK_INTR_PRODUCE_EVENT_Msk) == 0)
+                );
 
-        intState = Cy_SysLib_EnterCriticalSection();
-        if (actualSize_p != NULL)
-        {
-            __DMB();
-            __DSB();
-            tmp = CY_HBDMA_GET_DESC_SIZE(pHandle->overrideDscrIndex);
-            *actualSize_p = CY_HBDMA_DSCR_GET_BYTECNT(pHandle->pContext->en_64k, tmp);
+        /* Disable the socket and reset channel state. */
+        Cy_HBDma_SocketDisable(pHandle->pContext->pDrvContext, pHandle->prodSckId[sckIdx]);
+
+        if (status == CY_HBDMA_MGR_SUCCESS) {
+            intState = Cy_SysLib_EnterCriticalSection();
+            if (actualSize_p != NULL) {
+                __DMB();
+                __DSB();
+                tmp = CY_HBDMA_GET_DESC_SIZE(pHandle->overrideDscrIndex);
+                *actualSize_p = CY_HBDMA_DSCR_GET_BYTECNT(pHandle->pContext->en_64k, tmp);
+            }
+            Cy_SysLib_ExitCriticalSection(intState);
         }
-        Cy_SysLib_ExitCriticalSection(intState);
     }
 
+    pHandle->state = CY_HBDMA_CHN_CONFIGURED;
     return status;
 }
 
@@ -3315,6 +3940,114 @@ void Cy_HBDma_Mgr_SetLvdsAdapterIngressMode (
 {
     if ((pDmaMgr != NULL) && (pDmaMgr->pDrvContext != NULL)) {
         Cy_HBDma_SetLvdsAdapterIngressMode(pDmaMgr->pDrvContext, isAdap0Ingress, isAdap1Ingress);
+    }
+}
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleDW0Interrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles transfer completion interrupt from any of the
+ * DataWire channels associated with non EP0 USB-HS OUT endpoints (channels 1 to 15).
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleDW0Interrupt (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr)
+{
+    uint32_t epNum;
+    cy_hbdma_socket_id_t sockId;
+
+    if (pDmaMgr != NULL) {
+        for (epNum = 1; epNum < 16; epNum++) {
+            if (Cy_DMA_Channel_GetInterruptStatusMasked(DW0, epNum) != 0) {
+                Cy_DMA_Channel_ClearInterrupt(DW0, epNum);
+                sockId = (cy_hbdma_socket_id_t)(CY_HBDMA_USBHS_OUT_EP_00 + epNum);
+                Cy_HBDma_Channel_Cb(sockId, CY_HBDMA_DATAWIRE0_INTERRUPT, 0, (void *)pDmaMgr);
+            }
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleDW1Interrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles transfer completion interrupt from any of the
+ * DataWire channels associated with non EP0 USB-HS IN endpoints (channels 1 to 15).
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleDW1Interrupt (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr)
+{
+    uint32_t epNum;
+    cy_hbdma_socket_id_t sockId;
+
+    if (pDmaMgr != NULL) {
+        for (epNum = 1; epNum < 16; epNum++) {
+            if (Cy_DMA_Channel_GetInterruptStatusMasked(DW1, epNum) != 0) {
+                Cy_DMA_Channel_ClearInterrupt(DW1, epNum);
+                sockId = (cy_hbdma_socket_id_t)(CY_HBDMA_USBHS_IN_EP_00 + epNum);
+                Cy_HBDma_Channel_Cb(sockId, CY_HBDMA_DATAWIRE1_INTERRUPT, 0, (void *)pDmaMgr);
+            }
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Mgr_HandleUsbShortInterrupt
+ ****************************************************************************//**
+ *
+ * DMA manager function that handles SLP or ZLP interrupts from USB-HS OUT
+ * endpoints. This is expected to be triggered from interrupt callback provided
+ * by the USB stack.
+ *
+ * \param pDmaMgr
+ * Handle to the DMA manager context.
+ * \param epNum
+ * Endpoint number on which SLP/ZLP was received.
+ * \param pktSize
+ * Actual size (in bytes) of the packet received.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Mgr_HandleUsbShortInterrupt (
+        cy_stc_hbdma_mgr_context_t *pDmaMgr,
+        uint8_t                     epNum,
+        uint16_t                    pktSize)
+{
+    cy_stc_hbdma_channel_t *pHandle;
+    cy_hbdma_socket_id_t sockId;
+
+    if ((pDmaMgr != NULL) && (epNum < 16)) {
+        /* Look up the channel structure corresponding to this endpoint. */
+        sockId = (cy_hbdma_socket_id_t)(CY_HBDMA_USBHS_OUT_EP_00 + epNum);
+        pHandle = Cy_HBDma_GetSocketChannel(pDmaMgr, sockId);
+
+        if (pHandle != NULL) {
+            /* Get the DMA operation to complete. */
+            if (pHandle->prodSckId[0] == sockId) {
+                Cy_HBDma_DW_CompleteShortRead(pHandle, 0, pktSize);
+            }
+
+            if ((pHandle->prodSckCount == 2) && (pHandle->prodSckId[1] == sockId)) {
+                Cy_HBDma_DW_CompleteShortRead(pHandle, 1, pktSize);
+            }
+
+            if ((pktSize == 0) && (pDmaMgr->pUsbStackCtx != NULL)) {
+                Cy_USBD_ClearZlpSlpIntrEnableMask((cy_stc_usb_usbd_ctxt_t *)pDmaMgr->pUsbStackCtx,
+                        epNum, CY_USB_ENDP_DIR_OUT, true);
+            }
+        } else {
+            DBG_HBDMA_ERR("Channel handle for HS EP %d-IN not found\r\n", epNum);
+        }
     }
 }
 

@@ -185,6 +185,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gab4961fcbc111e04c9af83e40fd1c983f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gab4961fcbc111e04c9af83e40fd1c983f">Cy_HBDma_Mgr_DeInit</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *context_p)</td></tr>
 <tr class="memdesc:gab4961fcbc111e04c9af83e40fd1c983f"><td class="mdescLeft">&#160;</td><td class="mdescRight">De-initialize the High BandWidth DMA manager library.  <a href="group__group__usbfxstack__hb__dma__functions.html#gab4961fcbc111e04c9af83e40fd1c983f">More...</a><br /></td></tr>
 <tr class="separator:gab4961fcbc111e04c9af83e40fd1c983f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga51a42ea3fc4527e840654eb2a0dc5fcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga51a42ea3fc4527e840654eb2a0dc5fcd">Cy_HBDma_Mgr_RegisterUsbContext</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *context_p, void *pUsbStackCtx)</td></tr>
+<tr class="memdesc:ga51a42ea3fc4527e840654eb2a0dc5fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the USB stack context pointer with the High BandWidth manager.  <a href="group__group__usbfxstack__hb__dma__functions.html#ga51a42ea3fc4527e840654eb2a0dc5fcd">More...</a><br /></td></tr>
+<tr class="separator:ga51a42ea3fc4527e840654eb2a0dc5fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa8a5b3b3e0cde64db51870a4d1d6e9d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gaa8a5b3b3e0cde64db51870a4d1d6e9d8">Cy_HBDma_Mgr_UpdateMultEn</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pContext, uint32_t endpNumber, bool isEgressEp, bool multEnable)</td></tr>
 <tr class="memdesc:gaa8a5b3b3e0cde64db51870a4d1d6e9d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the MULT setting for sockets associated with USB endpoints.  <a href="group__group__usbfxstack__hb__dma__functions.html#gaa8a5b3b3e0cde64db51870a4d1d6e9d8">More...</a><br /></td></tr>
 <tr class="separator:gaa8a5b3b3e0cde64db51870a4d1d6e9d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -257,6 +260,27 @@ Functions</h2></td></tr>
 <tr class="memitem:gadf9f54714f6cd6888ca8947d9968ee33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gadf9f54714f6cd6888ca8947d9968ee33">Cy_HBDma_Mgr_SetLvdsAdapterIngressMode</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pDmaMgr, bool isAdap0Ingress, bool isAdap1Ingress)</td></tr>
 <tr class="memdesc:gadf9f54714f6cd6888ca8947d9968ee33"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function enables or disables the support for egress data transfers from RAM buffers which are not 16-byte aligned based on whether the specified LVDS DMA adapters are working in Ingress only mode or not.  <a href="group__group__usbfxstack__hb__dma__functions.html#gadf9f54714f6cd6888ca8947d9968ee33">More...</a><br /></td></tr>
 <tr class="separator:gadf9f54714f6cd6888ca8947d9968ee33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaae9cb0b7fcd758e64980ddfe4a784cdf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gaae9cb0b7fcd758e64980ddfe4a784cdf">Cy_HBDma_DW_Configure</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *pHandle, bool enable)</td></tr>
+<tr class="memdesc:gaae9cb0b7fcd758e64980ddfe4a784cdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure the trigger connections for the DataWire used for transfers through a USB High-Speed Endpoint.  <a href="group__group__usbfxstack__hb__dma__functions.html#gaae9cb0b7fcd758e64980ddfe4a784cdf">More...</a><br /></td></tr>
+<tr class="separator:gaae9cb0b7fcd758e64980ddfe4a784cdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga66412f84c789f6489d484b78b86be607"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga66412f84c789f6489d484b78b86be607">Cy_HBDma_DW_QueueRead</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *pHandle, uint8_t prodIndex, uint8_t *pBuffer, uint16_t dataSize)</td></tr>
+<tr class="memdesc:ga66412f84c789f6489d484b78b86be607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which queues read operation using DataWire DMA on USBHS OUT endpoint corresponding to a DMA channel.  <a href="group__group__usbfxstack__hb__dma__functions.html#ga66412f84c789f6489d484b78b86be607">More...</a><br /></td></tr>
+<tr class="separator:ga66412f84c789f6489d484b78b86be607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad56befbc8bbb358ad4c43f8d0978f91d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gad56befbc8bbb358ad4c43f8d0978f91d">Cy_HBDma_DW_CompleteShortRead</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *pHandle, uint8_t prodIndex, uint16_t shortPktSize)</td></tr>
+<tr class="memdesc:gad56befbc8bbb358ad4c43f8d0978f91d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which terminates ongoing USBHS ingress transfer when a short packet has been received on the endpoint.  <a href="group__group__usbfxstack__hb__dma__functions.html#gad56befbc8bbb358ad4c43f8d0978f91d">More...</a><br /></td></tr>
+<tr class="separator:gad56befbc8bbb358ad4c43f8d0978f91d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad15112511c48efacc81b3655efb173a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gad15112511c48efacc81b3655efb173a7">Cy_HBDma_DW_QueueWrite</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *pHandle, uint8_t consIndex, uint8_t *pBuffer, uint16_t dataSize)</td></tr>
+<tr class="memdesc:gad15112511c48efacc81b3655efb173a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which queues write operation using DataWire DMA on USBHS IN endpoint corresponding to a DMA channel.  <a href="group__group__usbfxstack__hb__dma__functions.html#gad15112511c48efacc81b3655efb173a7">More...</a><br /></td></tr>
+<tr class="separator:gad15112511c48efacc81b3655efb173a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga239ee6292b479e83cb5645c837d9b75d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga239ee6292b479e83cb5645c837d9b75d">Cy_HBDma_Mgr_HandleDW0Interrupt</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pDmaMgr)</td></tr>
+<tr class="memdesc:ga239ee6292b479e83cb5645c837d9b75d"><td class="mdescLeft">&#160;</td><td class="mdescRight">DMA manager function that handles transfer completion interrupt from any of the DataWire channels associated with non EP0 USB-HS OUT endpoints (channels 1 to 15).  <a href="group__group__usbfxstack__hb__dma__functions.html#ga239ee6292b479e83cb5645c837d9b75d">More...</a><br /></td></tr>
+<tr class="separator:ga239ee6292b479e83cb5645c837d9b75d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6a3d090dba3c10f62e5268af3337bdbf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga6a3d090dba3c10f62e5268af3337bdbf">Cy_HBDma_Mgr_HandleDW1Interrupt</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pDmaMgr)</td></tr>
+<tr class="memdesc:ga6a3d090dba3c10f62e5268af3337bdbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">DMA manager function that handles transfer completion interrupt from any of the DataWire channels associated with non EP0 USB-HS IN endpoints (channels 1 to 15).  <a href="group__group__usbfxstack__hb__dma__functions.html#ga6a3d090dba3c10f62e5268af3337bdbf">More...</a><br /></td></tr>
+<tr class="separator:ga6a3d090dba3c10f62e5268af3337bdbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafc5003e1a752a17ac8e38636b36cec9d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#gafc5003e1a752a17ac8e38636b36cec9d">Cy_HBDma_Mgr_HandleUsbShortInterrupt</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pDmaMgr, uint8_t epNum, uint16_t pktSize)</td></tr>
+<tr class="memdesc:gafc5003e1a752a17ac8e38636b36cec9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">DMA manager function that handles SLP or ZLP interrupts from USB-HS OUT endpoints.  <a href="group__group__usbfxstack__hb__dma__functions.html#gafc5003e1a752a17ac8e38636b36cec9d">More...</a><br /></td></tr>
+<tr class="separator:gafc5003e1a752a17ac8e38636b36cec9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="gab7604ab75c6effda2157d432dc0e8075" name="gab7604ab75c6effda2157d432dc0e8075"></a>
@@ -1478,6 +1502,44 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga51a42ea3fc4527e840654eb2a0dc5fcd" name="ga51a42ea3fc4527e840654eb2a0dc5fcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga51a42ea3fc4527e840654eb2a0dc5fcd">&#9670;&nbsp;</a></span>Cy_HBDma_Mgr_RegisterUsbContext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_HBDma_Mgr_RegisterUsbContext </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *&#160;</td>
+          <td class="paramname"><em>context_p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>pUsbStackCtx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Register the USB stack context pointer with the High BandWidth manager. </p>
+<p >A valid stack context is required to make use of USB-HS endpoints and DataWire channels with the High BandWidth channel API.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">context_p</td><td>Pointer to the DMA manager context structure. </td></tr>
+    <tr><td class="paramname">pUsbStackCtx</td><td>Pointer to USB stack context structure passed as an opaque pointer. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="gaa8a5b3b3e0cde64db51870a4d1d6e9d8" name="gaa8a5b3b3e0cde64db51870a4d1d6e9d8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaa8a5b3b3e0cde64db51870a4d1d6e9d8">&#9670;&nbsp;</a></span>Cy_HBDma_Mgr_UpdateMultEn()</h2>
 
@@ -2405,6 +2467,290 @@ Functions</h2></td></tr>
     <tr><td class="paramname">pDmaMgr</td><td>Pointer to DMA manager context structure.</td></tr>
     <tr><td class="paramname">isAdap0Ingress</td><td>Whether adapter 0 (sockets 0 to 15) is being used only in ingress direction.</td></tr>
     <tr><td class="paramname">isAdap1Ingress</td><td>Whether adapter 1 (sockets 16 to 31) is being used only in ingress direction. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gaae9cb0b7fcd758e64980ddfe4a784cdf" name="gaae9cb0b7fcd758e64980ddfe4a784cdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaae9cb0b7fcd758e64980ddfe4a784cdf">&#9670;&nbsp;</a></span>Cy_HBDma_DW_Configure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a> Cy_HBDma_DW_Configure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *&#160;</td>
+          <td class="paramname"><em>pHandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enable</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Configure the trigger connections for the DataWire used for transfers through a USB High-Speed Endpoint. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pHandle</td><td>Handle to the DMA channel. </td></tr>
+    <tr><td class="paramname">enable</td><td>Whether trigger connections are to be enabled or disabled.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga66412f84c789f6489d484b78b86be607" name="ga66412f84c789f6489d484b78b86be607"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga66412f84c789f6489d484b78b86be607">&#9670;&nbsp;</a></span>Cy_HBDma_DW_QueueRead()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a> Cy_HBDma_DW_QueueRead </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *&#160;</td>
+          <td class="paramname"><em>pHandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>prodIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>pBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>dataSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which queues read operation using DataWire DMA on USBHS OUT endpoint corresponding to a DMA channel. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pHandle</td><td>Handle to the DMA channel. </td></tr>
+    <tr><td class="paramname">prodIndex</td><td>Index of the producer from which to read data. </td></tr>
+    <tr><td class="paramname">pBuffer</td><td>Pointer to the data buffer to read data into. </td></tr>
+    <tr><td class="paramname">dataSize</td><td>Size of data expected. This should be a multiple of the max packet size.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="gad56befbc8bbb358ad4c43f8d0978f91d" name="gad56befbc8bbb358ad4c43f8d0978f91d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad56befbc8bbb358ad4c43f8d0978f91d">&#9670;&nbsp;</a></span>Cy_HBDma_DW_CompleteShortRead()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a> Cy_HBDma_DW_CompleteShortRead </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *&#160;</td>
+          <td class="paramname"><em>pHandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>prodIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>shortPktSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which terminates ongoing USBHS ingress transfer when a short packet has been received on the endpoint. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pHandle</td><td>Handle to the DMA channel. </td></tr>
+    <tr><td class="paramname">prodIndex</td><td>Index of the producer from which to read data. </td></tr>
+    <tr><td class="paramname">shortPktSize</td><td>Size of the short packet received in bytes.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="gad15112511c48efacc81b3655efb173a7" name="gad15112511c48efacc81b3655efb173a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad15112511c48efacc81b3655efb173a7">&#9670;&nbsp;</a></span>Cy_HBDma_DW_QueueWrite()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga8a1d453b60acfddb9766af3ad7c2ddaa">cy_en_hbdma_mgr_status_t</a> Cy_HBDma_DW_QueueWrite </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a> *&#160;</td>
+          <td class="paramname"><em>pHandle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>consIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>pBuffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>dataSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which queues write operation using DataWire DMA on USBHS IN endpoint corresponding to a DMA channel. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pHandle</td><td>Handle to the DMA channel. </td></tr>
+    <tr><td class="paramname">consIndex</td><td>Index of the consumer to write data into. </td></tr>
+    <tr><td class="paramname">pBuffer</td><td>Pointer to the data buffer containing the data. </td></tr>
+    <tr><td class="paramname">dataSize</td><td>Size of data to be transferred.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_HBDMA_MGR_SUCCESS if function is successful, error code otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga239ee6292b479e83cb5645c837d9b75d" name="ga239ee6292b479e83cb5645c837d9b75d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga239ee6292b479e83cb5645c837d9b75d">&#9670;&nbsp;</a></span>Cy_HBDma_Mgr_HandleDW0Interrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_HBDma_Mgr_HandleDW0Interrupt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDmaMgr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>DMA manager function that handles transfer completion interrupt from any of the DataWire channels associated with non EP0 USB-HS OUT endpoints (channels 1 to 15). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDmaMgr</td><td>Handle to the DMA manager context. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga6a3d090dba3c10f62e5268af3337bdbf" name="ga6a3d090dba3c10f62e5268af3337bdbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6a3d090dba3c10f62e5268af3337bdbf">&#9670;&nbsp;</a></span>Cy_HBDma_Mgr_HandleDW1Interrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_HBDma_Mgr_HandleDW1Interrupt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDmaMgr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>DMA manager function that handles transfer completion interrupt from any of the DataWire channels associated with non EP0 USB-HS IN endpoints (channels 1 to 15). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDmaMgr</td><td>Handle to the DMA manager context. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gafc5003e1a752a17ac8e38636b36cec9d" name="gafc5003e1a752a17ac8e38636b36cec9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafc5003e1a752a17ac8e38636b36cec9d">&#9670;&nbsp;</a></span>Cy_HBDma_Mgr_HandleUsbShortInterrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_HBDma_Mgr_HandleUsbShortInterrupt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDmaMgr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>epNum</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>pktSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>DMA manager function that handles SLP or ZLP interrupts from USB-HS OUT endpoints. </p>
+<p >This is expected to be triggered from interrupt callback provided by the USB stack.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDmaMgr</td><td>Handle to the DMA manager context. </td></tr>
+    <tr><td class="paramname">epNum</td><td>Endpoint number on which SLP/ZLP was received. </td></tr>
+    <tr><td class="paramname">pktSize</td><td>Actual size (in bytes) of the packet received. </td></tr>
   </table>
   </dd>
 </dl>

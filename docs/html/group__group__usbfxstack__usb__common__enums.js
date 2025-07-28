@@ -34,7 +34,7 @@ var group__group__usbfxstack__usb__common__enums =
       [ "CY_USB_CAL_MSG_OUT_ZLP", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a1966db956192f3e41289799e36222771", null ],
       [ "CY_USB_CAL_MSG_OUT_SLP", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a653d3823d419e63cb020e6c7a5116830", null ],
       [ "CY_USB_CAL_MSG_OUT_DONE", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257", null ],
-      [ "CY_USB_CAL_MSG_SOF", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a9a4c5501071faff6cfab73f9df36ec61", null ],
+      [ "CY_USB_CAL_MSG_SOF_ITP", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132", null ],
       [ "CY_USB_CAL_MSG_ERRLIMIT", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778", null ],
       [ "CY_USBSS_CAL_MSG_LNK_RESET", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a2df3ca406a6dcc96088bd355250445e3", null ],
       [ "CY_USBSS_CAL_MSG_LNK_CONNECT", "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498abc419db5bfc12c8c8fd55a3b971cb008", null ],
@@ -264,6 +264,7 @@ var group__group__usbfxstack__usb__common__enums =
       [ "CY_USB_USBD_CB_DISCONNECT", "group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adae65525e31a97b2d2670697506dc1f503", null ],
       [ "CY_USB_USBD_CB_SETADDR", "group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adaca6a210fa7a5da417527c6e5f3b2ffcb", null ],
       [ "CY_USB_USBD_CB_EP0_RCV_DONE", "group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234", null ],
+      [ "CY_USB_USBD_CB_SOF_ITP", "group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7", null ],
       [ "CY_USB_USBD_CB_SET_INVALID", "group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439", null ]
     ] ],
     [ "cy_en_usb_device_state_t", "group__group__usbfxstack__usb__common__enums.html#ga371db4682d00725909b7eb8edc0f7767", [
@@ -424,5 +425,10 @@ var group__group__usbfxstack__usb__common__enums =
       [ "CY_SSCAL_LPM_DISABLED", "group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a232a3e9210685f1b73ca52c7dd750f79", null ],
       [ "CY_SSCAL_LPM_DELAYED", "group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea", null ],
       [ "CY_SSCAL_LPM_ENABLED", "group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467ad07462d927e80ca9d4b952692f5bef24", null ]
+    ] ],
+    [ "cy_en_usbss_delay_event_t", "group__group__usbfxstack__usb__common__enums.html#ga35d95ab3e11efbd15e2bbe621cd16806", [
+      [ "DELAY_EVENT_NONE", "group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806afe017c8b5fea0def550572cf46d29609", null ],
+      [ "DELAY_EVENT_P0_CHG", "group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a5462432e90b7988e89950f68325081fe", null ],
+      [ "DELAY_EVENT_HOLD_POLL_ACT", "group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a4c0aea32173e6fe8fb5eb053c64929b5", null ]
     ] ]
 ];

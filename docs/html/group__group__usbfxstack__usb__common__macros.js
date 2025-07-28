@@ -60,6 +60,7 @@ var group__group__usbfxstack__usb__common__macros =
     [ "CY_USBHS_CAL_DRV_H", "group__group__usbfxstack__usb__common__macros.html#ga37526a843d25e1064dbaee3fb1618add", null ],
     [ "CY_USBHS_PLL_LOCK_TIMEOUT_MS", "group__group__usbfxstack__usb__common__macros.html#ga49f7b1d0b097c365a4da80f1e003aa36", null ],
     [ "CY_EXTERNAL_CLK_PIN", "group__group__usbfxstack__usb__common__macros.html#ga80ad171824823287506bb95b1c6b2376", null ],
+    [ "CY_EXTERNAL_CLK_PIN_ALT", "group__group__usbfxstack__usb__common__macros.html#ga1452ffe8218c3b22125f4a457b221144", null ],
     [ "USBHSDEV_LPM_L1_WAKE_DURATION", "group__group__usbfxstack__usb__common__macros.html#gaca45dba987f0849eae903c46748518f1", null ],
     [ "USBHSDEV_LPM_L2_WAKE_DURATION", "group__group__usbfxstack__usb__common__macros.html#ga8c07a11abe00db50168789e1a4d31fda", null ],
     [ "USBHSDEV_LEGFEAT_BYPASS_FLOP_EN", "group__group__usbfxstack__usb__common__macros.html#ga7fe0f9aae31d00ba8bebaa5b3b2b113a", null ],
