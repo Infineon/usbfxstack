@@ -47,6 +47,13 @@
 extern "C" {
 #endif
 
+#if (!CY_CPU_CORTEX_M4)
+    /* When we have the DMA functions running on CM0 core and descriptors being accessed over
+     * slow AHB, we need to keep all DataWire DMA descriptors in the System RAM itself.
+     */
+    static cy_stc_dma_descriptor_t gHbDmaDwDscrList[CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN];
+#endif /* (!CY_CPU_CORTEX_M4) */
+
 /*******************************************************************************
  * Function name: Cy_HBDma_Mgr_GetVersion
  ****************************************************************************//**
@@ -114,6 +121,7 @@ Cy_HBDma_Mgr_Init (
     pContext->en_64k       = Cy_HBDma_Is64KBufferEnabled(pDrvContext);
     pContext->pUsbStackCtx = NULL;
 
+#if CY_CPU_CORTEX_M4
     /* Allocate list of DataWire descriptors to be used for all USBHS channels. We need three
      * descriptors per DMA channel (ingress and egress). */
     pContext->dwDscrList = (cy_stc_dma_descriptor_t *)Cy_HBDma_BufMgr_Alloc(pBufMgr,
@@ -121,6 +129,9 @@ Cy_HBDma_Mgr_Init (
     if (pContext->dwDscrList == NULL) {
         return CY_HBDMA_MGR_MEMORY_ERROR;
     }
+#else
+    pContext->dwDscrList = (cy_stc_dma_descriptor_t *)gHbDmaDwDscrList;
+#endif /* CY_CPU_CORTEX_M4 */
 
     /* Register the callback to be called when DMA interrupts are received. */
     Cy_HBDma_SetInterruptCallback(pDrvContext, Cy_HBDma_Channel_Cb, (void*)pContext);
@@ -144,7 +155,9 @@ Cy_HBDma_Mgr_Init (
     }
 
     if (status != pdPASS) {
+#if CY_CPU_CORTEX_M4
         Cy_HBDma_BufMgr_Free(pBufMgr, pContext->dwDscrList);
+#endif /* CY_CPU_CORTEX_M4 */
         pContext->dwDscrList = NULL;
         return CY_HBDMA_MGR_MEMORY_ERROR;
     }
@@ -220,11 +233,13 @@ Cy_HBDma_Mgr_DeInit (
         }
 
         if (status == CY_HBDMA_MGR_SUCCESS) {
+#if CY_CPU_CORTEX_M4
             /* Free the DMA descriptor list. */
             if (pContext->dwDscrList != NULL) {
                 Cy_HBDma_BufMgr_Free(pContext->pBufMgr, pContext->dwDscrList);
-                pContext->dwDscrList = NULL;
             }
+#endif /* CY_CPU_CORTEX_M4 */
+            pContext->dwDscrList = NULL;
 
             /* Clear the ISR callback registered with the driver. */
             Cy_HBDma_SetInterruptCallback(pContext->pDrvContext, NULL, NULL);

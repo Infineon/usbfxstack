@@ -647,6 +647,25 @@ Cy_USBHS_App_ClearDmaInterrupt (
     }
 }
 
+/*
+ * Function: Cy_USBHS_App_IsChannelActive()
+ * Description: Check whether the DMA channel corresponding to the
+ * specified endpoint is active.
+ * Parameters:
+ *     pEpDmaSet: Pointer to Endpoint DMA context data structure.
+ * Return: true if DMA channel is active, false otherwise.
+ */
+bool
+Cy_USBHS_App_IsChannelActive (
+        cy_stc_app_endp_dma_set_t *pEpDmaSet)
+{
+    if ((pEpDmaSet != NULL) && (pEpDmaSet->pDwStruct != NULL))
+    {
+        return (Cy_DMA_Channel_IsEnabled((DW_Type *)pEpDmaSet->pDwStruct, pEpDmaSet->channel));
+    }
+    return false;
+}
+
 #if defined(__cplusplus)
 }
 #endif

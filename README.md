@@ -1,24 +1,35 @@
-# USBFXStack Middleware Library 1.3.0
+# USBFXStack Middleware Library 1.3.1
 
-The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices, which includes EZ-USB&trade; FX20, EZ-USB&trade; FX10, EZ-USB&trade; FX5N, EZ-USB&trade; FX5, and EZ-USB&trade; FX2G3 with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
+The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
 
 As best practices and development flows are continuously evolving, it is recommended to periodically sync the latest updates from this library to ensure you are using the most recent improvements and features.
 
+## Supported FX Devices
+
+**USB 3.2 Devices:**
+* <a href= "https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx20-usb-20-gbps-peripheral-controller">EZ-USB&trade; FX20</a> - Upto 20 Gbps, USB 3.2 Gen2x2
+* <a href= "https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller">EZ-USB&trade; FX10</a> - Upto 10 Gbps, USB 3.2 Gen2
+* <a href= "https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller">EZ-USB&trade; FX5N</a> - Upto 10 Gbps, USB 3.2 Gen1x2
+* <a href= "https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx5-usb-5-gbps-peripheral-controller">EZ-USB&trade; FX5</a> - Upto 5 Gbps, USB 3.2 Gen1
+
+**USB 2.0 Devices:**
+* <a href="https://www.infineon.com/promo/ez-usb-fx2g3">EZ-USB&trade; FX2G3</a> - Upto 480 Mbps, USB 2.0
 
 ## Features
 
 - **LVDS/LVCMOS IP driver:** Provides a driver for the Sensor Interface Port (SIP) on the EZ-USB&trade; FX device that can be configured to operate using the LVDS/LVCMOS interface for efficient data transfer
 
-- **USB stack:** An integrated USB stack that supports USB High-Speed (HS) functionality on the EZ-USB&trade; FX device, enabling robust USB communication capabilities
+- **USB stack:** An integrated USB stack that supports upto USB 20 Gbps functionality on the EZ-USB&trade; FX device, enabling robust USB communication capabilities
 
 - **DMA manager:** Offers generic DMA channel abstraction for managing DMA resources, facilitating data movement across USB and LVDS/LVCMOS interfaces on the EZ-USB&trade; FX device
 
 - **Utility functions:** A set of utility functions providing core functionalities such as logging support, USB data transfer abstraction, and fault handling mechanisms
 
-
 ## More information
 
 For further details and documentation, see the following resources:
+
+- [USBFXStack API Reference Manual](https://infineon.github.io/usbfxstack/api_reference_manual.html)
 
 - [ModusToolbox&trade; software environment, quick start guide, documentation, and videos](https://www.infineon.com/modustoolbox)
 

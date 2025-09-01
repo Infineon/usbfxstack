@@ -109,6 +109,7 @@ Cy_USB_CdcDmaCallback (struct cy_stc_hbdma_channel *pHandle,
     cy_stc_hbdma_buff_status_t buffStat;
     cy_en_hbdma_mgr_status_t   dmaStat;
     cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
+    uint32_t intMask;
 
     if(type == CY_HBDMA_CB_PROD_EVENT)
     {
@@ -143,6 +144,17 @@ Cy_USB_CdcDmaCallback (struct cy_stc_hbdma_channel *pHandle,
         }
     }
     
+    if (type == CY_HBDMA_CB_CONS_EVENT)
+    {
+        intMask = Cy_SysLib_EnterCriticalSection();
+        if (glDbgCtx.pMsg == 0) {
+            dmaStat = Cy_HBDma_Channel_GetBuffer(usbCdcInfo->cdcSendHandle, &buffStat);
+            if (dmaStat == CY_HBDMA_MGR_SUCCESS) {
+                glDbgCtx.pMsg = buffStat.pBuffer;
+            }
+        }
+        Cy_SysLib_ExitCriticalSection(intMask);
+    }
 }
 
 /*******************************************************************************
@@ -458,6 +470,11 @@ static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
     uint32_t  intrState, uintArg;
     uint8_t   convertedString[11];
 
+    /* Make sure we have a valid buffer to store the log data into. */
+    if (glDbgCtx.pMsg == NULL) {
+        return CY_DEBUG_STATUS_FAILURE;
+    }
+
     /* Parse the string and copy into the buffer for sending out. */
     for (string_p = (uint8_t *)message, i = 0; (*string_p != '\0'); string_p++) {
         if (*string_p != '%') {
@@ -604,7 +621,7 @@ cy_en_debug_status_t Cy_Debug_AddToLog (uint8_t dbgLevel,
     status = Cy_Debug_AddToBuffer(message, argp);
     va_end(argp);
 
-    if (glDbgCtx.printNow == true) {
+    if ((status == CY_DEBUG_STATUS_SUCCESS) && (glDbgCtx.printNow == true)) {
         Cy_Debug_PrintLog();
     }
 

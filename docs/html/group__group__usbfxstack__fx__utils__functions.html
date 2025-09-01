@@ -261,6 +261,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 <tr class="memitem:ga977c3bab2cffff8bd23f9f3cb023fb2d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga977c3bab2cffff8bd23f9f3cb023fb2d">Cy_USBHS_App_ClearDmaInterrupt</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a> *pEpDmaSet)</td></tr>
 <tr class="memdesc:ga977c3bab2cffff8bd23f9f3cb023fb2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable any pending DataWire channel interrupts for an endpoint.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga977c3bab2cffff8bd23f9f3cb023fb2d">More...</a><br /></td></tr>
 <tr class="separator:ga977c3bab2cffff8bd23f9f3cb023fb2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga52434f4a962f55fba47ac6d58f144a97"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga52434f4a962f55fba47ac6d58f144a97">Cy_USBHS_App_IsChannelActive</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a> *pEpDmaSet)</td></tr>
+<tr class="memdesc:ga52434f4a962f55fba47ac6d58f144a97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the DMA channel corresponding to the specified endpoint is active.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga52434f4a962f55fba47ac6d58f144a97">More...</a><br /></td></tr>
+<tr class="separator:ga52434f4a962f55fba47ac6d58f144a97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga0fb4a3012f4b337dd153e1289f5926c0" name="ga0fb4a3012f4b337dd153e1289f5926c0"></a>
@@ -1943,6 +1946,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga52434f4a962f55fba47ac6d58f144a97" name="ga52434f4a962f55fba47ac6d58f144a97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga52434f4a962f55fba47ac6d58f144a97">&#9670;&nbsp;</a></span>Cy_USBHS_App_IsChannelActive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USBHS_App_IsChannelActive </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a> *&#160;</td>
+          <td class="paramname"><em>pEpDmaSet</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check whether the DMA channel corresponding to the specified endpoint is active. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pEpDmaSet</td><td>USBHS endpoint DMA wrapper structure</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the channel is active, false otherwise. </dd></dl>
 
 </div>
 </div>

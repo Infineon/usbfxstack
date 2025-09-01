@@ -27,6 +27,7 @@
 #if defined (CY_IP_MXS40LVDS2USB32SS)
 
 #include <string.h>
+#include "cy_pdl.h"
 #include "cy_hbdma.h"
 #include "cy_debug.h"
 
@@ -279,20 +280,72 @@ Cy_HBDma_GetDescriptor (
     }
     else
     {
+#if CY_CPU_CORTEX_M4
         pSrc = (cy_stc_hbdma_desc_t *)(CY_HBDMA_GET_DESC_ADDR(dscrIndex));
 
         /* Make sure that the AHB read cache is flushed so that we do not get stale data. */
-#if CY_CPU_CORTEX_M4
         Cy_HBDma_EvictReadCache(true);
-#else
-        Cy_HBDma_EvictReadCache(false);
-#endif /* CY_CPU_CORTEX_M4 */
 
         /* Upper bits of buffer address might have been masked in the descriptor and need to be restored. */
         pDscr->pBuffer = (uint8_t *)((uint32_t)(pSrc->pBuffer) | 0x1C000000UL);
         pDscr->sync    = pSrc->sync;
         pDscr->chain   = pSrc->chain;
         pDscr->size    = pSrc->size;
+#else
+        /* We use DW1.channel0 set to the same priority as other DW1 channels to read the descriptor.
+         * This ensures that the read does not interrupt another ongoing DW1 read operation.
+         * We also make sure that a complete 32-byte region is read from the DMA RAM and then
+         * extract the required fields.
+         */
+        uint32_t dw_descr[6];
+        uint32_t dscrtmp[8];
+        uint32_t intMask;
+
+        intMask = Cy_SysLib_EnterCriticalSection();
+        pSrc = (cy_stc_hbdma_desc_t *)(CY_HBDMA_GET_DESC_ADDR(dscrIndex & 0xFFFE));
+
+        dw_descr[0] = 0x61000068UL;
+        dw_descr[1] = (uint32_t)pSrc;
+        dw_descr[2] = (uint32_t)dscrtmp;
+        dw_descr[3] = 0x07001001UL;
+        dw_descr[4] = 0x00000000UL;
+        dw_descr[5] = 0x00000000UL;
+
+        /* Make sure the DW1 IP is enabled. */
+        DW1->CTL |= 0x80000000UL;
+
+        /* Clear stale channel interrupt. */
+        DW1_CH_STRUCT0->INTR        = 0x00000001UL;
+        DW1_CH_STRUCT0->INTR_MASK   = 0;
+
+        /* Enable channel with above descriptor and set lowest priority. */
+        DW1_CH_STRUCT0->CH_CURR_PTR = (uint32_t)dw_descr;
+        DW1_CH_STRUCT0->CH_IDX      = 0;
+        DW1_CH_STRUCT0->CH_CTL      = 0x80000300UL;
+
+        /* Trigger the DataWire channel. */
+        Cy_TrigMux_SwTrigger(TRIG_OUT_MUX_1_PDMA1_TR_IN0, CY_TRIGGER_TWO_CYCLES);
+
+        /* Wait until the transfer is complete and make sure interrupt is cleared. */
+        while (DW1_CH_STRUCT0->INTR == 0);
+        DW1_CH_STRUCT0->INTR = 0x00000001UL;
+
+        if ((dscrIndex & 0x01) != 0) {
+            /* Odd descriptor: Take values from second half of the buffer. */
+            pDscr->pBuffer = (uint8_t *)(dscrtmp[4] | 0x1C000000UL);
+            pDscr->sync    = dscrtmp[5];
+            pDscr->chain   = dscrtmp[6];
+            pDscr->size    = dscrtmp[7];
+        } else {
+            /* Even descriptor: Take values from first half of the buffer. */
+            pDscr->pBuffer = (uint8_t *)(dscrtmp[0] | 0x1C000000UL);
+            pDscr->sync    = dscrtmp[1];
+            pDscr->chain   = dscrtmp[2];
+            pDscr->size    = dscrtmp[3];
+        }
+
+        Cy_SysLib_ExitCriticalSection(intMask);
+#endif /* CY_CPU_CORTEX_M4 */
     }
 
     return status;

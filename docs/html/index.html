@@ -86,40 +86,32 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
   <div class="headertitle"><div class="title">ModusToolbox USBFXStack </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p >The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB(TM) FX2G3 device with a variety of integrated modules. This library includes essential drivers, utilities, and an operating system to help developers efficiently manage and optimize their applications.<br  />
- As best practices and development flows are continuously evolving, it is recommended to periodically sync the latest updates from this library to ensure you are utilizing the most recent improvements and features.</p>
-<h1><a class="anchor" id="fx_devices"></a>
-FX devices</h1>
-<p >The EZ-USB(TM) FX2G3 family of USB2 device controllers is designed to meet the demands of established USB2 applications in biometrics, scanners, cameras, video, and imaging markets. FX2G3 leverages Cortex(R)-M4 (CM4) and Cortex(R) M0+ (CM0) microcontrollers, providing robust features such as 512 KB flash memory, 128 KB SRAM, and 128 KB ROM.<br  />
- The controllers also include Serial Communication Blocks (SCBs), a crypto engine for enhanced security, and a high-bandwidth data subsystem that facilitates DMA data transfers from LVCMOS input to USB output at speeds up to 480 Mbps, suitable for USB Hi-Speed based host systems. A 1024 KB SRAM is integrated within the high-bandwidth data subsystem to provide ample buffering for data.</p>
+<div class="textblock"><p >The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices, with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.</p>
+<p >As best practices and development flows are continuously evolving, it is recommended to periodically sync the latest updates from this library to ensure you are utilizing the most recent improvements and features.</p>
+<h1><a class="anchor" id="devices"></a>
+Supported FX Devices</h1>
+<p ><b>USB 3.2 Devices:</b></p><ul>
+<li><a href="https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx20-usb-20-gbps-peripheral-controller">EZ-USB&trade; FX20</a></li>
+<li><a href="https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller">EZ-USB&trade; FX10</a></li>
+<li><a href="https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller">EZ-USB&trade; FX5N</a></li>
+<li><a href="https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx5-usb-5-gbps-peripheral-controller">EZ-USB&trade; FX5</a></li>
+</ul>
+<p ><b>USB 2.0 Devices:</b></p><ul>
+<li><a href="https://www.infineon.com/promo/ez-usb-fx2g3">EZ-USB&trade; FX2G3</a></li>
+</ul>
 <h1><a class="anchor" id="features"></a>
 Features</h1>
 <ul>
-<li><b>FreeRTOS operating system:</b> Includes source files for FreeRTOS, offering a reliable and widely-used real-time operating system.</li>
-<li><b>LVDS/LVCMOS IP driver:</b> Provides a driver for the Sensor Interface Port (SIP) on the FX2G3, configurable to operate using the LVCMOS interface for efficient data transfer.</li>
-<li><b>USB stack:</b> An integrated USB stack that supports Hi-Speed functionality on the FX2G3 device, enabling robust USB communication capabilities.</li>
-<li><b>DMA manager:</b> Offers a generic DMA channel abstraction for managing DMA resources, facilitating data movement across USB and LVCMOS interfaces on the FX2G3.</li>
-<li><b>Utility functions:</b> A set of utility functions providing core functionalities such as logging support, USB data transfer abstraction, and fault handling mechanisms.</li>
+<li><b>LVDS/LVCMOS IP driver:</b> Provides a driver for the Sensor Interface Port (SIP) on the EZ-USB&trade; FX device that can be configured to operate using the LVDS/LVCMOS interface for efficient data transfer</li>
+<li><b>USB stack:</b> An integrated USB stack that supports upto USB 20 Gbps functionality on the EZ-USB&trade; FX device, enabling robust USB communication capabilities</li>
+<li><b>DMA manager:</b> Offers a generic DMA channel abstraction for managing DMA resources, facilitating data movement across USB and LVCMOS interfaces on the EZ-USB&trade; FX device</li>
+<li><b>Utility functions:</b> A set of utility functions providing core functionalities such as logging support, USB data transfer abstraction, and fault handling mechanisms</li>
 </ul>
-<h1><a class="anchor" id="toolchain_table"></a>
-Supported software and tools</h1>
-<table class="doxtable">
-<tr>
-<th>Software and tools </th><th>Version  </th></tr>
-<tr>
-<td>ModusToolbox(TM) software environment </td><td>3.2  </td></tr>
-<tr>
-<td>mtb-pdl-cat1 </td><td>3.12.1  </td></tr>
-<tr>
-<td>GCC Arm(R) Compiler </td><td>11.3.1  </td></tr>
-<tr>
-<td>Arm(R) Compiler </td><td>6.16  </td></tr>
-</table>
 <h1><a class="anchor" id="more_information"></a>
 More information</h1>
 <p >For further details and documentation, refer to the following resources:</p>
 <ul>
-<li><a href="https://www.infineon.com/modustoolbox">ModusToolbox(TM) software environment, quick start guide, documentation, and videos.</a><br  />
+<li><a href="https://www.infineon.com/modustoolbox">ModusToolbox&trade; software environment, quick start guide, documentation, and videos.</a><br  />
 </li>
 <li><a href="https://www.infineon.com">Infineon Technologies AG</a> </li>
 </ul>

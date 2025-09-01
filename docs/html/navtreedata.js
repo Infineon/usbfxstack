@@ -25,9 +25,8 @@
 var NAVTREE =
 [
   [ "ModusToolbox USBFXStack", "index.html", [
-    [ "FX devices", "index.html#fx_devices", null ],
+    [ "Supported FX Devices", "index.html#devices", null ],
     [ "Features", "index.html#features", null ],
-    [ "Supported software and tools", "index.html#toolchain_table", null ],
     [ "More information", "index.html#more_information", null ],
     [ "API Reference", "modules.html", "modules" ]
   ] ]
@@ -38,14 +37,14 @@ var NAVTREEINDEX =
 "group__group__usbfxstack__fx__utils.html",
 "group__group__usbfxstack__fx__utils__enums.html#ggab7cf3f69e23e5613d37a4d88e87fb0e2a782d785b4b26b3e12c58037c869f305e",
 "group__group__usbfxstack__fx__utils__enums.html#ggab7cf3f69e23e5613d37a4d88e87fb0e2aee058c1e9f5f78fc85c4234aa17c8a1e",
-"group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fad52fa2589fcbde92ec640031d3a22dc7",
-"group__group__usbfxstack__hb__dma__structs.html#a2f2ff7fadbfaf871fd3dac1e13397d76",
-"group__group__usbfxstack__lvds__lvcmos__enums.html#gga2e651f6d841ca91a135b6f386efe8ddea2664ef7cd6e668301a118603c24b51b5",
-"group__group__usbfxstack__lvds__lvcmos__macros.html#ga1287508aeff085d5879d258d3b859932",
-"group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a179f868d8838377f325a9fbb76fa7d23",
-"group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a2fcd21ff2306f6ea45e5ef8606ab49ea",
-"group__group__usbfxstack__usb__common__functions.html#gaf5a08f8e21ebe384dbc6ed132bfab48c",
-"group__group__usbfxstack__usb__common__structs.html#afb289429c7d84c8ccbd013569864b4bf"
+"group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fabc55924ec695e2159152beb9a5c30b0b",
+"group__group__usbfxstack__hb__dma__structs.html#a2f1a2feef07f793dbc94c82ff7d89d40",
+"group__group__usbfxstack__lvds__lvcmos__enums.html#gga2e651f6d841ca91a135b6f386efe8ddea2632211f5a2334e6bc04e93342632ea2",
+"group__group__usbfxstack__lvds__lvcmos__macros.html#ga12521687378e43beeb35041b0423b0c6",
+"group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a1493a9be66d2e9fd928b1a354497aece",
+"group__group__usbfxstack__usb__common__enums.html#ggafec5dbb1978a2908ff200ba695074467a232a3e9210685f1b73ca52c7dd750f79",
+"group__group__usbfxstack__usb__common__functions.html#gaf44e50a3135ee8273ce087d82c2c91fa",
+"group__group__usbfxstack__usb__common__structs.html#afa8a0c0d44f77322e9bfb6e6119c4f4f"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

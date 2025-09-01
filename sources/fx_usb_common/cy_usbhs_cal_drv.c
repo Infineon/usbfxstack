@@ -542,7 +542,12 @@ Cy_USBHS_Cal_DeinitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         Cy_SysClk_EcoDisable();
     }
 
-    /* Disable IREFGEN and clear all interrupts. */
+    /* regulator bypass to use 3.3v */
+    pPhyBase->REG_2P5_CONTROL |= USBHSPHY_REG_2P5_CONTROL_BYPASS_MODE;
+    pPhyBase->REG_2P5_CONTROL &= (~USBHSPHY_REG_2P5_CONTROL_ENABLE_LV);
+
+    /* Disable VREFGEN, IREFGEN and clear all interrupts. */
+    pPhyBase->VREFGEN_CONTROL &= (~USBHSPHY_VREFGEN_CONTROL_ENABLE_LV);
     pPhyBase->IREFGEN_CONTROL &= ~USBHSPHY_IREFGEN_CONTROL_ENABLE_LV_Msk;
     pPhyBase->INTR0 = pPhyBase->INTR0;
     Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_HSCAL_EVT_PLL_DEINIT);
@@ -580,9 +585,14 @@ Cy_USBHS_Cal_InitPLL (cy_stc_usb_cal_ctxt_t *pCalCtxt)
     /* Make sure any earlier interrupt status is cleared. */
     pPhyBase->INTR0 = pPhyBase->INTR0;
 
-    /* Enable the current reference generator and wait 20 us for its output to be stable. */
+    /* Enable the current and voltage reference generators and wait 20 us for its output to be stable. */
     pPhyBase->IREFGEN_CONTROL |= USBHSPHY_IREFGEN_CONTROL_ENABLE_LV_Msk;
+    pPhyBase->VREFGEN_CONTROL |= USBHSPHY_VREFGEN_CONTROL_ENABLE_LV;
     Cy_SysLib_DelayUs(20);
+
+    /* Enable 2.5 V supply and remove bypass connection to 3.3V supply. */
+    pPhyBase->REG_2P5_CONTROL |= (USBHSPHY_REG_2P5_CONTROL_ENABLE_LV);
+    pPhyBase->REG_2P5_CONTROL &= (~USBHSPHY_REG_2P5_CONTROL_BYPASS_MODE);
 
     /* Enable the 1P1 regulator. */
     pPhyBase->REG_1P1_CONTROL |= USBHSPHY_REG_1P1_CONTROL_ENABLE_LV_Msk | USBHSPHY_REG_1P1_CONTROL_SWITCH_EN_Msk;

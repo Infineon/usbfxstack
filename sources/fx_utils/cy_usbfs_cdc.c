@@ -34,7 +34,8 @@ extern "C" {
 #endif
 
 /* Device descriptor. */
-static const uint8_t fsCdcDeviceDscr[] = {
+#define USB_DEVICE_DESC_LEN     (18u)
+static const uint8_t fsCdcDeviceDscr[USB_DEVICE_DESC_LEN] = {
     0x12,                           /* Descriptor size */
     0x01,                           /* Device descriptor */
     0x00,0x02,                      /* USB 2.00 */
@@ -183,6 +184,8 @@ static const uint8_t fsCdcProdString[] = {
  */
 #define USB_BUS_RST_CNT_VALUE     (0x0000000F)
 #define USB_REG_LOCK_TIMEOUT      (0xFFFFFFFF)
+
+#define USB_CDC_LINECODING_DATA_LEN     (7u)
 
 /*
  * Since the register addresses are scattered, the access to the register
@@ -860,7 +863,7 @@ static void usb_copy_setup_pkt (uint8_t *ptr)
 static bool usb_ep0_std_rqt_handler (cy_stc_usb_setup_pkt_t *pkt)
 {
     uint8_t target;
-    uint8_t rsplen = (uint8_t)pkt->length;
+    uint16_t rsplen = pkt->length;
     bool status = false;
 
     target = (pkt->attrib & 0x03u);
@@ -995,14 +998,14 @@ static bool usb_ep0_std_rqt_handler (cy_stc_usb_setup_pkt_t *pkt)
                 switch (pkt->value >> 8u)
                 {
                     case 0x01: /* DEVICE_DESC */
-                        if (rsplen > 18)
-                            rsplen = 18;
+                        if (rsplen > USB_DEVICE_DESC_LEN)
+                            rsplen = USB_DEVICE_DESC_LEN;
                         status = CyUsbFsCdc_SetupEp0Write((uint8_t *)fsCdcDeviceDscr, rsplen, true);
                         break;
 
                     case 0x02: /* CONFIG_DESC */
-                        if (rsplen > fsCdcConfigDscr[2])
-                            rsplen = fsCdcConfigDscr[2];
+                        if (rsplen > ((fsCdcConfigDscr[3] << 8) | fsCdcConfigDscr[2]))
+                            rsplen = ((fsCdcConfigDscr[3] << 8) | fsCdcConfigDscr[2]);
                         status = CyUsbFsCdc_SetupEp0Write((uint8_t *)fsCdcConfigDscr, rsplen, true);
                         break;
 
@@ -1104,7 +1107,7 @@ static bool usb_ep0_std_rqt_handler (cy_stc_usb_setup_pkt_t *pkt)
 static bool usb_ep0_cdc_rqt_handler (cy_stc_usb_setup_pkt_t *pkt)
 {
     bool status = false;
-    uint8_t rsplen = (uint8_t)pkt->length;
+    uint16_t rsplen = pkt->length;
 
     switch (pkt->cmd)
     {
@@ -1123,8 +1126,8 @@ static bool usb_ep0_cdc_rqt_handler (cy_stc_usb_setup_pkt_t *pkt)
 
         /* GET_LINE_CODING */
         case 0x21:
-            if (rsplen > 7)
-                rsplen = 7;
+            if (rsplen > USB_CDC_LINECODING_DATA_LEN)
+                rsplen = USB_CDC_LINECODING_DATA_LEN;
             status = CyUsbFsCdc_SetupEp0Write((uint8_t *)(gl_usb.cdcConfig), rsplen, true);
             break;
 

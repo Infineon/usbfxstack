@@ -47,10 +47,10 @@
 #define HBDMA_VERSION_MINOR      (3u)
 
 /** HBDma manager middleware patch version */
-#define HBDMA_VERSION_PATCH      (0u)
+#define HBDMA_VERSION_PATCH      (1u)
 
 /** HBDma manager middleware build number */
-#define HBDMA_VERSION_BUILD      (33u)
+#define HBDMA_VERSION_BUILD      (35u)
 
 /** HBDma manager middleware version number */
 #define HBDMA_VERSION_NUM        ((HBDMA_VERSION_MAJOR << 28u) | (HBDMA_VERSION_MINOR << 24u) | \

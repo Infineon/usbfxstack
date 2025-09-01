@@ -312,7 +312,12 @@ uint16_t Cy_Debug_LogtoUsb (cy_stc_debug_context_t *pDbgCtxt, uint16_t rdPtr, ui
         if(hbdma_stat == CY_HBDMA_MGR_SUCCESS )
         {
             hbdma_stat = Cy_HBDma_Channel_GetBuffer(usbCdcInfo->cdcSendHandle, &dmaBufStat);
-            pDbgCtxt->pMsg = dmaBufStat.pBuffer;
+            if (hbdma_stat == CY_HBDMA_MGR_SUCCESS) {
+                pDbgCtxt->pMsg = dmaBufStat.pBuffer;
+            } else {
+                pDbgCtxt->pMsg = NULL;
+                break;
+            }
         }
 
         if(hbdma_stat != CY_HBDMA_MGR_SUCCESS)

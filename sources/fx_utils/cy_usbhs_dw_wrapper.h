@@ -260,6 +260,22 @@ void
 Cy_USBHS_App_ClearDmaInterrupt(
         cy_stc_app_endp_dma_set_t *pEpDmaSet);
 
+/*******************************************************************************
+ * Function name: Cy_USBHS_App_IsChannelActive
+ ****************************************************************************//**
+ *
+ * Check whether the DMA channel corresponding to the specified endpoint is active.
+ *
+ * \param pEpDmaSet
+ * USBHS endpoint DMA wrapper structure
+ *
+ * \return
+ * true if the channel is active, false otherwise.
+ *******************************************************************************/
+bool
+Cy_USBHS_App_IsChannelActive(
+        cy_stc_app_endp_dma_set_t *pEpDmaSet);
+
 /** \} group_usbfxstack_fx_utils_functions */
 
 #if defined(__cplusplus)

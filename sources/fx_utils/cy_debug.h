@@ -27,7 +27,7 @@
 /**
  * \addtogroup group_usbfxstack_fx_utils
  * \{
- * FX Utils, part of the usbfxstack library is used for the full-speed and high-speed operation modes of the FX devices.
+ * The FX Utils of the usbfxstack library are used on the FX devices for various operation modes such as 20Gbps, high-speed, and full-speed.
  * \defgroup group_usbfxstack_fx_utils_macros Macros
  * \defgroup group_usbfxstack_fx_utils_enums Enumerated Types
  * \defgroup group_usbfxstack_fx_utils_structs Data Structures

@@ -4239,6 +4239,7 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     {
         /* If a new request has been received, abort the request and exit. */
         if (Cy_USBHS_Cal_IsNewCtrlRqtReceived(pUsbdCtxt->pCalCtxt)) {
+            dmaIntr = Cy_USBD_DMAChn_GetIntrStatus(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0);
             break;
         }
 
@@ -8086,6 +8087,17 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
      */
     if (pMsg->type == CY_USB_CAL_MSG_OUT_ZLP) {
         Cy_USBD_HandleZlp(pUsbdCtxt,pMsg);
+        return retval;
+    }
+
+    if ((pMsg->type == CY_USB_CAL_MSG_OUT_SLP) && (pMsg->data[0] == 0x00)) {
+        /*
+         * RecvEndp0Data function would have unmasked SLP interrupt on EP0 only
+         * after configuring the DMA channel correctly. Just assert the trigger
+         * output from the USB block to ensure that the data gets read out by
+         * the DMA channel.
+         */
+        Cy_TrigMux_SwTrigger(CY_USBD_INGEP_OUT_TRIG, CY_TRIGGER_TWO_CYCLES);
         return retval;
     }
 

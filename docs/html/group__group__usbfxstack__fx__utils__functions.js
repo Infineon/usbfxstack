@@ -52,5 +52,6 @@ var group__group__usbfxstack__fx__utils__functions =
     [ "Cy_USBHS_App_QueueRead", "group__group__usbfxstack__fx__utils__functions.html#ga15586bb414389e3a661532cc1a9220cb", null ],
     [ "Cy_USBHS_App_ReadShortPacket", "group__group__usbfxstack__fx__utils__functions.html#ga6d45aa48e0f35510091d893e10b84d9f", null ],
     [ "Cy_USBHS_App_QueueWrite", "group__group__usbfxstack__fx__utils__functions.html#ga853b42a525e0aa30671c4d04fc3d31e9", null ],
-    [ "Cy_USBHS_App_ClearDmaInterrupt", "group__group__usbfxstack__fx__utils__functions.html#ga977c3bab2cffff8bd23f9f3cb023fb2d", null ]
+    [ "Cy_USBHS_App_ClearDmaInterrupt", "group__group__usbfxstack__fx__utils__functions.html#ga977c3bab2cffff8bd23f9f3cb023fb2d", null ],
+    [ "Cy_USBHS_App_IsChannelActive", "group__group__usbfxstack__fx__utils__functions.html#ga52434f4a962f55fba47ac6d58f144a97", null ]
 ];
