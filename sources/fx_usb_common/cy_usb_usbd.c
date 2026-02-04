@@ -7,7 +7,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -253,13 +253,27 @@ static void
 Cy_USBD_Usb3ConnTimerCb (TimerHandle_t xTimer)
 {
     cy_stc_usb_usbd_ctxt_t *pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t *)pvTimerGetTimerID(xTimer);
+    cy_stc_usb_cal_msg_t xMsg;
+
+    if (pUsbdCtxt->isCtrlEpStalled) {
+        /* Clear stall bit on control endpoint. */
+        Cy_USBSS_Cal_EndpSetClearStall(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN, false);
+        pUsbdCtxt->isCtrlEpStalled = false;
+
+        /* Change timer duration back to default. */
+        xTimerChangePeriod(pUsbdCtxt->usb3ConnectTimer, 400, 0);
+        return;
+    }
 
     if ((!(Cy_USBSS_Cal_IsEnabled(pUsbdCtxt->pSsCalCtxt))) && (pUsbdCtxt->usb3ConnectTimerStarted)) {
         /* Enable USB 3.x connection where required. */
         pUsbdCtxt->usb3ConnectTimerStarted = false;
         if (!pUsbdCtxt->ssOnBusResetDisable) {
-            Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_SS_REEN);
-            Cy_USBD_ConnectSsDevice(pUsbdCtxt);
+            /* Send a message to the stack to trigger USB-SS reconnection. */
+            xMsg.type = CY_USB_CAL_MSG_SS_RECONNECT;
+            xMsg.data[0] = 0;
+            xMsg.data[1] = 0;
+            Cy_USBD_ProcessMsg((void *)pUsbdCtxt, (void *)&xMsg);
         }
     }
 }
@@ -345,6 +359,7 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     pUsbdCtxt->channel0 = 0x00;
     pUsbdCtxt->channel1 = 0x01;
     pUsbdCtxt->pHBDmaMgr = pHbDmaMgrCtxt;
+    pUsbdCtxt->usb2FallbackDisable = false;
 
     /* Make HS device Invisible on BUS */
     Cy_USB_USBD_DisableHsDevice(pUsbdCtxt);
@@ -365,6 +380,7 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     pUsbdCtxt->ep0RecvCb = NULL;
     pUsbdCtxt->debugSlpCb = NULL;
     pUsbdCtxt->itpCb = NULL;
+    pUsbdCtxt->linkFailCb = NULL;
 
     for (intfNum = 0x00; intfNum < CY_USB_MAX_INTF; intfNum++) {
         pUsbdCtxt->altSettings[intfNum] = 0x00;
@@ -632,6 +648,10 @@ Cy_USBD_RegisterCallback (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             if (pUsbdCtxt->pSsCalCtxt != NULL) {
                 Cy_USBSS_Cal_ITPIntrUpdate(pUsbdCtxt->pSsCalCtxt, (callBackFunc != NULL));
             }
+            break;
+
+        case CY_USB_USBD_CB_USB3_LINKFAIL:
+            pUsbdCtxt->linkFailCb = callBackFunc;
             break;
 
         default:
@@ -3003,20 +3023,14 @@ Cy_USB_USBD_EndpConfig (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             pEndpInfo->retryBufOffset = GetRetryBufferRegion(pUsbdCtxt,
                     pEndpInfo->burstSize);
             if (pEndpInfo->retryBufOffset >= 16384U) {
-#if 0
                 /*
-                 * Failed to allocate retry buffer.
-                 * Disable the EP and return error.
+                 * We are not treating failure to allocate retry buffer as an error.
+                 * We will have overlapped retry buffers for multiple endpoints. This will
+                 * not cause any functional issue as long as there are no retries happening on
+                 * multiple endpoints at the same time.
                  */
-                endpConfig.valid = false;
-                Cy_USBSS_Cal_EndpConfig(pUsbdCtxt->pSsCalCtxt, endpConfig);
-                pEndpInfo->valid = false;
-                calRetCode = CY_USB_CAL_STATUS_FAILURE;
-#else
-                /* TODO: For now, don't treat failure to allocate retry buffer as an error. */
                 Cy_USBSS_Cal_SetEndpRetryOffset(pUsbdCtxt->pSsCalCtxt,
                         endpNumber, 0);
-#endif
             } else {
                 /* Update the retry buffer offset in the register. */
                 Cy_USBSS_Cal_SetEndpRetryOffset(pUsbdCtxt->pSsCalCtxt,
@@ -3104,6 +3118,19 @@ Cy_USB_USBD_EndpSetClearStall (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             }
         } else {
             pUsbdCtxt->setupReqActive = false;
+
+            if ((pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_HS) && (setClear == true)) {
+#if FREERTOS_ENABLE
+                /* Start a timer to clear the stall bit on the control endpoint. */
+                pUsbdCtxt->isCtrlEpStalled = true;
+                xTimerChangePeriod(pUsbdCtxt->usb3ConnectTimer, 1, 0);
+                xTimerStart(pUsbdCtxt->usb3ConnectTimer, 0);
+#else
+                /* Wait for 1 ms and clear the stall bit on the control endpoint. */
+                Cy_SysLib_Delay(1);
+                Cy_USBSS_Cal_EndpSetClearStall(pUsbdCtxt->pSsCalCtxt, 0, CY_USB_ENDP_DIR_IN, false);
+#endif /* FREERTOS_ENABLE */
+            }
         }
         return(CY_USBD_STATUS_SUCCESS);
     } else {
@@ -3203,8 +3230,10 @@ Cy_USBD_ResetEndp (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, uint32_t endpNum,
     uint8_t epSeqNo = 0;
     if ((pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_FS) ||
          (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS)) {
-        /* HS does not have endpoint reset implementation. */
-
+        if (preserveSeqNo == false) {
+            /* Make sure STALL bit is cleared and toggle bit is cleared. */
+            Cy_USBHS_Cal_EndpSetClearStall(pUsbdCtxt->pCalCtxt, endpNum, endpDir, false);
+        }
     } else {
         /* SS implementation of endp reset */
         if (endpNum ==  0x00) {
@@ -3225,6 +3254,42 @@ Cy_USBD_ResetEndp (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, uint32_t endpNum,
     }
 }   /* end of function() */
 
+
+/*******************************************************************************
+* Function name: Cy_USBD_ResetEndpoints
+****************************************************************************//**
+*
+* This function resets transient state associated with the specified OUT and IN
+* endpoints. The endpoints to be reset are specified through bit-mask parameters.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param outEpMask
+* Bitmask representing OUT endpoints to be reset.
+*
+* \param inEpMask
+* Bitmask representing IN endpoints to be reset.
+*
+* \param preserveOutSeqNum
+* Bitmask representing OUT endpoints whose sequence numbers are to be preserved.
+*
+* \param preserveInSeqNum
+* Bitmask representing IN endpoints whose sequence numbers are to be preserved.
+*
+*******************************************************************************/
+void
+Cy_USBD_ResetEndpoints (
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        uint32_t outEpMask,
+        uint32_t inEpMask,
+        uint32_t preserveOutSeqNum,
+        uint32_t preserveInSeqNum)
+{
+    if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1) {
+        Cy_USBSS_Cal_ResetEndpoints(pUsbdCtxt->pSsCalCtxt, outEpMask, inEpMask, preserveOutSeqNum, preserveInSeqNum);
+    }
+}   /* end of function() */
 
 /*******************************************************************************
 * Function name: Cy_USBD_FlushEndp
@@ -3317,7 +3382,8 @@ Cy_USBD_FlushEndpAll (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     /* For FlushAll, direction is ignored while calling CAL layer function. */
     if ((pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_FS) ||
          (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS)) {
-        Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt);
+        Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt, true, true);
+        pUsbdCtxt->ep0SendDone = false;
     } else {
         Cy_USBSS_Cal_FlushAllEndpSocket(pUsbdCtxt->pSsCalCtxt);
         Cy_USBSS_Cal_FlushEPM(pUsbdCtxt->pSsCalCtxt, true);
@@ -3357,7 +3423,12 @@ Cy_USBD_FlushResetEndpAll (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     if ((pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_FS) ||
          (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS)) {
 
-        Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt);
+        Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt,
+                (endpDir == CY_USB_ENDP_DIR_OUT),
+                (endpDir == CY_USB_ENDP_DIR_IN));
+        if (endpDir == CY_USB_ENDP_DIR_IN) {
+            pUsbdCtxt->ep0SendDone = false;
+        }
     } else {
         for (index = 0x00; index < CY_USB_MAX_ENDP_NUMBER; index++) {
             Cy_USBSS_Cal_EndpReset(pUsbdCtxt->pSsCalCtxt, index, endpDir);
@@ -4015,6 +4086,13 @@ Cy_USB_USBD_SendEndp0DataSs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                                               0,
                                               (uint8_t *)pDst,
                                               bufferSize);
+
+        /* Handle possibility of race condition with clean-up at the end of previous transfer. */
+        if (dmaStatus == CY_HBDMA_MGR_SEQUENCE_ERROR) {
+            Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
+            dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0, (uint8_t *)pDst, bufferSize);
+        }
+
         if(dmaStatus == CY_HBDMA_MGR_SUCCESS) {
 
             /* Clear the busy bit to complete the transfer */
@@ -4647,7 +4725,7 @@ Cy_USBD_HandleGetDscr (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     uint8_t dscrType, dscrIndex;
     cy_en_usbd_ret_code_t retStatus = CY_USBD_STATUS_FAILURE;
 
-    DBG_USBD_INFO("HandleGetDscr Speed:%d\r\n", pUsbdCtxt->devSpeed);
+    DBG_USBD_TRACE("HandleGetDscr Speed:%d\r\n", pUsbdCtxt->devSpeed);
 
     if (NULL == pUsbdCtxt) {
         DBG_USBD_ERR("HndlGetDsc:usbdCtxt Null\r\n");
@@ -4719,7 +4797,7 @@ Cy_USBD_HandleGetDscr (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             * application.
             * If string descriptor is not available then send STALL.
             */
-            DBG_USBD_INFO("StrDscr\r\n");
+            DBG_USBD_TRACE("StrDscr\r\n");
             if (pUsbdCtxt->strDscrAvailable == TRUE) {
                 if ((dscrIndex > CY_USBD_MAX_STR_DSCR_INDX) ||
                     (pUsbdCtxt->dscrs.pUsbStringDescr[dscrIndex] == NULL)) {
@@ -5297,7 +5375,6 @@ Cy_USBD_HandleClearFeature (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                 break;
 
             case CY_USB_FEATURE_LTM_ENABLE:
-                /* TODO: Add proper handling for these requests. For now, just acknowledge. */
                 Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
                 handled = true;
                 break;
@@ -5446,6 +5523,7 @@ Cy_USBD_HandleSetConfiguration (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                Cy_HBDma_Mgr_SetUsbEgressAdapterDelay(pUsbdCtxt->pHBDmaMgr, 0);
            }
 
+           Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_SET_CONFIG_CB);
            pUsbdCtxt->setConfigCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
         }
 
@@ -5536,6 +5614,7 @@ Cy_USBD_HandleSetInterface (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         /* things are fine so update info, trigger callback, initiate ACK. */
         pUsbdCtxt->altSettings[intfNum] = altSetting;
         if (pUsbdCtxt->setIntfCb) {
+            Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_SET_INTF_CB);
             pUsbdCtxt->setIntfCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
         }
         /* No data stage so enable HW to send ACK. */
@@ -5724,7 +5803,7 @@ Cy_USBD_HandleReset (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     /* Clear the flag indicating with any EP0 data send has been done. */
     pUsbdCtxt->ep0SendDone = false;
 
-    Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt);
+    Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt, true, true);
     Cy_USBHS_Cal_HandleReset(pUsbdCtxt->pCalCtxt);
 
     /* Keep L1 and Ux entry disabled at startup. */
@@ -6637,14 +6716,12 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 {
     cy_en_usbd_ret_code_t retStatus = CY_USBD_STATUS_SUCCESS;
 
-    DBG_USBD_TRACE("Cy_USBD_HandleMsg >>\r\n");
-
     if (NULL == pUsbdCtxt) {
         DBG_USBD_ERR("HndlMsg:usbdCtxt Null\r\n");
         return (CY_USBD_STATUS_CTXT_NULL);
     }
 
-    DBG_USBD_TRACE("MsgType:%d\r\n", pMsg->type);
+    DBG_USBD_TRACE("Cy_USBD_HandleMsg MsgType:%d\r\n", pMsg->type);
 
     switch (pMsg->type) {
 
@@ -6746,9 +6823,16 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
              */
             Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_SS_TO_HS);
             Cy_USBD_DisconnectSsDevice(pUsbdCtxt);
-            if (!pUsbdCtxt->isHsEnabled) {
-                Cy_USBD_ConnectHsDevice(pUsbdCtxt);
-                pUsbdCtxt->isHsEnabled = true;
+            if (pUsbdCtxt->usb2FallbackDisable) {
+                /* Notify the application that USB 3.x link has failed. */
+                if (pUsbdCtxt->linkFailCb != NULL) {
+                    pUsbdCtxt->linkFailCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+                }
+            } else {
+                if (!pUsbdCtxt->isHsEnabled) {
+                    Cy_USBD_ConnectHsDevice(pUsbdCtxt);
+                    pUsbdCtxt->isHsEnabled = true;
+                }
             }
             pUsbdCtxt->termDetectCount++;
             break;
@@ -6786,7 +6870,7 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             /* CASE fall through here is intentional. */
         case CY_USB_CAL_MSG_SUDAV:
         case CY_USB_CAL_MSG_PROT_SUTOK:
-            DBG_USBD_TRACE("CY_USB_CAL_MSG_SUDAV\r\n");
+            DBG_USBD_TRACE("CY_USB_CAL_MSG_SUDAV: {%x, %x}\r\n", pMsg->data[0], pMsg->data[1]);
             /*
              * Control request came. Handle as per requirement.
              * 1. For fast enumeration standrard request will be handled here.
@@ -6918,30 +7002,34 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         case CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP:
             DBG_USBD_TRACE("CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP\r\n");
 
-            /* USB 3.x connection to be disabled here. */
-            Cy_USBD_DisableConnection(pUsbdCtxt, false);
-
-            /*
-             * Ideally, USB 2.0 connection should have been tried at this point. Instead
-             * use an application callback to cause USB connection to be retried at a later point.
-             */
-            if (pUsbdCtxt->DisconnectCb) {
-                pUsbdCtxt->DisconnectCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+            Cy_USBD_DisconnectSsDevice(pUsbdCtxt);
+            if (pUsbdCtxt->usb2FallbackDisable) {
+                /* Notify the application that USB 3.x link has failed. */
+                if (pUsbdCtxt->linkFailCb != NULL) {
+                    pUsbdCtxt->linkFailCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+                }
+            } else {
+                if (!pUsbdCtxt->isHsEnabled) {
+                    Cy_USBD_ConnectHsDevice(pUsbdCtxt);
+                    pUsbdCtxt->isHsEnabled = true;
+                }
             }
             break;
 
         case CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG:
             DBG_USBD_TRACE("CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG\r\n");
 
-            /* USB 3.x connection to be disabled here. */
-            Cy_USBD_DisableConnection(pUsbdCtxt, false);
-
-            /*
-             * Ideally, USB 2.0 connection should have been tried at this point. Instead
-             * use an application callback to cause USB connection to be retried at a later point.
-             */
-            if (pUsbdCtxt->DisconnectCb) {
-                pUsbdCtxt->DisconnectCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+            Cy_USBD_DisconnectSsDevice(pUsbdCtxt);
+            if (pUsbdCtxt->usb2FallbackDisable) {
+                /* Notify the application that USB 3.x link has failed. */
+                if (pUsbdCtxt->linkFailCb != NULL) {
+                    pUsbdCtxt->linkFailCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
+                }
+            } else {
+                if (!pUsbdCtxt->isHsEnabled) {
+                    Cy_USBD_ConnectHsDevice(pUsbdCtxt);
+                    pUsbdCtxt->isHsEnabled = true;
+                }
             }
             break;
 
@@ -7030,6 +7118,13 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             Cy_USBSS_Cal_ReleaseLTSSM(pUsbdCtxt->pSsCalCtxt);
 #endif /* FREERTOS_ENABLE */
             break;
+
+#if FREERTOS_ENABLE
+        case CY_USB_CAL_MSG_SS_RECONNECT:
+            Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_SS_REEN);
+            Cy_USBD_ConnectSsDevice(pUsbdCtxt);
+            break;
+#endif /* FREERTOS_ENABLE */
 
         default:
             DBG_USBD_ERR("HndlMsg:default(%x)\r\n", pMsg->type);
@@ -7337,7 +7432,7 @@ Cy_USBD_DisconnectHsDevice (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     /* Remove pull-up on D+ to signal disconnect. */
     Cy_USBHS_Cal_DisconUsbPins(pUsbdCtxt->pCalCtxt);
     /* Since device is disconnected so Flush all endpoint */
-    Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt);
+    Cy_USBHS_Cal_FlushAllEndp(pUsbdCtxt->pCalCtxt, true, true);
     /* cleanup other USBD common data structures. */
     Cy_USBD_ResetUsbdCommonDs(pUsbdCtxt);
     return;
@@ -8961,6 +9056,62 @@ cy_en_usb_endp_type_t Cy_USBD_GetEndpointType (
     }
 
     return epType;
+}
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetDeviceStats
+****************************************************************************//**
+*
+* This function retrieves USB connection statistics maintained by the stack and
+* driver layers.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param pDevStats
+* Structure through which statistics are returned.
+*
+*******************************************************************************/
+void Cy_USBD_GetDeviceStats (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                             cy_stc_usbd_devstats_t *pDevStats)
+{
+    if ((pUsbdCtxt != NULL) && (pDevStats != NULL) && (pUsbdCtxt->pSsCalCtxt != NULL)) {
+         pDevStats->numRecoveryEntries = pUsbdCtxt->pSsCalCtxt->numRecoveryEntries;
+    }
+}
+
+/*******************************************************************************
+* Function name: Cy_USBD_ControlUsb2Support
+****************************************************************************//**
+*
+* Enable/Disable USB 2.x device operation on the device.
+*
+* By default, the FX device is configured to attempt both USB 3.x and 2.x connections to a USB
+* host. The USB driver in the firmware automatically attempts a hi-speed or full speed connection,
+* if the SuperSpeed connection fails to go through link training.
+*
+* Some designs may use the FX device in USB 3.x mode alone, and require that an external controller
+* be used in USB 2.x mode. This API can be used to modify the driver behavior to suppress the USB 2.x
+* device operation. USB events are provided to notify the user that the 3.x connection has
+* failed, and a 2.x connection needs to be attempted. The Cy_USBD_ConnectDevice() API should be called
+* repeatedly to retry the USB 3.x connection.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param enable
+* Whether USB 2.x support is enabled (default is enabled).
+*
+*******************************************************************************/
+bool Cy_USBD_ControlUsb2Support (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                                 bool enable)
+{
+    if ((pUsbdCtxt != NULL) && (pUsbdCtxt->pSsCalCtxt != NULL)) {
+        pUsbdCtxt->usb2FallbackDisable = !enable;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 #if defined(__cplusplus)

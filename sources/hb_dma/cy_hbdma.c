@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright (2025) Cypress Semiconductor Corporation
+* Copyright (2026) Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -721,7 +721,7 @@ Cy_HBDma_SocketSetWrapUp (
 {
     cy_en_hbdma_status_t status = CY_HBDMA_SUCCESS;
     HBDMA_SCK_Type *socket = NULL;
-    
+
     if ((pContext == NULL) || (!CY_HBDMA_IS_SOCKET_VALID(sock_id)))
     {
         status = CY_HBDMA_BAD_PARAM;

@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -746,13 +746,19 @@ cy_en_usb_cal_ret_code_t Cy_USBHS_Cal_FlushEndp
 *
 * \param pCalCtxt
 * CAL layer context pointer.
+* \param ingressFlush
+* Whether Ingress (OUT) endpoints are to be flushed.
+* \param egressFlush
+* Whether Egress (IN) endpoints are to be flushed.
 *
 * \return
 * CY_USB_CAL_STATUS_SUCCESS if the operation is successful.
 * CY_USB_CAL_STATUS_CAL_BASE_NULL if register base pointer is NULL.
 *
 *******************************************************************************/
-cy_en_usb_cal_ret_code_t Cy_USBHS_Cal_FlushAllEndp(cy_stc_usb_cal_ctxt_t *pCalCtxt);
+cy_en_usb_cal_ret_code_t Cy_USBHS_Cal_FlushAllEndp(cy_stc_usb_cal_ctxt_t *pCalCtxt,
+                                                   bool ingressFlush,
+                                                   bool egressFlush);
 
 /*******************************************************************************
 * Function name: Cy_USBHS_Cal_SendEgressZLP

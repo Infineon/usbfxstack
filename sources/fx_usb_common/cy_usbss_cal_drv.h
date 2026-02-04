@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -192,7 +192,9 @@ extern "C" {
     ((regs)->LNK_LTSSM_STATE = (((state) << USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_VALUE_Pos) |        \
         USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_EN_Msk))
 
-
+#define CY_USBSS_RELEASE_LINK_STATE(regs)                                                               \
+    ((regs)->LNK_LTSSM_STATE &= ~(USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_GO_Msk |                      \
+                                  USB32DEV_LNK_LTSSM_STATE_LTSSM_OVERRIDE_EN_Msk))
 
 
 /* Delay Timer macros */
@@ -202,8 +204,39 @@ extern "C" {
 #define CY_USBSS_CAL_TCPWM_CLK          (PCLK_TCPWM0_CLOCKS1) /*CLK 1 for index 1*/
 #define CY_USBSS_CAL_TIMER_RUNNING      (CY_TCPWM_COUNTER_STATUS_COUNTER_RUNNING | CY_TCPWM_COUNTER_STATUS_DOWN_COUNTING)
 
-
 #endif /* DOXYGEN */
+
+/* Default value of USB transmitter Pre-Shoot setting: 1.2 dB */
+#define CY_SSCAL_PRESHOOT_DFLT_x10      (12)
+
+/* Default value of USB transmitter de-emphasis setting: -2.1 dB */
+#define CY_SSCAL_DEEMPH_DFLT_x10        (-21)
+
+/* Maximum value of USB transmitter differential amplitude: 1.15 V */
+#define CY_SSCAL_TXSWING_MAX            (1150U)
+
+/* Minimum value of USB transmitter differential amplitude: 0.20 V */
+#define CY_SSCAL_TXSWING_MIN            (200U)
+
+/* Mask for maximum CC voltage ADC reading. */
+#define CY_SSCAL_CC_ADC_MAX             (0x7Fu)
+
+/* CC pin ADC reading corresponding to ~0.1V based on VDDIO setting of 1.8 V */
+#define CY_SSCAL_CC_VOLT_0P1            (8u)
+
+/* CC pin ADC reading corresponding to ~0.3V based on VDDIO setting of 1.8 V */
+#define CY_SSCAL_CC_VOLT_0P3            (22u)
+
+
+/* Default LUT mask values for USB3 speeds */
+#define DEF_LUT_MASK_GEN1X1 (0x0FFF) /* LUT index 0-11 */
+#define DEF_LUT_MASK_GEN2X1 (0xFFFF) /* LUT index 0-15 */
+#define DEF_LUT_MASK_GEN1X2 (0x3BA9) /* LUT index 0,3,5,7,8,9,11,12,13 */
+#define DEF_LUT_MASK_GEN2X2 (0x03FF) /* LUT index 0-9 */
+#define MIN_LUT_GEN1X2      (0x18A0) /* LUT index 5,7,11,12 */
+
+/* Max number of entries in the CTLE config look up table*/
+#define LUT_WIDTH           (16)
 
 /** \} group_usbfxstack_usb_common_macros */
 
@@ -364,18 +397,28 @@ typedef struct cy_stc_usbss_cal_ctxt_t
     uint32_t            phyEyeHeight[FX3G2_MAX_NUM_USB_PHY][16];        /**< Eye height recorded for each of the equalizer settings. */
     uint32_t            txAfeSettings[FX3G2_MAX_NUM_USB_PHY][8];        /**< Configuration for the PHY transmitter slices. */
     uint32_t            lbadCounter;                                    /**< Count of LBAD interrupts received. */
+    uint32_t            numRetriesInEP[CY_USB_MAX_ENDP_NUMBER];
     uint8_t             numPhyInitialized;                              /**< Count of PHY instances initialized. */
     uint8_t             lgoodTimeoutCount;                              /**< Count of LGOOD timeout events. */
-    uint16_t            lpmExitLfpsDelay;                               /**< Expected LPM exit LFPS TX duration. */
     bool                gen1x1FallbackEn;                               /**< Enable fallback to Gen1x1 if the Host/Hub does not support fallback to x1 speeds */
     bool                compExitDone;                                   /**< Whether Compliance state has been exited. */
-    uint32_t            compExitTS;                                     /**< Time stamp when compliance state was exited. */
+    uint16_t            lpmExitLfpsDelay;                               /**< Expected LPM exit LFPS TX duration. */
     uint16_t            activeLutMask;                                  /**< Active CTLE LUT mask value. */
+    uint32_t            compExitTS;                                     /**< Time stamp when compliance state was exited. */
+    uint32_t            numRecoveryEntries;                             /**< Number of times link entered Recovery state. */
     bool                stopClkOnEpResetEnable;                         /**< Enable stopping clock during EP reset. */
     cy_en_usb_config_lane_t usbConfigLane;                              /**< USB configuration lane selection. */
     bool                gen1SpeedForced;                                /**< Driver has forced Gen1 speed in compliance. */
     bool                inGen1DualMode;                                 /**< Whether link was up in Gen1x2 mode. */
     cy_en_usbss_delay_event_t delayEventMask;                           /**< Event to handle after timer expiry */
+    bool                usbTxTestMode;                                  /**< Whether device is being used for USB transmitter testing. */
+    uint32_t            usbTxCursorPts[3];                              /**< USB transmitter equalization cursors. */
+    uint16_t            usbTxAmplitude;                                 /**< USB transmitter differential amplitude. */
+    uint16_t            gen1x1LutMask;                                  /**< Active CTLE LUT mask value for Gen1x1 mode. */
+    uint16_t            gen1x2LutMask;                                  /**< Active CTLE LUT mask value for Gen1x2 mode. */
+    uint16_t            gen2x1LutMask;                                  /**< Active CTLE LUT mask value for Gen2x1 mode. */
+    uint16_t            gen2x2LutMask;                                  /**< Active CTLE LUT mask value for Gen2x2 mode. */
+    uint32_t            ctleLutArrayGen2[LUT_WIDTH];                    /**< CTLE LUT array for Gen2 speeds */
 }cy_stc_usbss_cal_ctxt_t;
 
 /** \} group_usbfxstack_usb_common_structs */
@@ -1724,8 +1767,118 @@ void Cy_USBSS_Cal_PrintCtleResults(cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t ph
 * allocated by the user.
 *
 *******************************************************************************/
-
 void Cy_USBSS_Cal_TimerISR(cy_stc_usbss_cal_ctxt_t *pCalCtxt);
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_ResetEndpoints
+****************************************************************************//**
+*
+* Function to flush and reset stale state and data on multiple endpoints.
+* The endpoints to be reset are passed in through bitmask parameters.
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+* \param outEpMask
+* Bitmask representing OUT endpoints to be reset.
+*
+* \param inEpMask
+* Bitmask representing IN endpoints to be reset.
+*
+* \param preserveOutSeqNum
+* Bitmask representing OUT endpoints whose sequence numbers are to be preserved.
+*
+* \param preserveInSeqNum
+* Bitmask representing IN endpoints whose sequence numbers are to be preserved.
+*
+* \return
+* The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
+*
+*******************************************************************************/
+cy_en_usb_cal_ret_code_t
+Cy_USBSS_Cal_ResetEndpoints(
+        cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+        uint32_t outEpMask,
+        uint32_t inEpMask,
+        uint32_t preserveOutSeqNum,
+        uint32_t preserveInSeqNum);
+
+/*********************************************************************************
+ * Function Name: Cy_USBSS_SetPreShootnDeEmphasis
+ *****************************************************************************//**
+ *
+ * Function to set the preshoot an de-emphasis values for USB 3.x PHY TX.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param PS_dBx10
+ * Preshoot value in dB x 10 (e.g., 2.1 dB -> 21)
+ * \param DE_dBx10
+ * De-emphasis value in dB x 10 (e.g., -3.1 dB -> -31)
+ ********************************************************************************/
+void Cy_USBSS_SetPreShootnDeEmphasis(cy_stc_usbss_cal_ctxt_t *pCalCtxt, int8_t PS_dBx10, int8_t DE_dBx10);
+
+
+/*********************************************************************************
+ * Function Name: Cy_USBSS_SetTransmitAmplitude
+ *****************************************************************************//**
+ *
+ * Function to set the transmitter differential amplitude in mV units. The default
+ * and maximum allowed value is 1150 mV.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param amplitude_mV
+ * Desired transmitted signal amplitude in millivolt units. Valid range is
+ * from 200 mV to 1150 mV.
+ *
+ ********************************************************************************/
+void Cy_USBSS_SetTransmitAmplitude(cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint16_t amplitude_mV);
+
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_UpdateCtleLutMask
+ ****************************************************************************//**
+ *
+ * Function to update the LUT selection mask for selected USB Speeds.
+ * This API should be called before Cy_USBD_Connect if the changed mask
+ * is to be applied during USB RX Equalisation stage
+ *
+ * \param pCalCtxt
+ * USBSS Controller context structure.
+ * \param usbSpeed
+ * USB Speed for which the LUT mask is to be updated
+ * \param lutMask
+ * LUT selection mask to be applied for the selected USB speed
+ *
+ * *******************************************************************************/
+
+void Cy_USBSS_UpdateCtleLutMask(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                               cy_en_usb_speed_t usbSpeed,
+                               uint16_t lutMask);
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_UpdateGen2CtleLutConfig
+ ****************************************************************************//**
+ *
+ * Function to update the CTLE configuration look up table for USB Gen2 speeds.
+ * This API should be called before Cy_USBD_Connect() for the provided LUT configs
+ * to be used during USB RX equalization stage.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ *
+ * \param pLutConfigArray
+ * Pointer to array of LUT configurations
+ *
+ *******************************************************************************/
+
+void Cy_USBSS_UpdateGen2CtleLutConfig(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                     uint32_t *pLutConfigArray);
 
 /** \} group_usbfxstack_usb_common_functions */
 

@@ -113,6 +113,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:structcy__stc__usb__usbd__ctxt__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a></td></tr>
 <tr class="memdesc:structcy__stc__usb__usbd__ctxt__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure containing all information managed by the USBD device stack.  <a href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__usb__usbd__ctxt__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structcy__stc__usbd__devstats__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbd__devstats__t">cy_stc_usbd_devstats_t</a></td></tr>
+<tr class="separator:structcy__stc__usbd__devstats__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structcy__stc__usb__cal__ctxt__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a></td></tr>
 <tr class="memdesc:structcy__stc__usb__cal__ctxt__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Context structure which holds all information about the USBHS controller abstraction layer or driver.  <a href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__usb__cal__ctxt__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -820,6 +822,12 @@ itpCb</td>
 <td class="fielddoc">
 Callback for SOF/ITP interrupt. </td></tr>
 <tr><td class="fieldtype">
+<a id="a9464e764817d8de27b667a1698f905ce" name="a9464e764817d8de27b667a1698f905ce"></a><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a></td>
+<td class="fieldname">
+linkFailCb</td>
+<td class="fielddoc">
+Callback for USB 3.x link bring-up failure. </td></tr>
+<tr><td class="fieldtype">
 <a id="afd9db2bcae757be199609bb23c7a6e7c" name="afd9db2bcae757be199609bb23c7a6e7c"></a>DMAC_Type *</td>
 <td class="fieldname">
 pCpuDmacBase</td>
@@ -957,6 +965,41 @@ Whether SS connect on USB 2.x Bus Reset is disabled. </td></tr>
 underrunWarningDone</td>
 <td class="fielddoc">
 Whether underrun warning has been issued. </td></tr>
+<tr><td class="fieldtype">
+<a id="af7de51204afe8cf44ca4afa43dcb74e8" name="af7de51204afe8cf44ca4afa43dcb74e8"></a>bool</td>
+<td class="fieldname">
+usb2FallbackDisable</td>
+<td class="fielddoc">
+Whether fallback to USB 2.x is disabled. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad49310f87559fdb32bed860a48e84491" name="ad49310f87559fdb32bed860a48e84491"></a>bool</td>
+<td class="fieldname">
+isCtrlEpStalled</td>
+<td class="fielddoc">
+Whether the USB-SS control endpoint has been stalled. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="structcy__stc__usbd__devstats__t" id="structcy__stc__usbd__devstats__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structcy__stc__usbd__devstats__t">&#9670;&nbsp;</a></span>cy_stc_usbd_devstats_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct cy_stc_usbd_devstats_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ab9dd59af22214698ed4dadf45be25157" name="ab9dd59af22214698ed4dadf45be25157"></a>uint32_t</td>
+<td class="fieldname">
+numRecoveryEntries</td>
+<td class="fielddoc">
+Number of times link entered Recovery state. </td></tr>
 </table>
 
 </div>
@@ -1264,6 +1307,12 @@ lbadCounter</td>
 <td class="fielddoc">
 Count of LBAD interrupts received. </td></tr>
 <tr><td class="fieldtype">
+<a id="a2ced33b05b5bd4d35d7e47a1aed8e39a" name="a2ced33b05b5bd4d35d7e47a1aed8e39a"></a>uint32_t</td>
+<td class="fieldname">
+numRetriesInEP[<a class="el" href="group__group__usbfxstack__usb__common__macros.html#ga346ff2c26acae7560922fedd206930e8">CY_USB_MAX_ENDP_NUMBER</a>]</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
 <a id="ad5857c1fd5c8eb4c5c271f00742de496" name="ad5857c1fd5c8eb4c5c271f00742de496"></a>uint8_t</td>
 <td class="fieldname">
 numPhyInitialized</td>
@@ -1275,12 +1324,6 @@ Count of PHY instances initialized. </td></tr>
 lgoodTimeoutCount</td>
 <td class="fielddoc">
 Count of LGOOD timeout events. </td></tr>
-<tr><td class="fieldtype">
-<a id="a6c08558ddae2c3fbb77baae65f345436" name="a6c08558ddae2c3fbb77baae65f345436"></a>uint16_t</td>
-<td class="fieldname">
-lpmExitLfpsDelay</td>
-<td class="fielddoc">
-Expected LPM exit LFPS TX duration. </td></tr>
 <tr><td class="fieldtype">
 <a id="a77c7f136ae092fd731d358a65c7534ba" name="a77c7f136ae092fd731d358a65c7534ba"></a>bool</td>
 <td class="fieldname">
@@ -1294,17 +1337,29 @@ compExitDone</td>
 <td class="fielddoc">
 Whether Compliance state has been exited. </td></tr>
 <tr><td class="fieldtype">
-<a id="ada6c8535dba5509b98a9e95c85c69a2a" name="ada6c8535dba5509b98a9e95c85c69a2a"></a>uint32_t</td>
+<a id="a6c08558ddae2c3fbb77baae65f345436" name="a6c08558ddae2c3fbb77baae65f345436"></a>uint16_t</td>
 <td class="fieldname">
-compExitTS</td>
+lpmExitLfpsDelay</td>
 <td class="fielddoc">
-Time stamp when compliance state was exited. </td></tr>
+Expected LPM exit LFPS TX duration. </td></tr>
 <tr><td class="fieldtype">
 <a id="abea9ec4e4fdcc3dfb07709d625677e5a" name="abea9ec4e4fdcc3dfb07709d625677e5a"></a>uint16_t</td>
 <td class="fieldname">
 activeLutMask</td>
 <td class="fielddoc">
 Active CTLE LUT mask value. </td></tr>
+<tr><td class="fieldtype">
+<a id="ada6c8535dba5509b98a9e95c85c69a2a" name="ada6c8535dba5509b98a9e95c85c69a2a"></a>uint32_t</td>
+<td class="fieldname">
+compExitTS</td>
+<td class="fielddoc">
+Time stamp when compliance state was exited. </td></tr>
+<tr><td class="fieldtype">
+<a id="afabb49a69a2931538bf78b9ae1596a8d" name="afabb49a69a2931538bf78b9ae1596a8d"></a>uint32_t</td>
+<td class="fieldname">
+numRecoveryEntries</td>
+<td class="fielddoc">
+Number of times link entered Recovery state. </td></tr>
 <tr><td class="fieldtype">
 <a id="a25d03bc94ec403d13f831ab0ccec5f3a" name="a25d03bc94ec403d13f831ab0ccec5f3a"></a>bool</td>
 <td class="fieldname">
@@ -1335,6 +1390,54 @@ Whether link was up in Gen1x2 mode. </td></tr>
 delayEventMask</td>
 <td class="fielddoc">
 Event to handle after timer expiry. </td></tr>
+<tr><td class="fieldtype">
+<a id="ae53fcbcaeb5ddd5ce0c9c112fb914e29" name="ae53fcbcaeb5ddd5ce0c9c112fb914e29"></a>bool</td>
+<td class="fieldname">
+usbTxTestMode</td>
+<td class="fielddoc">
+Whether device is being used for USB transmitter testing. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab45116091df0b16bf8f6d29218ededf5" name="ab45116091df0b16bf8f6d29218ededf5"></a>uint32_t</td>
+<td class="fieldname">
+usbTxCursorPts[3]</td>
+<td class="fielddoc">
+USB transmitter equalization cursors. </td></tr>
+<tr><td class="fieldtype">
+<a id="a79906066ba0a5cde3e5bf2fde8334d42" name="a79906066ba0a5cde3e5bf2fde8334d42"></a>uint16_t</td>
+<td class="fieldname">
+usbTxAmplitude</td>
+<td class="fielddoc">
+USB transmitter differential amplitude. </td></tr>
+<tr><td class="fieldtype">
+<a id="aab075d505ecf1a37f7999ed20d771519" name="aab075d505ecf1a37f7999ed20d771519"></a>uint16_t</td>
+<td class="fieldname">
+gen1x1LutMask</td>
+<td class="fielddoc">
+Active CTLE LUT mask value for Gen1x1 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="a9000a03ef1ddc25b3f1df52990df2d47" name="a9000a03ef1ddc25b3f1df52990df2d47"></a>uint16_t</td>
+<td class="fieldname">
+gen1x2LutMask</td>
+<td class="fielddoc">
+Active CTLE LUT mask value for Gen1x2 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="a37623d4455d8ea912f877ffb76df0c96" name="a37623d4455d8ea912f877ffb76df0c96"></a>uint16_t</td>
+<td class="fieldname">
+gen2x1LutMask</td>
+<td class="fielddoc">
+Active CTLE LUT mask value for Gen2x1 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8f29dd5f207d5c8df43dfc86277103c6" name="a8f29dd5f207d5c8df43dfc86277103c6"></a>uint16_t</td>
+<td class="fieldname">
+gen2x2LutMask</td>
+<td class="fielddoc">
+Active CTLE LUT mask value for Gen2x2 mode. </td></tr>
+<tr><td class="fieldtype">
+<a id="aeb2c39115ca0ac90951347cbf18ec2be" name="aeb2c39115ca0ac90951347cbf18ec2be"></a>uint32_t</td>
+<td class="fieldname">
+ctleLutArrayGen2[LUT_WIDTH]</td>
+<td class="fielddoc">
+CTLE LUT array for Gen2 speeds. </td></tr>
 </table>
 
 </div>

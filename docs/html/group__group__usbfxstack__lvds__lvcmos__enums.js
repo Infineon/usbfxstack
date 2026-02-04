@@ -44,7 +44,8 @@ var group__group__usbfxstack__lvds__lvcmos__enums =
       [ "CY_LVDS_CONFIG_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a784b5978b3f9c85cc6f9055bdc422a2e", null ],
       [ "CY_LVDS_TIMEOUT_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27af8a00de6776f66dc9a76294d6130e4e9", null ],
       [ "CY_LVDS_LINK_ALREADY_ENABLED", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a79ef475d2e4f1cbfaf8f4c45e9ee4dd3", null ],
-      [ "CY_LVDS_LINK_TRAINING_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be", null ]
+      [ "CY_LVDS_LINK_TRAINING_ERROR", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a844126f7e5a7fb25d546c3e1b76d10be", null ],
+      [ "CY_LVDS_LINK_BUSY", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacd3450c3497d4f3034646dfeba4bcd27a9300288747469fe193b0567cb259b743", null ]
     ] ],
     [ "cy_en_lvds_md_type_t", "group__group__usbfxstack__lvds__lvcmos__enums.html#gacbb7056cae06fe3fa44fef0c225305de", [
       [ "CY_LVDS_MD_CONSTANT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggacbb7056cae06fe3fa44fef0c225305dea2e6efa3270f09a128f36d1b7eae3ee9e", null ],

@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright (2025) Cypress Semiconductor Corporation
+* Copyright (2026) Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,8 @@
 #include <stddef.h>
 #include "cy_syslib.h"
 #include "ip/cyip_lvdsss.h"
+#include "cy_hbdma.h"
+#include "cy_hbdma_mgr.h"
 
 
 #if defined(__cplusplus)
@@ -255,7 +257,8 @@ typedef enum
     CY_LVDS_CONFIG_ERROR         = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x02u,    /**< Bad IP configuration specified. */
     CY_LVDS_TIMEOUT_ERROR        = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x03u,    /**< Operation timed out. */
     CY_LVDS_LINK_ALREADY_ENABLED = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x04u,    /**< Link already enabled */
-    CY_LVDS_LINK_TRAINING_ERROR  = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x05u     /**< Link training failed. */
+    CY_LVDS_LINK_TRAINING_ERROR  = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x05u,    /**< Link training failed. */
+    CY_LVDS_LINK_BUSY            = CY_LVDS_ID | CY_PDL_STATUS_ERROR | 0x06u     /**< Link is currently busy. */
 } cy_en_lvds_status_t;
 
 /**
@@ -1066,6 +1069,35 @@ cy_en_lvds_status_t Cy_LVDS_PhyDeinit(LVDSSS_LVDS_Type *base, uint8_t portNo, cy
 void Cy_LVDS_SetPhyTrainingLoopCount(LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsContext, uint8_t count);
 
 /*******************************************************************************
+ * Function Name: Cy_LVDS_OverridePhyTraining
+ ****************************************************************************//**
+ *
+ * The LVDS PHY training process identifies the time at which the data coming in
+ * on each LVDS data lane is sampled by the PHY in terms of a delay with reference
+ * to the clock.
+ *
+ * This function can be used to override the delays with static per-port values
+ * instead of using the iterative training algorithm. This function must be called
+ * before the Cy_LVDS_PhyTrainingStart function is called so that the PHY can be
+ * initialized with the static delays specified.
+ *
+ * \param base
+ * Pointer to the LVDS register base address
+ *
+ * \param portNo
+ * Port number on the LVDS Sensor Interface port (SIP)
+ *
+ * \param phaseVal
+ * Static phase value to be forced for all data/control lanes associated with
+ * the port. Must be in the range of 1 to 12 (inclusive).
+ *
+ * \return cy_en_lvds_status_t
+ * CY_LVDS_SUCCESS or CY_LVDS_BAD_PARAMETER
+ *
+ *******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_OverridePhyTraining(LVDSSS_LVDS_Type *base, uint8_t portNo, uint8_t phaseVal);
+
+/*******************************************************************************
 * Function Name: Cy_LVDS_PhyTrainingStart
 ****************************************************************************//**
 *
@@ -1795,6 +1827,7 @@ __STATIC_INLINE void Cy_LVDS_DisableLoopbackMode                (LVDSSS_LVDS_Typ
 __STATIC_INLINE void Cy_LVDS_PhyGpioSet                         (LVDSSS_LVDS_Type* base, uint8_t portNo, cy_en_lvds_phy_gpio_index_t pinNo);
 __STATIC_INLINE void Cy_LVDS_PhyGpioClr                         (LVDSSS_LVDS_Type* base, uint8_t portNo, cy_en_lvds_phy_gpio_index_t pinNo);
 __STATIC_INLINE bool Cy_LVDS_PhyGpioRead                        (LVDSSS_LVDS_Type* base, uint8_t portNo, cy_en_lvds_phy_gpio_index_t pinNo);
+__STATIC_INLINE void Cy_LVDS_ThreadDisable                      (LVDSSS_LVDS_Type* base, uint8_t threadIndex);
 
 
 
@@ -1932,7 +1965,7 @@ __STATIC_INLINE uint8_t Cy_LVDS_GpifGetBetaStatus(LVDSSS_LVDS_Type * base, uint8
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVDS_PhyPortEnable(LVDSSS_LVDS_Type * base, uint8_t portNo)
 {
-    base->LINK_CONFIG[portNo] = _VAL2FLD(LVDSSS_LVDS_LINK_CONFIG_LINK_ENABLE, 1u);
+    base->LINK_CONFIG[portNo] |= LVDSSS_LVDS_LINK_CONFIG_LINK_ENABLE_Msk;
 }
 
 
@@ -1951,7 +1984,7 @@ __STATIC_INLINE void Cy_LVDS_PhyPortEnable(LVDSSS_LVDS_Type * base, uint8_t port
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVDS_PhyPortDisable(LVDSSS_LVDS_Type * base, uint8_t portNo)
 {
-    base->LINK_CONFIG[portNo] = _VAL2FLD(LVDSSS_LVDS_LINK_CONFIG_LINK_ENABLE, 0u);
+    base->LINK_CONFIG[portNo] &= ~LVDSSS_LVDS_LINK_CONFIG_LINK_ENABLE_Msk;
 }
 
 
@@ -1973,7 +2006,8 @@ __STATIC_INLINE void Cy_LVDS_PhyPortDisable(LVDSSS_LVDS_Type * base, uint8_t por
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVDS_PhySetTrainingPattern(LVDSSS_LVDS_Type * base, uint8_t portNo, uint8_t trainingPattern)
 {
-      base->AFE[portNo].PHY_TRAIN_CONFIG = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, trainingPattern);
+      base->AFE[portNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk;
+      base->AFE[portNo].PHY_TRAIN_CONFIG |= _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, trainingPattern);
 }
 
 
@@ -1981,7 +2015,8 @@ __STATIC_INLINE void Cy_LVDS_PhySetTrainingPattern(LVDSSS_LVDS_Type * base, uint
 * Function Name: Cy_LVDS_SetInterruptMask
 ****************************************************************************//**
 *
-* Set global interrupt mask.
+* Set additional bits in the global LVDS interrupt mask. This does not clear
+* any interrupt mask bits which are already set.
 *
 * \param base
 * Pointer to the LVDS register base address
@@ -2348,9 +2383,9 @@ __STATIC_INLINE void Cy_LVDS_GpifConfigClock(LVDSSS_LVDS_Type* base, uint8_t smN
 __STATIC_INLINE void Cy_LVDS_ThreadIntlvEnable(LVDSSS_LVDS_Type * base, cy_en_thread_intlv_t threadNo)
 {
     if(threadNo == CY_LVDS_TH0_TH1_INTERLEAVED)
-        base->THREAD_INTLV_CTL = _BOOL2FLD(LVDSSS_LVDS_THREAD_INTLV_CTL_TH0_TH1_INTERLEAVED, 1);
+        base->THREAD_INTLV_CTL |= _BOOL2FLD(LVDSSS_LVDS_THREAD_INTLV_CTL_TH0_TH1_INTERLEAVED, 1);
     else
-        base->THREAD_INTLV_CTL = _BOOL2FLD(LVDSSS_LVDS_THREAD_INTLV_CTL_TH2_TH3_INTERLEAVED, 1);
+        base->THREAD_INTLV_CTL |= _BOOL2FLD(LVDSSS_LVDS_THREAD_INTLV_CTL_TH2_TH3_INTERLEAVED, 1);
 }
 
 
@@ -2373,7 +2408,9 @@ __STATIC_INLINE void Cy_LVDS_ThreadIntlvEnable(LVDSSS_LVDS_Type * base, cy_en_th
 *******************************************************************************/
 __STATIC_INLINE void Cy_LVDS_GpifSetEndianness(LVDSSS_LVDS_Type* base, uint8_t smNo, bool endianType)
 {
-    base->GPIF[smNo].GPIF_CONFIG = _BOOL2FLD(LVDSSS_LVDS_GPIF_GPIF_CONFIG_ENDIAN, endianType);
+    base->GPIF[smNo].GPIF_CONFIG = (
+            (base->GPIF[smNo].GPIF_CONFIG & ~LVDSSS_LVDS_GPIF_GPIF_CONFIG_ENDIAN_Msk) |
+            _BOOL2FLD(LVDSSS_LVDS_GPIF_GPIF_CONFIG_ENDIAN, endianType));
 }
 
 
@@ -2686,6 +2723,170 @@ __STATIC_INLINE bool Cy_LVDS_PhyGpioRead(LVDSSS_LVDS_Type* base,
 {
     return ((base->AFE[portNo].PHY_GPIO[pinNo] & LVDSSS_LVDS_AFE_PHY_GPIO_IN_VALUE_Msk) >> (LVDSSS_LVDS_AFE_PHY_GPIO_IN_VALUE_Pos));
 }
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ThreadDisable
+****************************************************************************//**
+*
+* Disable the specified LVDS data thread.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param threadIndex
+* Thread to be disabled.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_LVDS_ThreadDisable(LVDSSS_LVDS_Type* base,
+                                           uint8_t threadIndex)
+{
+    if ((base != NULL) && (threadIndex < CY_LVDS_MAX_THREAD_COUNT)) {
+        base->THREAD[threadIndex].GPIF_THREAD_CONFIG &= ~LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR_Msk;
+        base->THREAD[threadIndex].GPIF_THREAD_CONFIG  = 0x00010400UL;
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_PllBypassControl
+****************************************************************************//**
+*
+* In LVDS mode of operation, a PLL is used to generate a clean version of the
+* interface clock input received. When the LVDS gearing ratio used is 2:1 or 1:1,
+* it is possible to bypass this PLL and use the direct clock input for the block
+* operation. This API is provided to enable the PLL bypassed mode of operation
+* where applicable. This function must be called before the LVDS block and PHY
+* are enabled using Cy_LVDS_Init_Ext() or Cy_LVDS_Init() API call.
+*
+* \param pllBypassEnable
+* Whether PLL bypassed operation is enabled.
+*
+*******************************************************************************/
+void Cy_LVDS_PllBypassControl(bool pllBypassEnable);
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_CustomTraining_Select
+ ****************************************************************************//**
+ *
+ * Select the Custom PHY training state machine for the LVDS PHY initialization.
+ *
+ * The custom training state machine is a firmware based PHY training sequence
+ * which is more robust compared to the default training sequence implemented
+ * in the hardware block.
+ *
+ * The custom training works by collecting the PHY training data into RAM buffers
+ * using a special CHAR mode of the device and analysing it to identify the
+ * correct sampling delays to be used on each data lane. Once the training has
+ * been completed, the LVDS block should be disabled, re-enabled in normal
+ * operating mode and the previously calculated training results need to be
+ * applied.
+ *
+ * This function must be called before Cy_LVDS_Init() and Cy_LVDS_Init_Ext()
+ * so that the block can initialized in the CHAR mode so that the training data
+ * can be collected into RAM.
+ *
+ * \param customTrainEn
+ * Whether custom training sequence is to be enabled.
+ * \param pDmaMgr
+ * Pointer to DMA manager. Used to create DMA channels for training data collection.
+ *
+ * \return
+ * Success if training mode selection could be registered correctly.
+ *
+ *******************************************************************************/
+cy_en_lvds_status_t
+Cy_LVDS_CustomTraining_Select(
+        bool                        customTrainEn,
+        cy_stc_hbdma_mgr_context_t *pDmaMgr);
+
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_ApplyResults
+ ***************************************************************************//**
+ *
+ * Function to apply the results of the LVDS custom training where available.
+ *
+ * \param pDrvCtxt
+ * Pointer to LVDS driver context structure.
+ * \param portNo
+ * LVDS port number
+ *
+ * \return
+ * true if the custom training results have been applied, false otherwise.
+ ******************************************************************************/
+bool Cy_LVDS_CustomTraining_ApplyResults(
+        cy_stc_lvds_context_t *pDrvCtxt,
+        uint8_t                portNo);
+
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_Task
+ ***************************************************************************//**
+ *
+ * Function which updates states related LVDS custom training sequence. Needs
+ * to be called until training is complete.
+ *
+ * \param pDrvCtxt
+ * Pointer to LVDS driver context structure.
+ *
+ * \return
+ * true if the training task is yet to be completed, false if task is complete.
+ *
+ ******************************************************************************/
+bool Cy_LVDS_CustomTraining_Task(
+        cy_stc_lvds_context_t *pDrvCtxt);
+
+#ifndef DOXYGEN
+
+/*******************************************************************************
+ * Functions for internal use in the driver
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_Init
+ ***************************************************************************//**
+ *
+ * Perform default initialization of the LVDS custom training related data
+ * structures.
+ *
+ ******************************************************************************/
+void
+Cy_LVDS_CustomTraining_Init(
+        void);
+
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_Enable
+ ***************************************************************************//**
+ *
+ * Function to specify that custom link training is to be enabled for an LVDS
+ * port.
+ *
+ * \param base
+ * Base pointer to LVDS register set.
+ * \param pDrvCtxt
+ * Pointer to LVDS driver context structure.
+ * \param portNo
+ * LVDS port number
+ * \param isWL
+ * Whether training is to be done for a WideLink port.
+ * \param nLanes
+ * Number of data lanes associated with the link.
+ * \param phyTrainingPattern
+ * The PHY training pattern which is being used.
+ * \param pDmaMgr
+ * Pointer to the DMA manager. Used to create and operate a DMA channel.
+ *
+ * \return
+ * Success if custom training state machine could be started.
+ ******************************************************************************/
+cy_en_lvds_status_t
+Cy_LVDS_CustomTraining_Enable(
+        LVDSSS_LVDS_Type           *base,
+        cy_stc_lvds_context_t      *pDrvCtxt,
+        uint8_t                     portNo,
+        bool                        isWL,
+        uint8_t                     nLanes,
+        uint8_t                     phyTrainingPattern,
+        cy_stc_hbdma_mgr_context_t *pDmaMgr);
+
+#endif /* DOXYGEN */
 
 /** \} group_usbfxstack_lvds_lvcmos_functions */
 

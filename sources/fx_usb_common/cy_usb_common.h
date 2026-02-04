@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -233,60 +233,61 @@ typedef enum {
  * to the USBD stack.
  */
 typedef enum {
-    CY_USB_CAL_MSG_INVALID=0,                           /**< Invalid message type. */
-    CY_USB_CAL_MSG_RESET,                               /**< USB 2.x reset event. */
-    CY_USB_CAL_MSG_HSGRANT,                             /**< USB 2.x high speed chirp handshake complete. */
-    CY_USB_CAL_MSG_RESET_DONE,                          /**< USB 2.x reset complete event. */
-    CY_USB_CAL_MSG_SUDAV,                               /**< USB 2.x control request received. */
-    CY_USB_CAL_MSG_STATUS_STAGE,                        /**< USB 2.x control request acknowledged. */
-    CY_USB_CAL_MSG_SETADDR,                             /**< SET_ADDRESS request acknowledged. */
-    CY_USB_CAL_MSG_SUSP,                                /**< USB link suspended. */
-    CY_USB_CAL_MSG_RESUME_START,                        /**< USB 2.x resume signalling started. */
-    CY_USB_CAL_MSG_RESUME_END,                          /**< USB 2.x resume signalling completed. */
-    CY_USB_CAL_MSG_DEEP_SLEEP_EXIT,                     /**< Deep sleep exit detected. */
-    CY_USB_CAL_MSG_L1_SLEEP,                            /**< USB 2.x link entered L1 state. */
-    CY_USB_CAL_MSG_L1_URESUME,                          /**< USB 2.x link exited L1 state. */
-    CY_USB_CAL_MSG_IN_ZLP,                              /**< ZLP interrupt received on IN endpoint. */
-    CY_USB_CAL_MSG_IN_SLP,                              /**< SLP interrupt received on IN endpoint. */
-    CY_USB_CAL_MSG_OUT_ZLP,                             /**< ZLP interrupt received on OUT endpoint. */
-    CY_USB_CAL_MSG_OUT_SLP,                             /**< SLP interrupt received on OUT endpoint. */
-    CY_USB_CAL_MSG_OUT_DONE,                            /**< Expected amount of data received on OUT endpoint. */
-    CY_USB_CAL_MSG_SOF_ITP,                             /**< Start-of-Frame or ITP packet received. */
-    CY_USB_CAL_MSG_ERRLIMIT,                            /**< USB 2.x device raised error limit interrupt. */
-    CY_USBSS_CAL_MSG_LNK_RESET,                         /**< USB 3.x link reset: Warm or Hot Reset. */
-    CY_USBSS_CAL_MSG_LNK_CONNECT,                       /**< USB 3.x far-end terminations detected. */
-    CY_USBSS_CAL_MSG_LNK_DISCONNECT,                    /**< USB 3.x link entered SS.Disabled state. */
-    CY_USBSS_CAL_MSG_LNK_INT,                           /**< USB 3.x link interrupt received. */
-    CY_USBSS_CAL_MSG_LNK_ERR_LIMIT,                     /**< Too many USB 3.x link errors detected. */
-    CY_USBSS_CAL_MSG_LNK_RX_DETECT_ACTIVE,              /**< USB 3.x link entered Rx.Detect.Active state. */
-    CY_USBSS_CAL_MSG_LNK_SS_DISABLE,                    /**< USB 3.x link entered SS.Disabled state. */
-    CY_USBSS_CAL_MSG_LNK_COMPLIANCE,                    /**< USB 3.x link entered Compliance state. */
-    CY_USBSS_CAL_MSG_USB3_LNKFAIL,                      /**< USB 3.x link unstable. */
-    CY_USBSS_CAL_MSG_EP_INT,                            /**< USB 2.x endpoint interrupt received. */
-    CY_USBSS_CAL_MSG_PROT_INT,                          /**< USB 3.x protocol interrupt received. */
-    CY_USB_CAL_MSG_PROT_SETADDR_0,                      /**< Device address set to 0 */
-    CY_USB_CAL_MSG_PROT_SUTOK,                          /**< USB 3.x control request received. */
-    CY_USB_CAL_MSG_PROT_HOST_ERR,                       /**< USB 3.x host error indication received. */
-    CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP,               /**< Port Capability LMP handshake timed out. */
-    CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG,               /**< Port Configuration LMP handshake timed out. */
-    CY_USB_CAL_MSG_PROT_TIMEOUT_PING,                   /**< Ping timeout. */
-    CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CAP,           /**< Invalid Port Capability LMP received. */
-    CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CFG,           /**< Invalid Port Configuration LMP received. */
-    CY_USBSS_CAL_MSG_PROT_EP_INT,                       /**< USB 3.x endpoint interrupt received. */
-    CY_USBSS_CAL_MSG_VBUS_CHANGE,                       /**< VBus voltage change detected. */
-    CY_USBSS_CAL_MSG_USB3_WARM_RESET,                   /**< USB 3.x warm reset detected. */
-    CY_USBSS_CAL_MSG_USB3_U3_SUSPEND,                   /**< USB 3.x link entered U3 */
-    CY_USBSS_CAL_MSG_USB3_U0_RESUME,                    /**< USB 3.x link re-entered U0 from U3 */
-    CY_USBSS_CAL_MSG_UX_REENABLE,                       /**< Indication to re-enable USB 3.x LPM transitions. */
-    CY_USBSS_CAL_MSG_EPM_UNDERRUN,                      /**< Underrun detected by the USB 3.x endpoint memory. */
-    CY_USBSS_CAL_MSG_USB3_LMP_FAIL,                     /**< LMP handshake failure. */
-    CY_USBSS_CAL_MSG_USB3_RATE_CHG,                     /**< USB 3.x data rate changed. */
-    CY_USBSS_CAL_MSG_ABORT_UX_ENABLE,                   /**< Cancel re-enable of USB 3.x LPM transitions. */
-    CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE,             /**< Handle Gen2 link training failure. */
-    CY_USB_CAL_MSG_EP0_RCV_DONE,                        /**< EP0-OUT receive complete. */
-    CY_USBSS_CAL_MSG_PORT_CONFIGURED,                   /**< Port Configuration LMP handshake completed. */
-    CY_USBSS_CAL_MSG_LPBK_FORCED,                       /**< Link has been forced into Loopback state. */
-    CY_USB_CAL_MSG_MAX                                  /**< Invalid message. */
+    CY_USB_CAL_MSG_INVALID=0,                           /**< 00: Invalid message type. */
+    CY_USB_CAL_MSG_RESET,                               /**< 01: USB 2.x reset event. */
+    CY_USB_CAL_MSG_HSGRANT,                             /**< 02: USB 2.x high speed chirp handshake complete. */
+    CY_USB_CAL_MSG_RESET_DONE,                          /**< 03: USB 2.x reset complete event. */
+    CY_USB_CAL_MSG_SUDAV,                               /**< 04: USB 2.x control request received. */
+    CY_USB_CAL_MSG_STATUS_STAGE,                        /**< 05: USB 2.x control request acknowledged. */
+    CY_USB_CAL_MSG_SETADDR,                             /**< 06: SET_ADDRESS request acknowledged. */
+    CY_USB_CAL_MSG_SUSP,                                /**< 07: USB link suspended. */
+    CY_USB_CAL_MSG_RESUME_START,                        /**< 08: USB 2.x resume signalling started. */
+    CY_USB_CAL_MSG_RESUME_END,                          /**< 09: USB 2.x resume signalling completed. */
+    CY_USB_CAL_MSG_DEEP_SLEEP_EXIT,                     /**< 10: Deep sleep exit detected. */
+    CY_USB_CAL_MSG_L1_SLEEP,                            /**< 11: USB 2.x link entered L1 state. */
+    CY_USB_CAL_MSG_L1_URESUME,                          /**< 12: USB 2.x link exited L1 state. */
+    CY_USB_CAL_MSG_IN_ZLP,                              /**< 13: ZLP interrupt received on IN endpoint. */
+    CY_USB_CAL_MSG_IN_SLP,                              /**< 14: SLP interrupt received on IN endpoint. */
+    CY_USB_CAL_MSG_OUT_ZLP,                             /**< 15: ZLP interrupt received on OUT endpoint. */
+    CY_USB_CAL_MSG_OUT_SLP,                             /**< 16: SLP interrupt received on OUT endpoint. */
+    CY_USB_CAL_MSG_OUT_DONE,                            /**< 17: Expected amount of data received on OUT endpoint. */
+    CY_USB_CAL_MSG_SOF_ITP,                             /**< 18: Start-of-Frame or ITP packet received. */
+    CY_USB_CAL_MSG_ERRLIMIT,                            /**< 19: USB 2.x device raised error limit interrupt. */
+    CY_USBSS_CAL_MSG_LNK_RESET,                         /**< 20: USB 3.x link reset: Warm or Hot Reset. */
+    CY_USBSS_CAL_MSG_LNK_CONNECT,                       /**< 21: USB 3.x far-end terminations detected. */
+    CY_USBSS_CAL_MSG_LNK_DISCONNECT,                    /**< 22: USB 3.x link entered SS.Disabled state. */
+    CY_USBSS_CAL_MSG_LNK_INT,                           /**< 23: USB 3.x link interrupt received. */
+    CY_USBSS_CAL_MSG_LNK_ERR_LIMIT,                     /**< 24: Too many USB 3.x link errors detected. */
+    CY_USBSS_CAL_MSG_LNK_RX_DETECT_ACTIVE,              /**< 25: USB 3.x link entered Rx.Detect.Active state. */
+    CY_USBSS_CAL_MSG_LNK_SS_DISABLE,                    /**< 26: USB 3.x link entered SS.Disabled state. */
+    CY_USBSS_CAL_MSG_LNK_COMPLIANCE,                    /**< 27: USB 3.x link entered Compliance state. */
+    CY_USBSS_CAL_MSG_USB3_LNKFAIL,                      /**< 28: USB 3.x link unstable. */
+    CY_USBSS_CAL_MSG_EP_INT,                            /**< 29: USB 2.x endpoint interrupt received. */
+    CY_USBSS_CAL_MSG_PROT_INT,                          /**< 30: USB 3.x protocol interrupt received. */
+    CY_USB_CAL_MSG_PROT_SETADDR_0,                      /**< 31: Device address set to 0 */
+    CY_USB_CAL_MSG_PROT_SUTOK,                          /**< 32: USB 3.x control request received. */
+    CY_USB_CAL_MSG_PROT_HOST_ERR,                       /**< 33: USB 3.x host error indication received. */
+    CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP,               /**< 34: Port Capability LMP handshake timed out. */
+    CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG,               /**< 35: Port Configuration LMP handshake timed out. */
+    CY_USB_CAL_MSG_PROT_TIMEOUT_PING,                   /**< 36: Ping timeout. */
+    CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CAP,           /**< 37: Invalid Port Capability LMP received. */
+    CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CFG,           /**< 38: Invalid Port Configuration LMP received. */
+    CY_USBSS_CAL_MSG_PROT_EP_INT,                       /**< 39: USB 3.x endpoint interrupt received. */
+    CY_USBSS_CAL_MSG_VBUS_CHANGE,                       /**< 40: VBus voltage change detected. */
+    CY_USBSS_CAL_MSG_USB3_WARM_RESET,                   /**< 41: USB 3.x warm reset detected. */
+    CY_USBSS_CAL_MSG_USB3_U3_SUSPEND,                   /**< 42: USB 3.x link entered U3 */
+    CY_USBSS_CAL_MSG_USB3_U0_RESUME,                    /**< 43: USB 3.x link re-entered U0 from U3 */
+    CY_USBSS_CAL_MSG_UX_REENABLE,                       /**< 44: Indication to re-enable USB 3.x LPM transitions. */
+    CY_USBSS_CAL_MSG_EPM_UNDERRUN,                      /**< 45: Underrun detected by the USB 3.x endpoint memory. */
+    CY_USBSS_CAL_MSG_USB3_LMP_FAIL,                     /**< 46: LMP handshake failure. */
+    CY_USBSS_CAL_MSG_USB3_RATE_CHG,                     /**< 47: USB 3.x data rate changed. */
+    CY_USBSS_CAL_MSG_ABORT_UX_ENABLE,                   /**< 48: Cancel re-enable of USB 3.x LPM transitions. */
+    CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE,             /**< 49: Handle Gen2 link training failure. */
+    CY_USB_CAL_MSG_EP0_RCV_DONE,                        /**< 50: EP0-OUT receive complete. */
+    CY_USBSS_CAL_MSG_PORT_CONFIGURED,                   /**< 51: Port Configuration LMP handshake completed. */
+    CY_USBSS_CAL_MSG_LPBK_FORCED,                       /**< 52: Link has been forced into Loopback state. */
+    CY_USB_CAL_MSG_SS_RECONNECT,                        /**< 53: USB-SS link reconnect request from timer callback. */
+    CY_USB_CAL_MSG_MAX                                  /**< 54: Invalid message. */
 }cy_en_usb_cal_msg_type_t;
 
 /**
@@ -362,7 +363,8 @@ typedef enum {
     CY_USBD_EVT_SS_DISB,                /**< 0x42: SS disable from USBD. */
     CY_USBD_EVT_HS_DISB,                /**< 0x43: HS disable due to SS receiver detect. */
     CY_USBD_EVT_HS_RESET_SKIP,          /**< 0x44: SS re-enable skipped on HS reset. */
-
+    CY_USBD_EVT_SET_CONFIG_CB,          /**< 0x45: SetConfig callback being invoked. */
+    CY_USBD_EVT_SET_INTF_CB,            /**< 0x46: SetInterface callback being invoked. */
 
     CY_HSCAL_EVT_CONN_EN = 0x50,          /**< 0x50: USBHS connection enable. */
     CY_HSCAL_EVT_CONN_DIS,                /**< 0x51: USBHS connection disable. */
@@ -428,7 +430,9 @@ typedef enum {
     CY_LNK_EVENT_TRIG_DISCON_EVENT,       /**< 0xFA: LTSSM Disconnect interrupt forced by firmware. */
     CY_LNK_EVENT_LANE_POLARITY_INV,       /**< 0xFB: Lane Polarity inverted */
     CY_LNK_EVENT_LNK_FORCE_U0,            /**< 0xFC: Link forced into U0 state during Ux exit sequence. */
-    CY_LNK_EVENT_UX_EXIT_TS1_TIMEOUT      /**< 0xFD: Transition into Recovery.Config did not happen within expected time. */
+    CY_LNK_EVENT_UX_EXIT_TS1_TIMEOUT,     /**< 0xFD: Transition into Recovery.Config did not happen within expected time. */
+    CY_LNK_EVENT_USB_CLK_STOP,            /**< 0xFE: USB block has been stopped. */
+    CY_LNK_EVENT_USB_CLK_START            /**< 0xFF: USB block has been started. */
 } cy_en_usbss_cal_evt_type_t;
 
 /**

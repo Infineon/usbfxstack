@@ -110,6 +110,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga1e4727f1b9d7779097a06b79b3e38dc5">Cy_LVDS_SetPhyTrainingLoopCount</a> (LVDSSS_LVDS_Type *base, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *lvdsContext, uint8_t count)</td></tr>
 <tr class="memdesc:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specify the number of times LVDS PHY training should be attempted.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga1e4727f1b9d7779097a06b79b3e38dc5">More...</a><br /></td></tr>
 <tr class="separator:ga1e4727f1b9d7779097a06b79b3e38dc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga720bc3f55d794c7f688b205f6b968726"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga720bc3f55d794c7f688b205f6b968726">Cy_LVDS_OverridePhyTraining</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, uint8_t phaseVal)</td></tr>
+<tr class="memdesc:ga720bc3f55d794c7f688b205f6b968726"><td class="mdescLeft">&#160;</td><td class="mdescRight">The LVDS PHY training process identifies the time at which the data coming in on each LVDS data lane is sampled by the PHY in terms of a delay with reference to the clock.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga720bc3f55d794c7f688b205f6b968726">More...</a><br /></td></tr>
+<tr class="separator:ga720bc3f55d794c7f688b205f6b968726"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga401ef72c677e07df543619ce9116682c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c">Cy_LVDS_PhyTrainingStart</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, const <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__phy__config__t">cy_stc_lvds_phy_config_t</a> *config)</td></tr>
 <tr class="memdesc:ga401ef72c677e07df543619ce9116682c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable PHY TRAINING in AFE and then wait for DESKEW COMPLETE to get set.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c">More...</a><br /></td></tr>
 <tr class="separator:ga401ef72c677e07df543619ce9116682c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,7 +219,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga51b55ebae7d93a4adb13d56fe9be6c46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the interrupt register.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga51b55ebae7d93a4adb13d56fe9be6c46">More...</a><br /></td></tr>
 <tr class="separator:ga51b55ebae7d93a4adb13d56fe9be6c46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabe48da51081c157609ef915c8c68026d"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gabe48da51081c157609ef915c8c68026d">Cy_LVDS_SetInterruptMask</a> (LVDSSS_LVDS_Type *base, uint32_t interruptMask)</td></tr>
-<tr class="memdesc:gabe48da51081c157609ef915c8c68026d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set global interrupt mask.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gabe48da51081c157609ef915c8c68026d">More...</a><br /></td></tr>
+<tr class="memdesc:gabe48da51081c157609ef915c8c68026d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set additional bits in the global LVDS interrupt mask.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gabe48da51081c157609ef915c8c68026d">More...</a><br /></td></tr>
 <tr class="separator:gabe48da51081c157609ef915c8c68026d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4bc4524772faa702ba6552064c27db7b"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga4bc4524772faa702ba6552064c27db7b">Cy_LVDS_GetInterruptStatusMasked</a> (LVDSSS_LVDS_Type *base)</td></tr>
 <tr class="memdesc:ga4bc4524772faa702ba6552064c27db7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get global interrupt masked value.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga4bc4524772faa702ba6552064c27db7b">More...</a><br /></td></tr>
@@ -308,6 +311,21 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5c6790f6dfbe6badb959abd2c5a01bfd"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5c6790f6dfbe6badb959abd2c5a01bfd">Cy_LVDS_PhyGpioRead</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga7d3f67afa51dfdbd308e4910e3862c0a">cy_en_lvds_phy_gpio_index_t</a> pinNo)</td></tr>
 <tr class="memdesc:ga5c6790f6dfbe6badb959abd2c5a01bfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of pin if configured as an input in GPIO mode.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5c6790f6dfbe6badb959abd2c5a01bfd">More...</a><br /></td></tr>
 <tr class="separator:ga5c6790f6dfbe6badb959abd2c5a01bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5b79af95768ea0662caab9e773f3bc41"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41">Cy_LVDS_ThreadDisable</a> (LVDSSS_LVDS_Type *base, uint8_t threadIndex)</td></tr>
+<tr class="memdesc:ga5b79af95768ea0662caab9e773f3bc41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable the specified LVDS data thread.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41">More...</a><br /></td></tr>
+<tr class="separator:ga5b79af95768ea0662caab9e773f3bc41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc">Cy_LVDS_PllBypassControl</a> (bool pllBypassEnable)</td></tr>
+<tr class="memdesc:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="mdescLeft">&#160;</td><td class="mdescRight">In LVDS mode of operation, a PLL is used to generate a clean version of the interface clock input received.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc">More...</a><br /></td></tr>
+<tr class="separator:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaf95a7b5be5ef2ab39eb5522e5b24b62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaaf95a7b5be5ef2ab39eb5522e5b24b62">Cy_LVDS_CustomTraining_Select</a> (bool customTrainEn, <a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *pDmaMgr)</td></tr>
+<tr class="memdesc:gaaf95a7b5be5ef2ab39eb5522e5b24b62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Select the Custom PHY training state machine for the LVDS PHY initialization.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaaf95a7b5be5ef2ab39eb5522e5b24b62">More...</a><br /></td></tr>
+<tr class="separator:gaaf95a7b5be5ef2ab39eb5522e5b24b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga229ae4ea703c24b9bfb1e33f7b89b734"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga229ae4ea703c24b9bfb1e33f7b89b734">Cy_LVDS_CustomTraining_ApplyResults</a> (<a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *pDrvCtxt, uint8_t portNo)</td></tr>
+<tr class="memdesc:ga229ae4ea703c24b9bfb1e33f7b89b734"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to apply the results of the LVDS custom training where available.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga229ae4ea703c24b9bfb1e33f7b89b734">More...</a><br /></td></tr>
+<tr class="separator:ga229ae4ea703c24b9bfb1e33f7b89b734"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4">Cy_LVDS_CustomTraining_Task</a> (<a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *pDrvCtxt)</td></tr>
+<tr class="memdesc:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which updates states related LVDS custom training sequence.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4">More...</a><br /></td></tr>
+<tr class="separator:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga61948472300f47cafbe3dff11508da0b" name="ga61948472300f47cafbe3dff11508da0b"></a>
@@ -601,6 +619,52 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga720bc3f55d794c7f688b205f6b968726" name="ga720bc3f55d794c7f688b205f6b968726"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga720bc3f55d794c7f688b205f6b968726">&#9670;&nbsp;</a></span>Cy_LVDS_OverridePhyTraining()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_OverridePhyTraining </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>portNo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>phaseVal</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The LVDS PHY training process identifies the time at which the data coming in on each LVDS data lane is sampled by the PHY in terms of a delay with reference to the clock. </p>
+<p >This function can be used to override the delays with static per-port values instead of using the iterative training algorithm. This function must be called before the Cy_LVDS_PhyTrainingStart function is called so that the PHY can be initialized with the static delays specified.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">portNo</td><td>Port number on the LVDS Sensor Interface port (SIP)</td></tr>
+    <tr><td class="paramname">phaseVal</td><td>Static phase value to be forced for all data/control lanes associated with the port. Must be in the range of 1 to 12 (inclusive).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_SUCCESS or CY_LVDS_BAD_PARAMETER </dd></dl>
 
 </div>
 </div>
@@ -2361,7 +2425,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set global interrupt mask. </p>
+<p>Set additional bits in the global LVDS interrupt mask. </p>
+<p >This does not clear any interrupt mask bits which are already set.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
@@ -3535,6 +3600,177 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Value sampled from the LVCMOS IO pin. </dd></dl>
+
+</div>
+</div>
+<a id="ga5b79af95768ea0662caab9e773f3bc41" name="ga5b79af95768ea0662caab9e773f3bc41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5b79af95768ea0662caab9e773f3bc41">&#9670;&nbsp;</a></span>Cy_LVDS_ThreadDisable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_ThreadDisable </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>threadIndex</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Disable the specified LVDS data thread. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">threadIndex</td><td>Thread to be disabled. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga9fdd7552f8e3e7a714befbe5793d7adc" name="ga9fdd7552f8e3e7a714befbe5793d7adc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9fdd7552f8e3e7a714befbe5793d7adc">&#9670;&nbsp;</a></span>Cy_LVDS_PllBypassControl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_LVDS_PllBypassControl </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>pllBypassEnable</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>In LVDS mode of operation, a PLL is used to generate a clean version of the interface clock input received. </p>
+<p >When the LVDS gearing ratio used is 2:1 or 1:1, it is possible to bypass this PLL and use the direct clock input for the block operation. This API is provided to enable the PLL bypassed mode of operation where applicable. This function must be called before the LVDS block and PHY are enabled using <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga11b775cacd8de1c21c5fc7ffd2ce679e" title="Initialises LVDS IP block.">Cy_LVDS_Init_Ext()</a> or <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga61948472300f47cafbe3dff11508da0b" title="Initialises LVDS IP block.">Cy_LVDS_Init()</a> API call.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pllBypassEnable</td><td>Whether PLL bypassed operation is enabled. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gaaf95a7b5be5ef2ab39eb5522e5b24b62" name="gaaf95a7b5be5ef2ab39eb5522e5b24b62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaf95a7b5be5ef2ab39eb5522e5b24b62">&#9670;&nbsp;</a></span>Cy_LVDS_CustomTraining_Select()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_CustomTraining_Select </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>customTrainEn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__mgr__context__t">cy_stc_hbdma_mgr_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDmaMgr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Select the Custom PHY training state machine for the LVDS PHY initialization. </p>
+<p >The custom training state machine is a firmware based PHY training sequence which is more robust compared to the default training sequence implemented in the hardware block.</p>
+<p >The custom training works by collecting the PHY training data into RAM buffers using a special CHAR mode of the device and analysing it to identify the correct sampling delays to be used on each data lane. Once the training has been completed, the LVDS block should be disabled, re-enabled in normal operating mode and the previously calculated training results need to be applied.</p>
+<p >This function must be called before <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga61948472300f47cafbe3dff11508da0b" title="Initialises LVDS IP block.">Cy_LVDS_Init()</a> and <a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga11b775cacd8de1c21c5fc7ffd2ce679e" title="Initialises LVDS IP block.">Cy_LVDS_Init_Ext()</a> so that the block can initialized in the CHAR mode so that the training data can be collected into RAM.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">customTrainEn</td><td>Whether custom training sequence is to be enabled. </td></tr>
+    <tr><td class="paramname">pDmaMgr</td><td>Pointer to DMA manager. Used to create DMA channels for training data collection.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success if training mode selection could be registered correctly. </dd></dl>
+
+</div>
+</div>
+<a id="ga229ae4ea703c24b9bfb1e33f7b89b734" name="ga229ae4ea703c24b9bfb1e33f7b89b734"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga229ae4ea703c24b9bfb1e33f7b89b734">&#9670;&nbsp;</a></span>Cy_LVDS_CustomTraining_ApplyResults()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_LVDS_CustomTraining_ApplyResults </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDrvCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>portNo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to apply the results of the LVDS custom training where available. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDrvCtxt</td><td>Pointer to LVDS driver context structure. </td></tr>
+    <tr><td class="paramname">portNo</td><td>LVDS port number</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the custom training results have been applied, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga96eabf104faacf38cb2d47b85c4dd5f4" name="ga96eabf104faacf38cb2d47b85c4dd5f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga96eabf104faacf38cb2d47b85c4dd5f4">&#9670;&nbsp;</a></span>Cy_LVDS_CustomTraining_Task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_LVDS_CustomTraining_Task </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDrvCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which updates states related LVDS custom training sequence. </p>
+<p >Needs to be called until training is complete.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDrvCtxt</td><td>Pointer to LVDS driver context structure.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the training task is yet to be completed, false if task is complete. </dd></dl>
 
 </div>
 </div>

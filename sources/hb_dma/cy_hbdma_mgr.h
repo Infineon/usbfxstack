@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -85,13 +85,16 @@ extern "C" {
 #define CY_HBDMA_INTRQ_FREE_THRESHOLD   (CY_HBDMA_INTR_QUEUE_ENTRIES - 64U)
 
 /** Maximum DMA buffer size supported. */
-#define CY_HBDMA_MAX_BUFFER_SIZE(en_64k)        ((en_64k != 0) ? 0x10000U : 0xFFF0U)
+#define CY_HBDMA_MAX_BUFFER_SIZE(en_64k) ((en_64k != 0) ? 0x10000U : 0xFFF0U)
 
 /** Size of stack reserved for HBDma manager task in 32-bit words. */
 #define CY_HBDMA_TASK_STACK_DEPTH       (512)
 
 /** Priority of HBDma manager task. */
 #define CY_HBDMA_TASK_PRIORITY          (10)
+
+/** Retrieve the DataWire DMA descriptor from the DMA wrapper data structure. */
+#define Cy_HBDMA_GetDWDesc(dmaXferDscr)  &(dmaXferDscr.dwDscr)
 
 /** \} group_usbfxstack_hb_dma_macros */
 
@@ -251,55 +254,64 @@ typedef struct cy_stc_hbdma_chn_config
 } cy_stc_hbdma_chn_config_t;
 
 /**
+ * @brief Context structure used by the HBW DW descriptor list allocator.
+ */
+typedef struct cy_stc_hbdma_dw_descriptor_t
+{
+    uint32_t padding[2];                       /**< 8 byte padding for 32 byte alignment */
+    cy_stc_dma_descriptor_t dwDscr;            /**< DataWire descriptors. */
+} cy_stc_hbdma_dw_descriptor_t;
+
+/**
  * @brief Structure encapsulation all configuration and state information associated with
  * a High BandWidth DMA channel. A pointer to this structure should be passed as the channel
  * handle to all DMA channel API functions.
  */
 typedef struct cy_stc_hbdma_channel
 {
-    struct cy_stc_hbdma_mgr_context *pContext;  /**< HBWSS DMA manager context. */
-    cy_en_hbdma_chn_type_t type;                /**< The type of the DMA channel */
-    bool bufferMode;                            /**< Whether unit of data transfer is a buffer. */
-    bool eventEnable;                           /**< Event enable for sockets associated with this channel. */
-    uint8_t prodSckCount;                       /**< Number of producer sockets: 0, 1 or 2 */
-    uint8_t consSckCount;                       /**< Number of consumer sockets: 0, 1 or 2 */
-    uint16_t count;                             /**< Number of buffers for the channel */
-    uint32_t size;                              /**< The buffer size for the channel */
-    cy_hbdma_socket_id_t prodSckId[2];          /**< The producer (ingress) socket IDs */
-    cy_hbdma_socket_id_t consSckId[2];          /**< The consumer (egress) socket IDs */
-    uint16_t prodHdrSize;                       /**< Size of header associated with the channel. */
-    uint32_t prodBufSize;                       /**< Buffer size to be configured on producer side. */
-    uint16_t firstProdDscrIndex[2];             /**< Head of producer descriptor chain for each socket. */
-    uint16_t firstConsDscrIndex[2];             /**< Head of consumer descriptor chain for each socket. */
-    uint16_t curProdDscrIndex[2];               /**< Current descriptor for producer(s). */
-    uint16_t curConsDscrIndex[2];               /**< Current descriptor for consumer(s). */
-    uint16_t nextProdDscr;                      /**< Next produce descriptor to be updated. */
-    uint16_t nextConsDscr;                      /**< Next consume descriptor to be updated. */
-    uint16_t lastProdDscr;                      /**< The last active produce descriptor. */
-    uint16_t overrideDscrIndex;                 /**< Descriptor for send/receive transfers */
-    uint32_t xferSize;                          /**< Current transfer size */
-    uint32_t notification;                      /**< Notifications enabled for this channel */
-    cy_cb_hbdma_event_callback_t cbFunc;        /**< Function to be called on events */
-    void *cbCtx;                                /**< User context to pass to the callback. */
-    cy_en_hbdma_chn_state_t state;              /**< Current state of the DMA channel. */
-    uint8_t activeSckIndex;                     /**< Socket Index which needs to be processed */
-    uint8_t pendingEvtCnt;                      /**< Number of pending consume events to be processed. */
-    uint8_t nextProdSck;                        /**< Socket index on which next producer event for a 2:1 channel
-                                                     is expected. */
-    uint16_t overrideCnt;                       /**< Count of override operations performed on this channel. */
-    uint8_t commitCnt[2];                       /**< Number of commit operations performed to each consumer socket. */
-    uint8_t discardCnt[2];                      /**< Number of pending discard operations on each consumer socket. */
-    uint8_t endpAddr;                           /**< USB endpoint associated with the channel. */
+    struct cy_stc_hbdma_mgr_context *pContext;     /**< HBWSS DMA manager context. */
+    cy_en_hbdma_chn_type_t type;                   /**< The type of the DMA channel */
+    bool bufferMode;                               /**< Whether unit of data transfer is a buffer. */
+    bool eventEnable;                              /**< Event enable for sockets associated with this channel. */
+    uint8_t prodSckCount;                          /**< Number of producer sockets: 0, 1 or 2 */
+    uint8_t consSckCount;                          /**< Number of consumer sockets: 0, 1 or 2 */
+    uint16_t count;                                /**< Number of buffers for the channel */
+    uint32_t size;                                 /**< The buffer size for the channel */
+    cy_hbdma_socket_id_t prodSckId[2];             /**< The producer (ingress) socket IDs */
+    cy_hbdma_socket_id_t consSckId[2];             /**< The consumer (egress) socket IDs */
+    uint16_t prodHdrSize;                          /**< Size of header associated with the channel. */
+    uint32_t prodBufSize;                          /**< Buffer size to be configured on producer side. */
+    uint16_t firstProdDscrIndex[2];                /**< Head of producer descriptor chain for each socket. */
+    uint16_t firstConsDscrIndex[2];                /**< Head of consumer descriptor chain for each socket. */
+    uint16_t curProdDscrIndex[2];                  /**< Current descriptor for producer(s). */
+    uint16_t curConsDscrIndex[2];                  /**< Current descriptor for consumer(s). */
+    uint16_t nextProdDscr;                         /**< Next produce descriptor to be updated. */
+    uint16_t nextConsDscr;                         /**< Next consume descriptor to be updated. */
+    uint16_t lastProdDscr;                         /**< The last active produce descriptor. */
+    uint16_t overrideDscrIndex;                    /**< Descriptor for send/receive transfers */
+    uint32_t xferSize;                             /**< Current transfer size */
+    uint32_t notification;                         /**< Notifications enabled for this channel */
+    cy_cb_hbdma_event_callback_t cbFunc;           /**< Function to be called on events */
+    void *cbCtx;                                   /**< User context to pass to the callback. */
+    cy_en_hbdma_chn_state_t state;                 /**< Current state of the DMA channel. */
+    uint8_t activeSckIndex;                        /**< Socket Index which needs to be processed */
+    uint8_t pendingEvtCnt;                         /**< Number of pending consume events to be processed. */
+    uint8_t nextProdSck;                           /**< Socket index on which next producer event for a 2:1 channel
+                                                        is expected. */
+    uint16_t overrideCnt;                          /**< Count of override operations performed on this channel. */
+    uint8_t commitCnt[2];                          /**< Number of commit operations performed to each consumer socket. */
+    uint8_t discardCnt[2];                         /**< Number of pending discard operations on each consumer socket. */
+    uint8_t endpAddr;                              /**< USB endpoint associated with the channel. */
 
-    bool egressDWTrigDone[2];                   /**< Whether DataWire trigger for each egress channel has been done. */
-    bool ingressDWRqtQueued[2];                 /**< Whether ingress DataWire request has been queued. */
-    bool egressDWRqtQueued[2];                  /**< Whether egress DataWire request has been queued. */
-    uint16_t epMaxPktSize;                      /**< Maximum packet size for the USBHS endpoint. */
-    cy_stc_dma_descriptor_t *pProdDwDscr[2];    /**< Current DataWire descriptor pointer for producer channels. */
-    cy_stc_dma_descriptor_t *pConsDwDscr[2];    /**< Current DataWire descriptor pointer for consumer channels. */
-    uint16_t curIngressXferSize[2];             /**< Current ingress DataWire transfer size in bytes. */
-    uint8_t *pCurEgressDataBuf[2];              /**< Current buffer from which egress DataWire channel is reading. */
-    uint16_t curEgressXferSize[2];              /**< Size of data in buffer from which egress channel is reading. */
+    bool egressDWTrigDone[2];                      /**< Whether DataWire trigger for each egress channel has been done. */
+    bool ingressDWRqtQueued[2];                    /**< Whether ingress DataWire request has been queued. */
+    bool egressDWRqtQueued[2];                     /**< Whether egress DataWire request has been queued. */
+    uint16_t epMaxPktSize;                         /**< Maximum packet size for the USBHS endpoint. */
+    cy_stc_hbdma_dw_descriptor_t *pProdDwDscr[2];  /**< Current DataWire descriptor pointer for producer channels. */
+    cy_stc_hbdma_dw_descriptor_t *pConsDwDscr[2];  /**< Current DataWire descriptor pointer for consumer channels. */
+    uint32_t curIngressXferSize[2];                /**< Current ingress DataWire transfer size in bytes. */
+    uint8_t *pCurEgressDataBuf[2];                 /**< Current buffer from which egress DataWire channel is reading. */
+    uint32_t curEgressXferSize[2];                 /**< Size of data in buffer from which egress channel is reading. */
 } cy_stc_hbdma_channel_t;
 
 /**
@@ -350,7 +362,7 @@ typedef struct cy_stc_hbdma_mgr_context
     uint32_t socketUsed[CY_HBDMA_MAX_ADAP_CNT]; /**< Bit-map showing the sockets in use. */
     cy_stc_hbdma_channel_t *sckChannelMap[CY_HBDMA_MAX_ADAP_CNT][CY_HBDMA_SOCK_PER_ADAPTER];
                                                 /**< Table used to map sockets to DMA channels. */
-    cy_stc_dma_descriptor_t *dwDscrList;        /**< List of DataWire descriptors used across all channels. */
+    cy_stc_hbdma_dw_descriptor_t *dwDscrList;   /**< List of DataWire descriptors used across all channels. */
     uint16_t usbIngMultEnable;                  /**< Bit-mask providing mult enable setting for USB ingress sockets. */
     uint16_t usbEgrMultEnable;                  /**< Bit-mask providing mult enable setting for USB egress sockets. */
 
@@ -1267,7 +1279,7 @@ Cy_HBDma_DW_QueueRead(
         cy_stc_hbdma_channel_t *pHandle,
         uint8_t                 prodIndex,
         uint8_t                *pBuffer,
-        uint16_t                dataSize);
+        uint32_t                dataSize);
 
 /*******************************************************************************
  * Function name: Cy_HBDma_DW_CompleteShortRead
@@ -1316,7 +1328,7 @@ Cy_HBDma_DW_QueueWrite(
         cy_stc_hbdma_channel_t *pHandle,
         uint8_t                 consIndex,
         uint8_t                *pBuffer,
-        uint16_t                dataSize);
+        uint32_t                dataSize);
 
 /*******************************************************************************
  * Function name: Cy_HBDma_Mgr_HandleDW0Interrupt

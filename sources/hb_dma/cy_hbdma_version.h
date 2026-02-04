@@ -7,7 +7,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -47,10 +47,10 @@
 #define HBDMA_VERSION_MINOR      (3u)
 
 /** HBDma manager middleware patch version */
-#define HBDMA_VERSION_PATCH      (1u)
+#define HBDMA_VERSION_PATCH      (2u)
 
 /** HBDma manager middleware build number */
-#define HBDMA_VERSION_BUILD      (35u)
+#define HBDMA_VERSION_BUILD      (36u)
 
 /** HBDma manager middleware version number */
 #define HBDMA_VERSION_NUM        ((HBDMA_VERSION_MAJOR << 28u) | (HBDMA_VERSION_MINOR << 24u) | \

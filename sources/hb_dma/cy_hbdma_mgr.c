@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -51,7 +51,7 @@ extern "C" {
     /* When we have the DMA functions running on CM0 core and descriptors being accessed over
      * slow AHB, we need to keep all DataWire DMA descriptors in the System RAM itself.
      */
-    static cy_stc_dma_descriptor_t gHbDmaDwDscrList[CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN];
+    static cy_stc_hbdma_dw_descriptor_t gHbDmaDwDscrList[CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN];
 #endif /* (!CY_CPU_CORTEX_M4) */
 
 /*******************************************************************************
@@ -124,13 +124,13 @@ Cy_HBDma_Mgr_Init (
 #if CY_CPU_CORTEX_M4
     /* Allocate list of DataWire descriptors to be used for all USBHS channels. We need three
      * descriptors per DMA channel (ingress and egress). */
-    pContext->dwDscrList = (cy_stc_dma_descriptor_t *)Cy_HBDma_BufMgr_Alloc(pBufMgr,
-            CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN * sizeof(cy_stc_dma_descriptor_t));
+    pContext->dwDscrList = (cy_stc_hbdma_dw_descriptor_t *)Cy_HBDma_BufMgr_Alloc(pBufMgr,
+             CY_HBDMA_DW_ADAP_CNT * CY_HBDMA_SOCK_PER_ADAPTER * CY_HBDMA_DW_DSCR_PER_CHN * sizeof(cy_stc_hbdma_dw_descriptor_t));
     if (pContext->dwDscrList == NULL) {
         return CY_HBDMA_MGR_MEMORY_ERROR;
     }
 #else
-    pContext->dwDscrList = (cy_stc_dma_descriptor_t *)gHbDmaDwDscrList;
+    pContext->dwDscrList = (cy_stc_hbdma_dw_descriptor_t *)gHbDmaDwDscrList;
 #endif /* CY_CPU_CORTEX_M4 */
 
     /* Register the callback to be called when DMA interrupts are received. */

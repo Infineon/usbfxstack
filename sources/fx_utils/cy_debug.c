@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -396,7 +396,13 @@ cy_en_debug_status_t Cy_Debug_LogDeInit (void)
             return CY_DEBUG_STATUS_FAILURE;
        }
     }
-    
+
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USBFS_CDC)
+    {
+        CyUsbFsCdc_Disable();
+    }
+
+    /* Clear the debug context data structure. */
     memset(&glDbgCtx,0,sizeof(glDbgCtx));
 
     return CY_DEBUG_STATUS_SUCCESS;
@@ -915,7 +921,7 @@ bool Cy_Debug_QueueDataRead (uint8_t *pReadBuffer, uint16_t dataLength,
     /* Operation only supported when USBFS CDC & USBHS CDC is used for debug and connection
      * is present.
      */
-    if (!((glDbgCtx.intfc != CY_DEBUG_INTFCE_USB_CDC) || (glDbgCtx.intfc != CY_DEBUG_INTFCE_USBFS_CDC))) {
+    if ((glDbgCtx.intfc != CY_DEBUG_INTFCE_USB_CDC) && (glDbgCtx.intfc != CY_DEBUG_INTFCE_USBFS_CDC)) {
         return false;
     }
     /* If parameters are not valid or if read is already queued, return error. */

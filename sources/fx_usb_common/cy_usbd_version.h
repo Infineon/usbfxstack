@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -46,10 +46,10 @@
 #define USBD_VERSION_MINOR      (3u)
 
 /** USBD middleware patch version */
-#define USBD_VERSION_PATCH      (1u)
+#define USBD_VERSION_PATCH      (2u)
 
 /** USBD middleware build number */
-#define USBD_VERSION_BUILD      (96u)
+#define USBD_VERSION_BUILD      (107u)
 
 /** USBD middleware version number. */
 #define USBD_VERSION_NUM        ((USBD_VERSION_MAJOR << 28u) | (USBD_VERSION_MINOR << 24u) | \

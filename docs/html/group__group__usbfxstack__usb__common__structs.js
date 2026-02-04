@@ -110,6 +110,7 @@ var group__group__usbfxstack__usb__common__structs =
       [ "ep0RecvCb", "group__group__usbfxstack__usb__common__structs.html#aa8f0579fbb0ddd8690f8385faea77daa", null ],
       [ "debugSlpCb", "group__group__usbfxstack__usb__common__structs.html#a88e5944b42835176ff8c91e77738c650", null ],
       [ "itpCb", "group__group__usbfxstack__usb__common__structs.html#a70cb1527eb474e17d275c16c5b22950d", null ],
+      [ "linkFailCb", "group__group__usbfxstack__usb__common__structs.html#a9464e764817d8de27b667a1698f905ce", null ],
       [ "pCpuDmacBase", "group__group__usbfxstack__usb__common__structs.html#afd9db2bcae757be199609bb23c7a6e7c", null ],
       [ "pCalCtxt", "group__group__usbfxstack__usb__common__structs.html#a209f5bd430dd9ef45f772670de6e909e", null ],
       [ "pSsCalCtxt", "group__group__usbfxstack__usb__common__structs.html#aa877c4583b007842a6d38809665ae39e", null ],
@@ -132,7 +133,12 @@ var group__group__usbfxstack__usb__common__structs =
       [ "ep0ExpRcvSize", "group__group__usbfxstack__usb__common__structs.html#a71b9f9f7cf0539a014c204e508fb2e33", null ],
       [ "debugOutEp", "group__group__usbfxstack__usb__common__structs.html#a10c15d858ae6d192ef51f5bdcd37275f", null ],
       [ "ssOnBusResetDisable", "group__group__usbfxstack__usb__common__structs.html#a208218bd3bc66fc56c326e7b34cc57e3", null ],
-      [ "underrunWarningDone", "group__group__usbfxstack__usb__common__structs.html#a9707228bb69922dddf37014bf4af3d90", null ]
+      [ "underrunWarningDone", "group__group__usbfxstack__usb__common__structs.html#a9707228bb69922dddf37014bf4af3d90", null ],
+      [ "usb2FallbackDisable", "group__group__usbfxstack__usb__common__structs.html#af7de51204afe8cf44ca4afa43dcb74e8", null ],
+      [ "isCtrlEpStalled", "group__group__usbfxstack__usb__common__structs.html#ad49310f87559fdb32bed860a48e84491", null ]
+    ] ],
+    [ "cy_stc_usbd_devstats_t", "group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbd__devstats__t", [
+      [ "numRecoveryEntries", "group__group__usbfxstack__usb__common__structs.html#ab9dd59af22214698ed4dadf45be25157", null ]
     ] ],
     [ "cy_stc_usb_cal_ctxt_t", "group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t", [
       [ "pCalBase", "group__group__usbfxstack__usb__common__structs.html#a99defcb4beb7f4b430193e44d72df548", null ],
@@ -184,15 +190,24 @@ var group__group__usbfxstack__usb__common__structs =
       [ "lbadCounter", "group__group__usbfxstack__usb__common__structs.html#a07e5c8ae1b34d6a8d9ea5ffea2fb16a0", null ],
       [ "numPhyInitialized", "group__group__usbfxstack__usb__common__structs.html#ad5857c1fd5c8eb4c5c271f00742de496", null ],
       [ "lgoodTimeoutCount", "group__group__usbfxstack__usb__common__structs.html#aa5712d6c509a34baccbf666ed366d483", null ],
-      [ "lpmExitLfpsDelay", "group__group__usbfxstack__usb__common__structs.html#a6c08558ddae2c3fbb77baae65f345436", null ],
       [ "gen1x1FallbackEn", "group__group__usbfxstack__usb__common__structs.html#a77c7f136ae092fd731d358a65c7534ba", null ],
       [ "compExitDone", "group__group__usbfxstack__usb__common__structs.html#ae0ac5e68f65d9cc4ba025304864a5e52", null ],
-      [ "compExitTS", "group__group__usbfxstack__usb__common__structs.html#ada6c8535dba5509b98a9e95c85c69a2a", null ],
+      [ "lpmExitLfpsDelay", "group__group__usbfxstack__usb__common__structs.html#a6c08558ddae2c3fbb77baae65f345436", null ],
       [ "activeLutMask", "group__group__usbfxstack__usb__common__structs.html#abea9ec4e4fdcc3dfb07709d625677e5a", null ],
+      [ "compExitTS", "group__group__usbfxstack__usb__common__structs.html#ada6c8535dba5509b98a9e95c85c69a2a", null ],
+      [ "numRecoveryEntries", "group__group__usbfxstack__usb__common__structs.html#afabb49a69a2931538bf78b9ae1596a8d", null ],
       [ "stopClkOnEpResetEnable", "group__group__usbfxstack__usb__common__structs.html#a25d03bc94ec403d13f831ab0ccec5f3a", null ],
       [ "usbConfigLane", "group__group__usbfxstack__usb__common__structs.html#abab09fbb0bfe1ea9344b179eec1d6475", null ],
       [ "gen1SpeedForced", "group__group__usbfxstack__usb__common__structs.html#a49b66dd9a35e0eb5611c8475c7db9459", null ],
       [ "inGen1DualMode", "group__group__usbfxstack__usb__common__structs.html#a010565abc44e1c88d8f1708c1cde5db3", null ],
-      [ "delayEventMask", "group__group__usbfxstack__usb__common__structs.html#ab9ed0893cff53fabf82e43fe33aef453", null ]
+      [ "delayEventMask", "group__group__usbfxstack__usb__common__structs.html#ab9ed0893cff53fabf82e43fe33aef453", null ],
+      [ "usbTxTestMode", "group__group__usbfxstack__usb__common__structs.html#ae53fcbcaeb5ddd5ce0c9c112fb914e29", null ],
+      [ "usbTxCursorPts", "group__group__usbfxstack__usb__common__structs.html#ab45116091df0b16bf8f6d29218ededf5", null ],
+      [ "usbTxAmplitude", "group__group__usbfxstack__usb__common__structs.html#a79906066ba0a5cde3e5bf2fde8334d42", null ],
+      [ "gen1x1LutMask", "group__group__usbfxstack__usb__common__structs.html#aab075d505ecf1a37f7999ed20d771519", null ],
+      [ "gen1x2LutMask", "group__group__usbfxstack__usb__common__structs.html#a9000a03ef1ddc25b3f1df52990df2d47", null ],
+      [ "gen2x1LutMask", "group__group__usbfxstack__usb__common__structs.html#a37623d4455d8ea912f877ffb76df0c96", null ],
+      [ "gen2x2LutMask", "group__group__usbfxstack__usb__common__structs.html#a8f29dd5f207d5c8df43dfc86277103c6", null ],
+      [ "ctleLutArrayGen2", "group__group__usbfxstack__usb__common__structs.html#aeb2c39115ca0ac90951347cbf18ec2be", null ]
     ] ]
 ];

@@ -141,6 +141,9 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBD_DisableSSOnBusReset", "group__group__usbfxstack__usb__common__functions.html#gafc734b9217c14e0a9dd5838838af8c35", null ],
     [ "Cy_USBD_SelectConfigLane", "group__group__usbfxstack__usb__common__functions.html#gac4d2647167df9195879c5f5673fa638c", null ],
     [ "Cy_USBD_GetEndpointType", "group__group__usbfxstack__usb__common__functions.html#ga6dc94d97c567ff70048d4bb17756e517", null ],
+    [ "Cy_USBD_ResetEndpoints", "group__group__usbfxstack__usb__common__functions.html#ga53ea007e50a8b3a2a30d4850479fd805", null ],
+    [ "Cy_USBD_GetDeviceStats", "group__group__usbfxstack__usb__common__functions.html#ga6eaa774424e7b5b3be650fe22c958af1", null ],
+    [ "Cy_USBD_ControlUsb2Support", "group__group__usbfxstack__usb__common__functions.html#gab500760005bcebe8af7be7ab914575ad", null ],
     [ "Cy_USBHS_Cal_Init", "group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226", null ],
     [ "Cy_USBHS_Cal_FsHsModePhyInit", "group__group__usbfxstack__usb__common__functions.html#ga7c1c86e72768878c411c653324beca1b", null ],
     [ "Cy_USBHS_Cal_PhyCommonInit", "group__group__usbfxstack__usb__common__functions.html#ga1b24e1816f2cd2217932da1146205bd9", null ],
@@ -172,7 +175,7 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBHS_Cal_EndpSetClearStall", "group__group__usbfxstack__usb__common__functions.html#ga368c6a300743075228663db03a804c37", null ],
     [ "Cy_USBHS_Cal_EndpIsStallSet", "group__group__usbfxstack__usb__common__functions.html#gaab7605784f1b0db0700a92566fd11cda", null ],
     [ "Cy_USBHS_Cal_FlushEndp", "group__group__usbfxstack__usb__common__functions.html#ga29778c9bc2fb8e75b5dcb9648bd15dcf", null ],
-    [ "Cy_USBHS_Cal_FlushAllEndp", "group__group__usbfxstack__usb__common__functions.html#ga2ea5a8287848d8da27a9a85f300014a4", null ],
+    [ "Cy_USBHS_Cal_FlushAllEndp", "group__group__usbfxstack__usb__common__functions.html#ga3be060ac76ac0eaf897ac6303c317f29", null ],
     [ "Cy_USBHS_Cal_SendEgressZLP", "group__group__usbfxstack__usb__common__functions.html#ga3d74512df96ccfb9af7b42560353a3be", null ],
     [ "Cy_USBHS_Cal_HandleCtrlOutSlp", "group__group__usbfxstack__usb__common__functions.html#gaa952a9e2d5db22702f1d9824f7f3905e", null ],
     [ "Cy_USBHS_Cal_CtrlEndp0DataOutAck", "group__group__usbfxstack__usb__common__functions.html#ga9ee6d92fd4206586b0f5a907ff046d77", null ],
@@ -255,5 +258,10 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBSS_Cal_SelectConfigLane", "group__group__usbfxstack__usb__common__functions.html#ga30c175ad0e4df2a14fb31351209b4f70", null ],
     [ "Cy_USBSS_Cal_ITPIntrUpdate", "group__group__usbfxstack__usb__common__functions.html#gab6669c9f2cb6cddf556faed3faf6488e", null ],
     [ "Cy_USBSS_Cal_GetTemperatureReading", "group__group__usbfxstack__usb__common__functions.html#ga5ee56fc33a618be7287ae270ca30e85a", null ],
-    [ "Cy_USBSS_Cal_TimerISR", "group__group__usbfxstack__usb__common__functions.html#ga26f4ea241ab68ae7166547bc40c1c276", null ]
+    [ "Cy_USBSS_Cal_TimerISR", "group__group__usbfxstack__usb__common__functions.html#ga26f4ea241ab68ae7166547bc40c1c276", null ],
+    [ "Cy_USBSS_Cal_ResetEndpoints", "group__group__usbfxstack__usb__common__functions.html#ga0de9485ed18ef8eb89fd3f27c9cfe5c2", null ],
+    [ "Cy_USBSS_SetPreShootnDeEmphasis", "group__group__usbfxstack__usb__common__functions.html#ga6105e76cd836ea539209971caedfceeb", null ],
+    [ "Cy_USBSS_SetTransmitAmplitude", "group__group__usbfxstack__usb__common__functions.html#ga158fa3b05649db2466eaf6436bfcf0bb", null ],
+    [ "Cy_USBSS_UpdateCtleLutMask", "group__group__usbfxstack__usb__common__functions.html#gaeea80772f69c73d49d90a6b29ab53d29", null ],
+    [ "Cy_USBSS_UpdateGen2CtleLutConfig", "group__group__usbfxstack__usb__common__functions.html#gaa698829008b4348cefbb6db3dda4be61", null ]
 ];

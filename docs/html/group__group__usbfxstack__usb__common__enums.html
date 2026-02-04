@@ -229,6 +229,8 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498aefd9f8c215ce1bd171c29a60c9199465">CY_USBSS_CAL_MSG_LPBK_FORCED</a>
 , <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a823596c0a5d7f4852d01936466438e1b">CY_USB_CAL_MSG_SS_RECONNECT</a>
+, <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498ac29766e923ebf12b7eca72a99e5dc5ad">CY_USB_CAL_MSG_MAX</a>
 <br />
  }</td></tr>
@@ -363,6 +365,10 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a6382e8ba658bfb9ba974d567877fbc81">CY_USBD_EVT_HS_RESET_SKIP</a>
 , <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a1ccaddb9d3f5f66b1cea8552b4c7160d">CY_USBD_EVT_SET_CONFIG_CB</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a7e0f83c79b8b067ae6dd34fb53387093">CY_USBD_EVT_SET_INTF_CB</a>
+, <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a83e58ce1dbec015f382fb8347b463dcd">CY_HSCAL_EVT_CONN_EN</a> = 0x50
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723ab4c2155846506e48b1fb1e99fd747137">CY_HSCAL_EVT_CONN_DIS</a>
@@ -480,6 +486,10 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a8b3020ef05fce02516ff0c7210b08fb4">CY_LNK_EVENT_LNK_FORCE_U0</a>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723ad3a0e33091d29f1e3e1ec4a64337a31f">CY_LNK_EVENT_UX_EXIT_TS1_TIMEOUT</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723a9677978bd5cf8227e23beaa076d15ae5">CY_LNK_EVENT_USB_CLK_STOP</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga678c0f096acfc45a68c040fd025ca723aa018473bc6a4a99ca4490762695ec2e7">CY_LNK_EVENT_USB_CLK_START</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga678c0f096acfc45a68c040fd025ca723"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of USB events which are logged into the RAM based time-stamped event buffer for debug support.  <a href="group__group__usbfxstack__usb__common__enums.html#ga678c0f096acfc45a68c040fd025ca723">More...</a><br /></td></tr>
@@ -620,6 +630,8 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234">CY_USB_USBD_CB_EP0_RCV_DONE</a>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7">CY_USB_USBD_CB_SOF_ITP</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adaa6739b5a27be3f2eaa8109a8187df560">CY_USB_USBD_CB_USB3_LINKFAIL</a>
 , <br />
 &#160;&#160;<a class="el" href="group__group__usbfxstack__usb__common__enums.html#gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439">CY_USB_USBD_CB_SET_INVALID</a>
 <br />
@@ -1014,113 +1026,115 @@ Enumerations</h2></td></tr>
 
 <p>Types of messages sent the by the USBHS and/or USBSS CAL drivers to the USBD stack. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a19ac76cdaf413828c2e197a72b897bc7" name="ggaa94d9a6862737a3d5fc0889e7dad1498a19ac76cdaf413828c2e197a72b897bc7"></a>CY_USB_CAL_MSG_INVALID&#160;</td><td class="fielddoc"><p >Invalid message type. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a19ac76cdaf413828c2e197a72b897bc7" name="ggaa94d9a6862737a3d5fc0889e7dad1498a19ac76cdaf413828c2e197a72b897bc7"></a>CY_USB_CAL_MSG_INVALID&#160;</td><td class="fielddoc"><p >00: Invalid message type. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a27b5018929cc74f0a9492bbb704a9602" name="ggaa94d9a6862737a3d5fc0889e7dad1498a27b5018929cc74f0a9492bbb704a9602"></a>CY_USB_CAL_MSG_RESET&#160;</td><td class="fielddoc"><p >USB 2.x reset event. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a27b5018929cc74f0a9492bbb704a9602" name="ggaa94d9a6862737a3d5fc0889e7dad1498a27b5018929cc74f0a9492bbb704a9602"></a>CY_USB_CAL_MSG_RESET&#160;</td><td class="fielddoc"><p >01: USB 2.x reset event. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a43294e7cd0ee2c00e1bac36d1edc8c21" name="ggaa94d9a6862737a3d5fc0889e7dad1498a43294e7cd0ee2c00e1bac36d1edc8c21"></a>CY_USB_CAL_MSG_HSGRANT&#160;</td><td class="fielddoc"><p >USB 2.x high speed chirp handshake complete. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a43294e7cd0ee2c00e1bac36d1edc8c21" name="ggaa94d9a6862737a3d5fc0889e7dad1498a43294e7cd0ee2c00e1bac36d1edc8c21"></a>CY_USB_CAL_MSG_HSGRANT&#160;</td><td class="fielddoc"><p >02: USB 2.x high speed chirp handshake complete. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a7c09c3daeedef9a236be54f0e9a36932" name="ggaa94d9a6862737a3d5fc0889e7dad1498a7c09c3daeedef9a236be54f0e9a36932"></a>CY_USB_CAL_MSG_RESET_DONE&#160;</td><td class="fielddoc"><p >USB 2.x reset complete event. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a7c09c3daeedef9a236be54f0e9a36932" name="ggaa94d9a6862737a3d5fc0889e7dad1498a7c09c3daeedef9a236be54f0e9a36932"></a>CY_USB_CAL_MSG_RESET_DONE&#160;</td><td class="fielddoc"><p >03: USB 2.x reset complete event. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aa5464db949eb1874c12e8c84155124b1" name="ggaa94d9a6862737a3d5fc0889e7dad1498aa5464db949eb1874c12e8c84155124b1"></a>CY_USB_CAL_MSG_SUDAV&#160;</td><td class="fielddoc"><p >USB 2.x control request received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aa5464db949eb1874c12e8c84155124b1" name="ggaa94d9a6862737a3d5fc0889e7dad1498aa5464db949eb1874c12e8c84155124b1"></a>CY_USB_CAL_MSG_SUDAV&#160;</td><td class="fielddoc"><p >04: USB 2.x control request received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae9797ca5f7f8b232aa1f275d3239734c" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae9797ca5f7f8b232aa1f275d3239734c"></a>CY_USB_CAL_MSG_STATUS_STAGE&#160;</td><td class="fielddoc"><p >USB 2.x control request acknowledged. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae9797ca5f7f8b232aa1f275d3239734c" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae9797ca5f7f8b232aa1f275d3239734c"></a>CY_USB_CAL_MSG_STATUS_STAGE&#160;</td><td class="fielddoc"><p >05: USB 2.x control request acknowledged. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aabce8711cf3e7e57a43ad382b53a4e25" name="ggaa94d9a6862737a3d5fc0889e7dad1498aabce8711cf3e7e57a43ad382b53a4e25"></a>CY_USB_CAL_MSG_SETADDR&#160;</td><td class="fielddoc"><p >SET_ADDRESS request acknowledged. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aabce8711cf3e7e57a43ad382b53a4e25" name="ggaa94d9a6862737a3d5fc0889e7dad1498aabce8711cf3e7e57a43ad382b53a4e25"></a>CY_USB_CAL_MSG_SETADDR&#160;</td><td class="fielddoc"><p >06: SET_ADDRESS request acknowledged. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1af854c21c2095dffe121cd66b773b9e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1af854c21c2095dffe121cd66b773b9e"></a>CY_USB_CAL_MSG_SUSP&#160;</td><td class="fielddoc"><p >USB link suspended. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1af854c21c2095dffe121cd66b773b9e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1af854c21c2095dffe121cd66b773b9e"></a>CY_USB_CAL_MSG_SUSP&#160;</td><td class="fielddoc"><p >07: USB link suspended. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a78567603e17d33e73c277fdcab1e8e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a78567603e17d33e73c277fdcab1e8e"></a>CY_USB_CAL_MSG_RESUME_START&#160;</td><td class="fielddoc"><p >USB 2.x resume signalling started. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a78567603e17d33e73c277fdcab1e8e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a78567603e17d33e73c277fdcab1e8e"></a>CY_USB_CAL_MSG_RESUME_START&#160;</td><td class="fielddoc"><p >08: USB 2.x resume signalling started. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a8097f545e1fbd39419cbefd44dc0bc" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a8097f545e1fbd39419cbefd44dc0bc"></a>CY_USB_CAL_MSG_RESUME_END&#160;</td><td class="fielddoc"><p >USB 2.x resume signalling completed. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a8097f545e1fbd39419cbefd44dc0bc" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a8097f545e1fbd39419cbefd44dc0bc"></a>CY_USB_CAL_MSG_RESUME_END&#160;</td><td class="fielddoc"><p >09: USB 2.x resume signalling completed. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a82da8660bc7b7493e5a959088d44db08" name="ggaa94d9a6862737a3d5fc0889e7dad1498a82da8660bc7b7493e5a959088d44db08"></a>CY_USB_CAL_MSG_DEEP_SLEEP_EXIT&#160;</td><td class="fielddoc"><p >Deep sleep exit detected. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a82da8660bc7b7493e5a959088d44db08" name="ggaa94d9a6862737a3d5fc0889e7dad1498a82da8660bc7b7493e5a959088d44db08"></a>CY_USB_CAL_MSG_DEEP_SLEEP_EXIT&#160;</td><td class="fielddoc"><p >10: Deep sleep exit detected. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac32cbbc7813d1b03c3b900fe3d0fd307" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac32cbbc7813d1b03c3b900fe3d0fd307"></a>CY_USB_CAL_MSG_L1_SLEEP&#160;</td><td class="fielddoc"><p >USB 2.x link entered L1 state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac32cbbc7813d1b03c3b900fe3d0fd307" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac32cbbc7813d1b03c3b900fe3d0fd307"></a>CY_USB_CAL_MSG_L1_SLEEP&#160;</td><td class="fielddoc"><p >11: USB 2.x link entered L1 state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aba208055ba0610bb28d9e016ea6a5096" name="ggaa94d9a6862737a3d5fc0889e7dad1498aba208055ba0610bb28d9e016ea6a5096"></a>CY_USB_CAL_MSG_L1_URESUME&#160;</td><td class="fielddoc"><p >USB 2.x link exited L1 state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aba208055ba0610bb28d9e016ea6a5096" name="ggaa94d9a6862737a3d5fc0889e7dad1498aba208055ba0610bb28d9e016ea6a5096"></a>CY_USB_CAL_MSG_L1_URESUME&#160;</td><td class="fielddoc"><p >12: USB 2.x link exited L1 state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac11c72ab661f094142f3a8ab7f5934f3" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac11c72ab661f094142f3a8ab7f5934f3"></a>CY_USB_CAL_MSG_IN_ZLP&#160;</td><td class="fielddoc"><p >ZLP interrupt received on IN endpoint. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac11c72ab661f094142f3a8ab7f5934f3" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac11c72ab661f094142f3a8ab7f5934f3"></a>CY_USB_CAL_MSG_IN_ZLP&#160;</td><td class="fielddoc"><p >13: ZLP interrupt received on IN endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a4b629786da89ace684a8e30051f3a4c6" name="ggaa94d9a6862737a3d5fc0889e7dad1498a4b629786da89ace684a8e30051f3a4c6"></a>CY_USB_CAL_MSG_IN_SLP&#160;</td><td class="fielddoc"><p >SLP interrupt received on IN endpoint. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a4b629786da89ace684a8e30051f3a4c6" name="ggaa94d9a6862737a3d5fc0889e7dad1498a4b629786da89ace684a8e30051f3a4c6"></a>CY_USB_CAL_MSG_IN_SLP&#160;</td><td class="fielddoc"><p >14: SLP interrupt received on IN endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1966db956192f3e41289799e36222771" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1966db956192f3e41289799e36222771"></a>CY_USB_CAL_MSG_OUT_ZLP&#160;</td><td class="fielddoc"><p >ZLP interrupt received on OUT endpoint. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1966db956192f3e41289799e36222771" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1966db956192f3e41289799e36222771"></a>CY_USB_CAL_MSG_OUT_ZLP&#160;</td><td class="fielddoc"><p >15: ZLP interrupt received on OUT endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a653d3823d419e63cb020e6c7a5116830" name="ggaa94d9a6862737a3d5fc0889e7dad1498a653d3823d419e63cb020e6c7a5116830"></a>CY_USB_CAL_MSG_OUT_SLP&#160;</td><td class="fielddoc"><p >SLP interrupt received on OUT endpoint. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a653d3823d419e63cb020e6c7a5116830" name="ggaa94d9a6862737a3d5fc0889e7dad1498a653d3823d419e63cb020e6c7a5116830"></a>CY_USB_CAL_MSG_OUT_SLP&#160;</td><td class="fielddoc"><p >16: SLP interrupt received on OUT endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257" name="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257"></a>CY_USB_CAL_MSG_OUT_DONE&#160;</td><td class="fielddoc"><p >Expected amount of data received on OUT endpoint. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257" name="ggaa94d9a6862737a3d5fc0889e7dad1498a3cae75563468121e08eb79c49f203257"></a>CY_USB_CAL_MSG_OUT_DONE&#160;</td><td class="fielddoc"><p >17: Expected amount of data received on OUT endpoint. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132" name="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132"></a>CY_USB_CAL_MSG_SOF_ITP&#160;</td><td class="fielddoc"><p >Start-of-Frame or ITP packet received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132" name="ggaa94d9a6862737a3d5fc0889e7dad1498a4a150a50c7c8b4841c28de53b8446132"></a>CY_USB_CAL_MSG_SOF_ITP&#160;</td><td class="fielddoc"><p >18: Start-of-Frame or ITP packet received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778" name="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778"></a>CY_USB_CAL_MSG_ERRLIMIT&#160;</td><td class="fielddoc"><p >USB 2.x device raised error limit interrupt. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778" name="ggaa94d9a6862737a3d5fc0889e7dad1498a6177d43064ede23ac39564a8dc407778"></a>CY_USB_CAL_MSG_ERRLIMIT&#160;</td><td class="fielddoc"><p >19: USB 2.x device raised error limit interrupt. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2df3ca406a6dcc96088bd355250445e3" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2df3ca406a6dcc96088bd355250445e3"></a>CY_USBSS_CAL_MSG_LNK_RESET&#160;</td><td class="fielddoc"><p >USB 3.x link reset: Warm or Hot Reset. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2df3ca406a6dcc96088bd355250445e3" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2df3ca406a6dcc96088bd355250445e3"></a>CY_USBSS_CAL_MSG_LNK_RESET&#160;</td><td class="fielddoc"><p >20: USB 3.x link reset: Warm or Hot Reset. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498abc419db5bfc12c8c8fd55a3b971cb008" name="ggaa94d9a6862737a3d5fc0889e7dad1498abc419db5bfc12c8c8fd55a3b971cb008"></a>CY_USBSS_CAL_MSG_LNK_CONNECT&#160;</td><td class="fielddoc"><p >USB 3.x far-end terminations detected. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498abc419db5bfc12c8c8fd55a3b971cb008" name="ggaa94d9a6862737a3d5fc0889e7dad1498abc419db5bfc12c8c8fd55a3b971cb008"></a>CY_USBSS_CAL_MSG_LNK_CONNECT&#160;</td><td class="fielddoc"><p >21: USB 3.x far-end terminations detected. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a24ee2105f604f8e96d4d5fc57a818ab9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a24ee2105f604f8e96d4d5fc57a818ab9"></a>CY_USBSS_CAL_MSG_LNK_DISCONNECT&#160;</td><td class="fielddoc"><p >USB 3.x link entered SS.Disabled state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a24ee2105f604f8e96d4d5fc57a818ab9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a24ee2105f604f8e96d4d5fc57a818ab9"></a>CY_USBSS_CAL_MSG_LNK_DISCONNECT&#160;</td><td class="fielddoc"><p >22: USB 3.x link entered SS.Disabled state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aad1c8a5760c6663821f23ddbecb8d0c9" name="ggaa94d9a6862737a3d5fc0889e7dad1498aad1c8a5760c6663821f23ddbecb8d0c9"></a>CY_USBSS_CAL_MSG_LNK_INT&#160;</td><td class="fielddoc"><p >USB 3.x link interrupt received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aad1c8a5760c6663821f23ddbecb8d0c9" name="ggaa94d9a6862737a3d5fc0889e7dad1498aad1c8a5760c6663821f23ddbecb8d0c9"></a>CY_USBSS_CAL_MSG_LNK_INT&#160;</td><td class="fielddoc"><p >23: USB 3.x link interrupt received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498acbb1ceb690d032cb1ef0aaf90fa42f9d" name="ggaa94d9a6862737a3d5fc0889e7dad1498acbb1ceb690d032cb1ef0aaf90fa42f9d"></a>CY_USBSS_CAL_MSG_LNK_ERR_LIMIT&#160;</td><td class="fielddoc"><p >Too many USB 3.x link errors detected. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498acbb1ceb690d032cb1ef0aaf90fa42f9d" name="ggaa94d9a6862737a3d5fc0889e7dad1498acbb1ceb690d032cb1ef0aaf90fa42f9d"></a>CY_USBSS_CAL_MSG_LNK_ERR_LIMIT&#160;</td><td class="fielddoc"><p >24: Too many USB 3.x link errors detected. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ad80078164c58d08e2d6a95391f56bd26" name="ggaa94d9a6862737a3d5fc0889e7dad1498ad80078164c58d08e2d6a95391f56bd26"></a>CY_USBSS_CAL_MSG_LNK_RX_DETECT_ACTIVE&#160;</td><td class="fielddoc"><p >USB 3.x link entered Rx.Detect.Active state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ad80078164c58d08e2d6a95391f56bd26" name="ggaa94d9a6862737a3d5fc0889e7dad1498ad80078164c58d08e2d6a95391f56bd26"></a>CY_USBSS_CAL_MSG_LNK_RX_DETECT_ACTIVE&#160;</td><td class="fielddoc"><p >25: USB 3.x link entered Rx.Detect.Active state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae918a11436d42eb91d5369b71ea9210b" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae918a11436d42eb91d5369b71ea9210b"></a>CY_USBSS_CAL_MSG_LNK_SS_DISABLE&#160;</td><td class="fielddoc"><p >USB 3.x link entered SS.Disabled state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae918a11436d42eb91d5369b71ea9210b" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae918a11436d42eb91d5369b71ea9210b"></a>CY_USBSS_CAL_MSG_LNK_SS_DISABLE&#160;</td><td class="fielddoc"><p >26: USB 3.x link entered SS.Disabled state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1ae0417e49f36fb2a4de90a0dfb5b830" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1ae0417e49f36fb2a4de90a0dfb5b830"></a>CY_USBSS_CAL_MSG_LNK_COMPLIANCE&#160;</td><td class="fielddoc"><p >USB 3.x link entered Compliance state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1ae0417e49f36fb2a4de90a0dfb5b830" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1ae0417e49f36fb2a4de90a0dfb5b830"></a>CY_USBSS_CAL_MSG_LNK_COMPLIANCE&#160;</td><td class="fielddoc"><p >27: USB 3.x link entered Compliance state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a94b5a7386277105a65f710033c9d51a2" name="ggaa94d9a6862737a3d5fc0889e7dad1498a94b5a7386277105a65f710033c9d51a2"></a>CY_USBSS_CAL_MSG_USB3_LNKFAIL&#160;</td><td class="fielddoc"><p >USB 3.x link unstable. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a94b5a7386277105a65f710033c9d51a2" name="ggaa94d9a6862737a3d5fc0889e7dad1498a94b5a7386277105a65f710033c9d51a2"></a>CY_USBSS_CAL_MSG_USB3_LNKFAIL&#160;</td><td class="fielddoc"><p >28: USB 3.x link unstable. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5" name="ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5"></a>CY_USBSS_CAL_MSG_EP_INT&#160;</td><td class="fielddoc"><p >USB 2.x endpoint interrupt received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5" name="ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5"></a>CY_USBSS_CAL_MSG_EP_INT&#160;</td><td class="fielddoc"><p >29: USB 2.x endpoint interrupt received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2628b46bbd3cecdad9e865313c9ea928" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2628b46bbd3cecdad9e865313c9ea928"></a>CY_USBSS_CAL_MSG_PROT_INT&#160;</td><td class="fielddoc"><p >USB 3.x protocol interrupt received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2628b46bbd3cecdad9e865313c9ea928" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2628b46bbd3cecdad9e865313c9ea928"></a>CY_USBSS_CAL_MSG_PROT_INT&#160;</td><td class="fielddoc"><p >30: USB 3.x protocol interrupt received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a98eae357ce00a37728facbeceee4f068" name="ggaa94d9a6862737a3d5fc0889e7dad1498a98eae357ce00a37728facbeceee4f068"></a>CY_USB_CAL_MSG_PROT_SETADDR_0&#160;</td><td class="fielddoc"><p >Device address set to 0. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a98eae357ce00a37728facbeceee4f068" name="ggaa94d9a6862737a3d5fc0889e7dad1498a98eae357ce00a37728facbeceee4f068"></a>CY_USB_CAL_MSG_PROT_SETADDR_0&#160;</td><td class="fielddoc"><p >31: Device address set to 0 </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498afc662bea9188a5b3678d9e6f9f9b581e" name="ggaa94d9a6862737a3d5fc0889e7dad1498afc662bea9188a5b3678d9e6f9f9b581e"></a>CY_USB_CAL_MSG_PROT_SUTOK&#160;</td><td class="fielddoc"><p >USB 3.x control request received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498afc662bea9188a5b3678d9e6f9f9b581e" name="ggaa94d9a6862737a3d5fc0889e7dad1498afc662bea9188a5b3678d9e6f9f9b581e"></a>CY_USB_CAL_MSG_PROT_SUTOK&#160;</td><td class="fielddoc"><p >32: USB 3.x control request received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498abe853182152e269f7c0488c1e3062ad2" name="ggaa94d9a6862737a3d5fc0889e7dad1498abe853182152e269f7c0488c1e3062ad2"></a>CY_USB_CAL_MSG_PROT_HOST_ERR&#160;</td><td class="fielddoc"><p >USB 3.x host error indication received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498abe853182152e269f7c0488c1e3062ad2" name="ggaa94d9a6862737a3d5fc0889e7dad1498abe853182152e269f7c0488c1e3062ad2"></a>CY_USB_CAL_MSG_PROT_HOST_ERR&#160;</td><td class="fielddoc"><p >33: USB 3.x host error indication received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ad25a296436fe81d5c76b04a5d79659ec" name="ggaa94d9a6862737a3d5fc0889e7dad1498ad25a296436fe81d5c76b04a5d79659ec"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP&#160;</td><td class="fielddoc"><p >Port Capability LMP handshake timed out. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ad25a296436fe81d5c76b04a5d79659ec" name="ggaa94d9a6862737a3d5fc0889e7dad1498ad25a296436fe81d5c76b04a5d79659ec"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CAP&#160;</td><td class="fielddoc"><p >34: Port Capability LMP handshake timed out. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae6a9b0ce4ec3fd30aa9ed98d09425a9e" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae6a9b0ce4ec3fd30aa9ed98d09425a9e"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG&#160;</td><td class="fielddoc"><p >Port Configuration LMP handshake timed out. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ae6a9b0ce4ec3fd30aa9ed98d09425a9e" name="ggaa94d9a6862737a3d5fc0889e7dad1498ae6a9b0ce4ec3fd30aa9ed98d09425a9e"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PORT_CFG&#160;</td><td class="fielddoc"><p >35: Port Configuration LMP handshake timed out. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a7c900fbf3170d22d90c5d1f78d106d4e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a7c900fbf3170d22d90c5d1f78d106d4e"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PING&#160;</td><td class="fielddoc"><p >Ping timeout. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a7c900fbf3170d22d90c5d1f78d106d4e" name="ggaa94d9a6862737a3d5fc0889e7dad1498a7c900fbf3170d22d90c5d1f78d106d4e"></a>CY_USB_CAL_MSG_PROT_TIMEOUT_PING&#160;</td><td class="fielddoc"><p >36: Ping timeout. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2f103555380925554b2827a9d5e48d0a" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2f103555380925554b2827a9d5e48d0a"></a>CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CAP&#160;</td><td class="fielddoc"><p >Invalid Port Capability LMP received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2f103555380925554b2827a9d5e48d0a" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2f103555380925554b2827a9d5e48d0a"></a>CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CAP&#160;</td><td class="fielddoc"><p >37: Invalid Port Capability LMP received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ab7eb8e10c401ff314f4939855f8d5fce" name="ggaa94d9a6862737a3d5fc0889e7dad1498ab7eb8e10c401ff314f4939855f8d5fce"></a>CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CFG&#160;</td><td class="fielddoc"><p >Invalid Port Configuration LMP received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ab7eb8e10c401ff314f4939855f8d5fce" name="ggaa94d9a6862737a3d5fc0889e7dad1498ab7eb8e10c401ff314f4939855f8d5fce"></a>CY_USB_CAL_MSG_PROT_LMP_INVALID_PORT_CFG&#160;</td><td class="fielddoc"><p >38: Invalid Port Configuration LMP received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a6a31d97f6498a8e2eca9f656f8bf63f2" name="ggaa94d9a6862737a3d5fc0889e7dad1498a6a31d97f6498a8e2eca9f656f8bf63f2"></a>CY_USBSS_CAL_MSG_PROT_EP_INT&#160;</td><td class="fielddoc"><p >USB 3.x endpoint interrupt received. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a6a31d97f6498a8e2eca9f656f8bf63f2" name="ggaa94d9a6862737a3d5fc0889e7dad1498a6a31d97f6498a8e2eca9f656f8bf63f2"></a>CY_USBSS_CAL_MSG_PROT_EP_INT&#160;</td><td class="fielddoc"><p >39: USB 3.x endpoint interrupt received. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1461e1632a9b373c621a2153440c5bd9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1461e1632a9b373c621a2153440c5bd9"></a>CY_USBSS_CAL_MSG_VBUS_CHANGE&#160;</td><td class="fielddoc"><p >VBus voltage change detected. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1461e1632a9b373c621a2153440c5bd9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1461e1632a9b373c621a2153440c5bd9"></a>CY_USBSS_CAL_MSG_VBUS_CHANGE&#160;</td><td class="fielddoc"><p >40: VBus voltage change detected. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498afe978c56632f6f42d2abcbe76913dbc7" name="ggaa94d9a6862737a3d5fc0889e7dad1498afe978c56632f6f42d2abcbe76913dbc7"></a>CY_USBSS_CAL_MSG_USB3_WARM_RESET&#160;</td><td class="fielddoc"><p >USB 3.x warm reset detected. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498afe978c56632f6f42d2abcbe76913dbc7" name="ggaa94d9a6862737a3d5fc0889e7dad1498afe978c56632f6f42d2abcbe76913dbc7"></a>CY_USBSS_CAL_MSG_USB3_WARM_RESET&#160;</td><td class="fielddoc"><p >41: USB 3.x warm reset detected. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498af0488f4fef2aa4a5ce76532b9b1aad2f" name="ggaa94d9a6862737a3d5fc0889e7dad1498af0488f4fef2aa4a5ce76532b9b1aad2f"></a>CY_USBSS_CAL_MSG_USB3_U3_SUSPEND&#160;</td><td class="fielddoc"><p >USB 3.x link entered U3. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498af0488f4fef2aa4a5ce76532b9b1aad2f" name="ggaa94d9a6862737a3d5fc0889e7dad1498af0488f4fef2aa4a5ce76532b9b1aad2f"></a>CY_USBSS_CAL_MSG_USB3_U3_SUSPEND&#160;</td><td class="fielddoc"><p >42: USB 3.x link entered U3 </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ab4e70fd70ab22493bcdebdd35bd36dff" name="ggaa94d9a6862737a3d5fc0889e7dad1498ab4e70fd70ab22493bcdebdd35bd36dff"></a>CY_USBSS_CAL_MSG_USB3_U0_RESUME&#160;</td><td class="fielddoc"><p >USB 3.x link re-entered U0 from U3. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ab4e70fd70ab22493bcdebdd35bd36dff" name="ggaa94d9a6862737a3d5fc0889e7dad1498ab4e70fd70ab22493bcdebdd35bd36dff"></a>CY_USBSS_CAL_MSG_USB3_U0_RESUME&#160;</td><td class="fielddoc"><p >43: USB 3.x link re-entered U0 from U3 </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a50213c3a2e40f7321d908e7aeb3d801f" name="ggaa94d9a6862737a3d5fc0889e7dad1498a50213c3a2e40f7321d908e7aeb3d801f"></a>CY_USBSS_CAL_MSG_UX_REENABLE&#160;</td><td class="fielddoc"><p >Indication to re-enable USB 3.x LPM transitions. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a50213c3a2e40f7321d908e7aeb3d801f" name="ggaa94d9a6862737a3d5fc0889e7dad1498a50213c3a2e40f7321d908e7aeb3d801f"></a>CY_USBSS_CAL_MSG_UX_REENABLE&#160;</td><td class="fielddoc"><p >44: Indication to re-enable USB 3.x LPM transitions. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a20f41798c61b5327a752f52e8f2e0700" name="ggaa94d9a6862737a3d5fc0889e7dad1498a20f41798c61b5327a752f52e8f2e0700"></a>CY_USBSS_CAL_MSG_EPM_UNDERRUN&#160;</td><td class="fielddoc"><p >Underrun detected by the USB 3.x endpoint memory. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a20f41798c61b5327a752f52e8f2e0700" name="ggaa94d9a6862737a3d5fc0889e7dad1498a20f41798c61b5327a752f52e8f2e0700"></a>CY_USBSS_CAL_MSG_EPM_UNDERRUN&#160;</td><td class="fielddoc"><p >45: Underrun detected by the USB 3.x endpoint memory. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a176dbb8a39a055aadbca17cbd53a1d04" name="ggaa94d9a6862737a3d5fc0889e7dad1498a176dbb8a39a055aadbca17cbd53a1d04"></a>CY_USBSS_CAL_MSG_USB3_LMP_FAIL&#160;</td><td class="fielddoc"><p >LMP handshake failure. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a176dbb8a39a055aadbca17cbd53a1d04" name="ggaa94d9a6862737a3d5fc0889e7dad1498a176dbb8a39a055aadbca17cbd53a1d04"></a>CY_USBSS_CAL_MSG_USB3_LMP_FAIL&#160;</td><td class="fielddoc"><p >46: LMP handshake failure. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a8cac1c70124c5828f4ed9887e095703c" name="ggaa94d9a6862737a3d5fc0889e7dad1498a8cac1c70124c5828f4ed9887e095703c"></a>CY_USBSS_CAL_MSG_USB3_RATE_CHG&#160;</td><td class="fielddoc"><p >USB 3.x data rate changed. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a8cac1c70124c5828f4ed9887e095703c" name="ggaa94d9a6862737a3d5fc0889e7dad1498a8cac1c70124c5828f4ed9887e095703c"></a>CY_USBSS_CAL_MSG_USB3_RATE_CHG&#160;</td><td class="fielddoc"><p >47: USB 3.x data rate changed. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a4dc8d659fc32ed2695f7c0cbfbb585" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a4dc8d659fc32ed2695f7c0cbfbb585"></a>CY_USBSS_CAL_MSG_ABORT_UX_ENABLE&#160;</td><td class="fielddoc"><p >Cancel re-enable of USB 3.x LPM transitions. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a2a4dc8d659fc32ed2695f7c0cbfbb585" name="ggaa94d9a6862737a3d5fc0889e7dad1498a2a4dc8d659fc32ed2695f7c0cbfbb585"></a>CY_USBSS_CAL_MSG_ABORT_UX_ENABLE&#160;</td><td class="fielddoc"><p >48: Cancel re-enable of USB 3.x LPM transitions. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1a4bda52646034ed15509637226cce13" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1a4bda52646034ed15509637226cce13"></a>CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE&#160;</td><td class="fielddoc"><p >Handle Gen2 link training failure. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a1a4bda52646034ed15509637226cce13" name="ggaa94d9a6862737a3d5fc0889e7dad1498a1a4bda52646034ed15509637226cce13"></a>CY_USBSS_CAL_MSG_HANDLE_RXLOCK_FAILURE&#160;</td><td class="fielddoc"><p >49: Handle Gen2 link training failure. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a719f09399a3fddfb8f7eb29a2a829f4c" name="ggaa94d9a6862737a3d5fc0889e7dad1498a719f09399a3fddfb8f7eb29a2a829f4c"></a>CY_USB_CAL_MSG_EP0_RCV_DONE&#160;</td><td class="fielddoc"><p >EP0-OUT receive complete. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a719f09399a3fddfb8f7eb29a2a829f4c" name="ggaa94d9a6862737a3d5fc0889e7dad1498a719f09399a3fddfb8f7eb29a2a829f4c"></a>CY_USB_CAL_MSG_EP0_RCV_DONE&#160;</td><td class="fielddoc"><p >50: EP0-OUT receive complete. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a9ce840a862bfc523d2db80adf4fb1de9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a9ce840a862bfc523d2db80adf4fb1de9"></a>CY_USBSS_CAL_MSG_PORT_CONFIGURED&#160;</td><td class="fielddoc"><p >Port Configuration LMP handshake completed. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a9ce840a862bfc523d2db80adf4fb1de9" name="ggaa94d9a6862737a3d5fc0889e7dad1498a9ce840a862bfc523d2db80adf4fb1de9"></a>CY_USBSS_CAL_MSG_PORT_CONFIGURED&#160;</td><td class="fielddoc"><p >51: Port Configuration LMP handshake completed. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aefd9f8c215ce1bd171c29a60c9199465" name="ggaa94d9a6862737a3d5fc0889e7dad1498aefd9f8c215ce1bd171c29a60c9199465"></a>CY_USBSS_CAL_MSG_LPBK_FORCED&#160;</td><td class="fielddoc"><p >Link has been forced into Loopback state. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498aefd9f8c215ce1bd171c29a60c9199465" name="ggaa94d9a6862737a3d5fc0889e7dad1498aefd9f8c215ce1bd171c29a60c9199465"></a>CY_USBSS_CAL_MSG_LPBK_FORCED&#160;</td><td class="fielddoc"><p >52: Link has been forced into Loopback state. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac29766e923ebf12b7eca72a99e5dc5ad" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac29766e923ebf12b7eca72a99e5dc5ad"></a>CY_USB_CAL_MSG_MAX&#160;</td><td class="fielddoc"><p >Invalid message. </p>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498a823596c0a5d7f4852d01936466438e1b" name="ggaa94d9a6862737a3d5fc0889e7dad1498a823596c0a5d7f4852d01936466438e1b"></a>CY_USB_CAL_MSG_SS_RECONNECT&#160;</td><td class="fielddoc"><p >53: USB-SS link reconnect request from timer callback. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa94d9a6862737a3d5fc0889e7dad1498ac29766e923ebf12b7eca72a99e5dc5ad" name="ggaa94d9a6862737a3d5fc0889e7dad1498ac29766e923ebf12b7eca72a99e5dc5ad"></a>CY_USB_CAL_MSG_MAX&#160;</td><td class="fielddoc"><p >54: Invalid message. </p>
 </td></tr>
 </table>
 
@@ -1268,6 +1282,10 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a6382e8ba658bfb9ba974d567877fbc81" name="gga678c0f096acfc45a68c040fd025ca723a6382e8ba658bfb9ba974d567877fbc81"></a>CY_USBD_EVT_HS_RESET_SKIP&#160;</td><td class="fielddoc"><p >0x44: SS re-enable skipped on HS reset. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a1ccaddb9d3f5f66b1cea8552b4c7160d" name="gga678c0f096acfc45a68c040fd025ca723a1ccaddb9d3f5f66b1cea8552b4c7160d"></a>CY_USBD_EVT_SET_CONFIG_CB&#160;</td><td class="fielddoc"><p >0x45: SetConfig callback being invoked. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a7e0f83c79b8b067ae6dd34fb53387093" name="gga678c0f096acfc45a68c040fd025ca723a7e0f83c79b8b067ae6dd34fb53387093"></a>CY_USBD_EVT_SET_INTF_CB&#160;</td><td class="fielddoc"><p >0x46: SetInterface callback being invoked. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a83e58ce1dbec015f382fb8347b463dcd" name="gga678c0f096acfc45a68c040fd025ca723a83e58ce1dbec015f382fb8347b463dcd"></a>CY_HSCAL_EVT_CONN_EN&#160;</td><td class="fielddoc"><p >0x50: USBHS connection enable. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723ab4c2155846506e48b1fb1e99fd747137" name="gga678c0f096acfc45a68c040fd025ca723ab4c2155846506e48b1fb1e99fd747137"></a>CY_HSCAL_EVT_CONN_DIS&#160;</td><td class="fielddoc"><p >0x51: USBHS connection disable. </p>
@@ -1385,6 +1403,10 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a8b3020ef05fce02516ff0c7210b08fb4" name="gga678c0f096acfc45a68c040fd025ca723a8b3020ef05fce02516ff0c7210b08fb4"></a>CY_LNK_EVENT_LNK_FORCE_U0&#160;</td><td class="fielddoc"><p >0xFC: Link forced into U0 state during Ux exit sequence. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723ad3a0e33091d29f1e3e1ec4a64337a31f" name="gga678c0f096acfc45a68c040fd025ca723ad3a0e33091d29f1e3e1ec4a64337a31f"></a>CY_LNK_EVENT_UX_EXIT_TS1_TIMEOUT&#160;</td><td class="fielddoc"><p >0xFD: Transition into Recovery.Config did not happen within expected time. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723a9677978bd5cf8227e23beaa076d15ae5" name="gga678c0f096acfc45a68c040fd025ca723a9677978bd5cf8227e23beaa076d15ae5"></a>CY_LNK_EVENT_USB_CLK_STOP&#160;</td><td class="fielddoc"><p >0xFE: USB block has been stopped. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga678c0f096acfc45a68c040fd025ca723aa018473bc6a4a99ca4490762695ec2e7" name="gga678c0f096acfc45a68c040fd025ca723aa018473bc6a4a99ca4490762695ec2e7"></a>CY_LNK_EVENT_USB_CLK_START&#160;</td><td class="fielddoc"><p >0xFF: USB block has been started. </p>
 </td></tr>
 </table>
 
@@ -1627,6 +1649,8 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234" name="gga1d336f8c870e093b9296a003c7ead9ada1119bf4474d6a52a765c5c700fd80234"></a>CY_USB_USBD_CB_EP0_RCV_DONE&#160;</td><td class="fielddoc"><p >EP0 out transfer has been completed. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7" name="gga1d336f8c870e093b9296a003c7ead9ada21404c940ce61b4b356a2616b988e9d7"></a>CY_USB_USBD_CB_SOF_ITP&#160;</td><td class="fielddoc"><p >USB3 ITP or USB2 SOF received. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9adaa6739b5a27be3f2eaa8109a8187df560" name="gga1d336f8c870e093b9296a003c7ead9adaa6739b5a27be3f2eaa8109a8187df560"></a>CY_USB_USBD_CB_USB3_LINKFAIL&#160;</td><td class="fielddoc"><p >USB3 link bring-up failure while USB2 is disabled. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439" name="gga1d336f8c870e093b9296a003c7ead9adabe078f7442d92ef424c36e0f3ad29439"></a>CY_USB_USBD_CB_SET_INVALID&#160;</td><td class="fielddoc"><p >Invalid callback type. </p>
 </td></tr>

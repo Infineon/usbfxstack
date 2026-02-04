@@ -6,7 +6,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -417,6 +417,7 @@ typedef enum {
     CY_USB_USBD_CB_SETADDR,                     /**< SET_ADDRESS command completed. */
     CY_USB_USBD_CB_EP0_RCV_DONE,                /**< EP0 out transfer has been completed. */
     CY_USB_USBD_CB_SOF_ITP,                     /**< USB3 ITP or USB2 SOF received. */
+    CY_USB_USBD_CB_USB3_LINKFAIL,               /**< USB3 link bring-up failure while USB2 is disabled. */
     CY_USB_USBD_CB_SET_INVALID                  /**< Invalid callback type. */
 } cy_en_usb_usbd_cb_t;
 
@@ -689,6 +690,7 @@ struct cy_stc_usb_usbd_ctxt_t
     cy_usb_usbd_callback_t ep0RecvCb;                   /**< Callback for EP0 OUT transfer completion. */
     cy_usb_usbd_callback_t debugSlpCb;                  /**< USB 2.x Debug endpoint SLP transfer callback function. */
     cy_usb_usbd_callback_t itpCb;                       /**< Callback for SOF/ITP interrupt. */
+    cy_usb_usbd_callback_t linkFailCb;                  /**< Callback for USB 3.x link bring-up failure. */
 
     DMAC_Type *pCpuDmacBase;                            /**< Pointer to DMAC register structure. */
 
@@ -731,7 +733,14 @@ struct cy_stc_usb_usbd_ctxt_t
     uint8_t debugOutEp;                                 /**< Debug OUT Endpoint Number*/
     bool ssOnBusResetDisable;                           /**< Whether SS connect on USB 2.x Bus Reset is disabled. */
     bool underrunWarningDone;                           /**< Whether underrun warning has been issued. */
+    bool usb2FallbackDisable;                           /**< Whether fallback to USB 2.x is disabled. */
+    bool isCtrlEpStalled;                               /**< Whether the USB-SS control endpoint has been stalled. */
 };
+
+typedef struct cy_stc_usbd_devstats_t
+{
+    uint32_t numRecoveryEntries;        /**< Number of times link entered Recovery state. */
+} cy_stc_usbd_devstats_t;
 
 /** \} group_usbfxstack_usb_common_structs */
 
@@ -3566,6 +3575,81 @@ cy_en_usb_endp_type_t Cy_USBD_GetEndpointType(
         cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         uint32_t endpNumber,
         cy_en_usb_endp_dir_t endpDirection);
+
+/*******************************************************************************
+* Function name: Cy_USBD_ResetEndpoints
+****************************************************************************//**
+*
+* This function resets transient state associated with the specified OUT and IN
+* endpoints. The endpoints to be reset are specified through bit-mask parameters.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param outEpMask
+* Bitmask representing OUT endpoints to be reset.
+*
+* \param inEpMask
+* Bitmask representing IN endpoints to be reset.
+*
+* \param preserveOutSeqNum
+* Bitmask representing OUT endpoints whose sequence numbers are to be preserved.
+*
+* \param preserveInSeqNum
+* Bitmask representing IN endpoints whose sequence numbers are to be preserved.
+*
+*******************************************************************************/
+void Cy_USBD_ResetEndpoints(
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        uint32_t outEpMask,
+        uint32_t inEpMask,
+        uint32_t preserveOutSeqNum,
+        uint32_t preserveInSeqNum);
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetDeviceStats
+****************************************************************************//**
+*
+* This function retrieves USB connection statistics maintained by the stack and
+* driver layers.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param pDevStats
+* Structure through which statistics are returned.
+*
+*******************************************************************************/
+void Cy_USBD_GetDeviceStats(
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        cy_stc_usbd_devstats_t *pDevStats);
+
+/*******************************************************************************
+* Function name: Cy_USBD_ControlUsb2Support
+****************************************************************************//**
+*
+* Enable/Disable USB 2.x device operation on the device.
+*
+* By default, the FX device is configured to attempt both USB 3.x and 2.x connections to a USB
+* host. The USB driver in the firmware automatically attempts a hi-speed or full speed connection,
+* if the SuperSpeed connection fails to go through link training.
+*
+* Some designs may use the FX device in USB 3.x mode alone, and require that an external controller
+* be used in USB 2.x mode. This API can be used to modify the driver behavior to suppress the USB 2.x
+* device operation. USB events are provided to notify the user that the 3.x connection has
+* failed, and a 2.x connection needs to be attempted. The Cy_USBD_ConnectDevice() API should be called
+* repeatedly to retry the USB 3.x connection.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param enable
+* Whether USB 2.x support is enabled (default is enabled).
+*
+*******************************************************************************/
+bool Cy_USBD_ControlUsb2Support(
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        bool enable);
 
 /** \} group_usbfxstack_usb_common_functions */
 

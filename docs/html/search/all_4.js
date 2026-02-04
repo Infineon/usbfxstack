@@ -40,7 +40,8 @@ var searchData=
   ['dscrs_5fper_5fchn_37',['DSCRS_PER_CHN',['../group__group__usbfxstack__fx__utils__macros.html#ga94aa3d9d61c3484edbbbfdc1d046a21d',1,'cy_usbhs_dw_wrapper.h']]],
   ['dscrstatus_38',['dscrStatus',['../group__group__usbfxstack__hb__dma__structs.html#afd738260de0ec582bbc7046ab607f2ab',1,'cy_stc_hbdma_dscr_list_t']]],
   ['duallaneenabled_39',['dualLaneEnabled',['../group__group__usbfxstack__usb__common__structs.html#ab210731e1a2ba599c1e1469744c43a66',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['dwdscrlist_40',['dwDscrList',['../group__group__usbfxstack__hb__dma__structs.html#ad7162be6b591859eb379430d2bd86d56',1,'cy_stc_hbdma_mgr_context_t']]],
-  ['dword_5flsb_5fbytes_41',['DWORD_LSB_BYTES',['../group__group__usbfxstack__usb__common__macros.html#ga9678c7b3e6762fd17c8b32dfbf36fddc',1,'cy_usb_common.h']]],
-  ['dword_5fmsb_5fbytes_42',['DWORD_MSB_BYTES',['../group__group__usbfxstack__usb__common__macros.html#ga94afbf3bb536c9fb665a9ceb80e78b75',1,'cy_usb_common.h']]]
+  ['dwdscr_40',['dwDscr',['../group__group__usbfxstack__hb__dma__structs.html#a4bbc678f188fcd737f04ef36cc96a9cd',1,'cy_stc_hbdma_dw_descriptor_t']]],
+  ['dwdscrlist_41',['dwDscrList',['../group__group__usbfxstack__hb__dma__structs.html#aad6e8ffce7e53c9c8bc3926e0b438b72',1,'cy_stc_hbdma_mgr_context_t']]],
+  ['dword_5flsb_5fbytes_42',['DWORD_LSB_BYTES',['../group__group__usbfxstack__usb__common__macros.html#ga9678c7b3e6762fd17c8b32dfbf36fddc',1,'cy_usb_common.h']]],
+  ['dword_5fmsb_5fbytes_43',['DWORD_MSB_BYTES',['../group__group__usbfxstack__usb__common__macros.html#ga94afbf3bb536c9fb665a9ceb80e78b75',1,'cy_usb_common.h']]]
 ];

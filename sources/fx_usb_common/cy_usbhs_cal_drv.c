@@ -8,7 +8,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -2607,11 +2607,12 @@ Cy_USBHS_Cal_FlushEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt,
          * required here.
          */
     } else {
-        pCalBase->EEPM_ENDPOINT[endpNum] |=
-                                        (USBHSDEV_EEPM_ENDPOINT_EGRS_FLUSH_EP);
-        /* wait for ms as per hw recommentation. */
-        pCalBase->EEPM_ENDPOINT[endpNum] &=
-                                     (~(USBHSDEV_EEPM_ENDPOINT_EGRS_FLUSH_EP));
+        /* Flush egress EPM only when it contains any data. Otherwise, data may get corrupted. */
+        if ((pCalBase->EEPM_DEBUG_ENDPOINT[endpNum] & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk) != 0) {
+            pCalBase->EEPM_ENDPOINT[endpNum] |= (USBHSDEV_EEPM_ENDPOINT_EGRS_FLUSH_EP);
+            Cy_SysLib_DelayUs(10);
+            pCalBase->EEPM_ENDPOINT[endpNum] &= (~(USBHSDEV_EEPM_ENDPOINT_EGRS_FLUSH_EP));
+        }
         pCalBase->DEV_EP_INTR_MASK |= (0x01 << (endpNum));
     }
     return(CY_USB_CAL_STATUS_SUCCESS);
@@ -2626,6 +2627,10 @@ Cy_USBHS_Cal_FlushEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt,
 *
 * \param pCalCtxt
 * CAL layer context pointer.
+* \param ingressFlush
+* Whether Ingress (OUT) endpoints are to be flushed.
+* \param egressFlush
+* Whether Egress (IN) endpoints are to be flushed.
 *
 * \return
 * CY_USB_CAL_STATUS_SUCCESS if the operation is successful.
@@ -2633,7 +2638,7 @@ Cy_USBHS_Cal_FlushEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt,
 *
 *******************************************************************************/
 cy_en_usb_cal_ret_code_t
-Cy_USBHS_Cal_FlushAllEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt)
+Cy_USBHS_Cal_FlushAllEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt, bool ingressFlush, bool egressFlush)
 {
     USBHSDEV_Type  *pCalBase;
 
@@ -2644,11 +2649,21 @@ Cy_USBHS_Cal_FlushAllEndp (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         return(CY_USB_CAL_STATUS_CAL_BASE_NULL);
     }
 
-    pCalBase->EPM_CS |= (USBHSDEV_EPM_CS_EGRS_FORCE_FLUSH_ALL);
-    pCalBase->EPM_CS |= (USBHSDEV_EPM_CS_IGRS_FORCE_FLUSH_ALL);
+    if (egressFlush) {
+        pCalBase->EPM_CS |= (USBHSDEV_EPM_CS_EGRS_FORCE_FLUSH_ALL);
+    }
+    if (ingressFlush) {
+        pCalBase->EPM_CS |= (USBHSDEV_EPM_CS_IGRS_FORCE_FLUSH_ALL);
+    }
+
     Cy_SysLib_DelayUs(1);
-    pCalBase->EPM_CS &= (~(USBHSDEV_EPM_CS_EGRS_FORCE_FLUSH_ALL));
-    pCalBase->EPM_CS &= (~(USBHSDEV_EPM_CS_IGRS_FORCE_FLUSH_ALL));
+
+    if (ingressFlush) {
+        pCalBase->EPM_CS &= (~(USBHSDEV_EPM_CS_IGRS_FORCE_FLUSH_ALL));
+    }
+    if (egressFlush) {
+        pCalBase->EPM_CS &= (~(USBHSDEV_EPM_CS_EGRS_FORCE_FLUSH_ALL));
+    }
 
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function() */

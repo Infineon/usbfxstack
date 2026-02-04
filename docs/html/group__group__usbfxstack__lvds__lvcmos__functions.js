@@ -6,6 +6,7 @@ var group__group__usbfxstack__lvds__lvcmos__functions =
     [ "Cy_LVDS_PhyInit", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga4ff427a3d13e95d26b8cee4c1091a9cd", null ],
     [ "Cy_LVDS_PhyDeinit", "group__group__usbfxstack__lvds__lvcmos__functions.html#gacf654a970d0b93fa6aca0e91d932f394", null ],
     [ "Cy_LVDS_SetPhyTrainingLoopCount", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga1e4727f1b9d7779097a06b79b3e38dc5", null ],
+    [ "Cy_LVDS_OverridePhyTraining", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga720bc3f55d794c7f688b205f6b968726", null ],
     [ "Cy_LVDS_PhyTrainingStart", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga401ef72c677e07df543619ce9116682c", null ],
     [ "Cy_LVDS_GetLinkTrainingStatus", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga2dbc77d8d41002f304336a7340522602", null ],
     [ "Cy_LVDS_PhyGpioModeEnable", "group__group__usbfxstack__lvds__lvcmos__functions.html#gae33a2adecc4eefc64a7544b39d43a543", null ],
@@ -71,5 +72,10 @@ var group__group__usbfxstack__lvds__lvcmos__functions =
     [ "Cy_LVDS_DisableLoopbackMode", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga13a5c8239bbaeb621a614a7aa21f6f32", null ],
     [ "Cy_LVDS_PhyGpioSet", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga76040bc5121f947705d8a0becfb24093", null ],
     [ "Cy_LVDS_PhyGpioClr", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga1310289f4fd69afc0348643cdd090b02", null ],
-    [ "Cy_LVDS_PhyGpioRead", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga5c6790f6dfbe6badb959abd2c5a01bfd", null ]
+    [ "Cy_LVDS_PhyGpioRead", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga5c6790f6dfbe6badb959abd2c5a01bfd", null ],
+    [ "Cy_LVDS_ThreadDisable", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41", null ],
+    [ "Cy_LVDS_PllBypassControl", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc", null ],
+    [ "Cy_LVDS_CustomTraining_Select", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaaf95a7b5be5ef2ab39eb5522e5b24b62", null ],
+    [ "Cy_LVDS_CustomTraining_ApplyResults", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga229ae4ea703c24b9bfb1e33f7b89b734", null ],
+    [ "Cy_LVDS_CustomTraining_Task", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4", null ]
 ];

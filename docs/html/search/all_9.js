@@ -19,9 +19,10 @@ var searchData=
   ['intrstatus_16',['intrStatus',['../group__group__usbfxstack__hb__dma__structs.html#aa1e17653e22c331450f9f5bd0d52fba8',1,'cy_stc_hbdma_sock_t']]],
   ['intrtype_17',['intrType',['../group__group__usbfxstack__hb__dma__structs.html#a0b8ff0a342f3ce5b87d27bc263452400',1,'cy_stc_hbdma_intr_msg_t']]],
   ['is_5fout_18',['is_out',['../group__group__usbfxstack__fx__utils__structs.html#a966f9ea6b5a92fc496723d6c28664aeb',1,'cy_stc_usbfs_epinfo_t']]],
-  ['ishsenabled_19',['isHsEnabled',['../group__group__usbfxstack__usb__common__structs.html#abed6e5579f47512b4d7159324d38b4a1',1,'cy_stc_usb_usbd_ctxt_t']]],
-  ['isochdelay_20',['isochDelay',['../group__group__usbfxstack__usb__common__structs.html#a10228af4f54285ae5b0178f0748283f4',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['isopkts_21',['isoPkts',['../group__group__usbfxstack__usb__common__structs.html#ac16ac255f8bb65961b929fe9c6556b1c',1,'cy_stc_usb_endp_config_t']]],
-  ['isputloopbackmode_22',['isPutLoopbackMode',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ad20b8bbd3e709c6e38bbe4ef7951cb04',1,'cy_stc_lvds_phy_config_t']]],
-  ['itpcb_23',['itpCb',['../group__group__usbfxstack__usb__common__structs.html#a70cb1527eb474e17d275c16c5b22950d',1,'cy_stc_usb_usbd_ctxt_t']]]
+  ['isctrlepstalled_19',['isCtrlEpStalled',['../group__group__usbfxstack__usb__common__structs.html#ad49310f87559fdb32bed860a48e84491',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['ishsenabled_20',['isHsEnabled',['../group__group__usbfxstack__usb__common__structs.html#abed6e5579f47512b4d7159324d38b4a1',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['isochdelay_21',['isochDelay',['../group__group__usbfxstack__usb__common__structs.html#a10228af4f54285ae5b0178f0748283f4',1,'cy_stc_usbss_cal_ctxt_t']]],
+  ['isopkts_22',['isoPkts',['../group__group__usbfxstack__usb__common__structs.html#ac16ac255f8bb65961b929fe9c6556b1c',1,'cy_stc_usb_endp_config_t']]],
+  ['isputloopbackmode_23',['isPutLoopbackMode',['../group__group__usbfxstack__lvds__lvcmos__structs.html#ad20b8bbd3e709c6e38bbe4ef7951cb04',1,'cy_stc_lvds_phy_config_t']]],
+  ['itpcb_24',['itpCb',['../group__group__usbfxstack__usb__common__structs.html#a70cb1527eb474e17d275c16c5b22950d',1,'cy_stc_usb_usbd_ctxt_t']]]
 ];

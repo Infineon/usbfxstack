@@ -164,7 +164,7 @@ Cy_HBDma_DW_QueueRead (
         cy_stc_hbdma_channel_t *pHandle,
         uint8_t                 prodIndex,
         uint8_t                *pBuffer,
-        uint16_t                dataSize)
+        uint32_t                dataSize)
 {
     cy_stc_dma_descriptor_t        *pFirstDscr;
     cy_stc_dma_descriptor_config_t  dmaDscrConfig;
@@ -199,14 +199,14 @@ Cy_HBDma_DW_QueueRead (
     residue    = (dataSize % pHandle->epMaxPktSize);
     epNum      = pHandle->prodSckId[prodIndex] - CY_HBDMA_USBHS_OUT_EP_00;
     epmAddr    = Cy_USBHS_CalculateEpmAddr(epNum, CY_USB_ENDP_DIR_OUT);
-    pFirstDscr = &(pHandle->pProdDwDscr[prodIndex][1]);
+    pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][1]);
 
     /* If the DMA channel is already enabled, disable it. */
     Cy_DMA_Channel_Disable(DW0, epNum);
 
     /* If 1 or more full packets are to be read out, set up the 2-D DMA descriptor. */
     if (nFullPkts != 0) {
-        pFirstDscr = &(pHandle->pProdDwDscr[prodIndex][0]);
+        pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][0]);
 
         dmaDscrConfig.retrigger        = CY_DMA_WAIT_FOR_REACT;
         dmaDscrConfig.interruptType    = CY_DMA_DESCR_CHAIN;
@@ -227,9 +227,9 @@ Cy_HBDma_DW_QueueRead (
         dmaDscrConfig.yCount           = nFullPkts;
         if (residue != 0) {
             if (residue >= 0x04U) {
-                dmaDscrConfig.nextDescriptor = &(pHandle->pProdDwDscr[prodIndex][1]);
+                dmaDscrConfig.nextDescriptor = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][1]);
             } else {
-                dmaDscrConfig.nextDescriptor = &(pHandle->pProdDwDscr[prodIndex][2]);
+                dmaDscrConfig.nextDescriptor = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][2]);
             }
         } else {
             dmaDscrConfig.nextDescriptor = NULL;
@@ -238,7 +238,7 @@ Cy_HBDma_DW_QueueRead (
         Cy_DMA_Descriptor_Init(pFirstDscr, &dmaDscrConfig);
     } else {
         /* Zero out descriptor[0] since it is not being used. */
-        memset((uint8_t *)(pHandle->pProdDwDscr[prodIndex]), 0, sizeof(cy_stc_dma_descriptor_t));
+        memset((uint8_t *)(pHandle->pProdDwDscr[prodIndex]), 0, sizeof(cy_stc_hbdma_dw_descriptor_t));
     }
 
     /* If there is a short packet to be read at the end, set up descriptors as required. */
@@ -262,15 +262,15 @@ Cy_HBDma_DW_QueueRead (
             dmaDscrConfig.yCount               = 0;
             if ((residue & 0x03U) != 0) {
                 dmaDscrConfig.channelState     = CY_DMA_CHANNEL_ENABLED;
-                dmaDscrConfig.nextDescriptor   = &(pHandle->pProdDwDscr[prodIndex][2]);
+                dmaDscrConfig.nextDescriptor   = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][2]);
             } else {
                 dmaDscrConfig.channelState     = CY_DMA_CHANNEL_DISABLED;
                 dmaDscrConfig.nextDescriptor   = 0;
             }
-            Cy_DMA_Descriptor_Init(&(pHandle->pProdDwDscr[prodIndex][1]), &dmaDscrConfig);
+            Cy_DMA_Descriptor_Init(Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][1]), &dmaDscrConfig);
         } else {
             if (nFullPkts == 0) {
-                pFirstDscr = &(pHandle->pProdDwDscr[prodIndex][2]);
+                pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][2]);
             }
         }
 
@@ -293,7 +293,7 @@ Cy_HBDma_DW_QueueRead (
             dmaDscrConfig.xCount               = (residue & 0x03U);
             dmaDscrConfig.yCount               = 0;
             dmaDscrConfig.nextDescriptor       = NULL;
-            Cy_DMA_Descriptor_Init(&(pHandle->pProdDwDscr[prodIndex][2]), &dmaDscrConfig);
+            Cy_DMA_Descriptor_Init(Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][2]), &dmaDscrConfig);
         }
     }
 
@@ -382,14 +382,14 @@ Cy_HBDma_DW_CompleteShortRead (
     /* Get the current descriptor and check whether it is the 2-D descriptor. */
     activeDscr = Cy_DMA_Channel_GetCurrentDescriptor(DW0, epNum);
     if (
-            (activeDscr != &(pHandle->pProdDwDscr[prodIndex][0])) &&
-            (activeDscr != &(pHandle->pProdDwDscr[prodIndex][1]))
+            (activeDscr != Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][0])) &&
+            (activeDscr != Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][1]))
        ) {
         DBG_HBDMA_ERR("DW0 channel %d pointing to unexpected DMA descriptor %x\r\n", epNum, activeDscr);
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    if (activeDscr == &(pHandle->pProdDwDscr[prodIndex][0])) {
+    if (activeDscr == Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][0])) {
         /*
          * Channel is still working on Descriptor #0. Calculate the size of data received so far by
          * checking the current Y index of the channel. Then disable and re-enable the DMA channel with
@@ -400,7 +400,7 @@ Cy_HBDma_DW_CompleteShortRead (
         pDataBuf += dataSize;
         dataSize += shortPktSize;
     } else {
-        prevDscr = &(pHandle->pProdDwDscr[prodIndex][0]);
+        prevDscr = Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][0]);
 
         /*
          * Descriptor #0 is complete. We can take all the data corresponding to Descriptor #0 as received.
@@ -462,7 +462,7 @@ Cy_HBDma_DW_QueueWrite (
         cy_stc_hbdma_channel_t *pHandle,
         uint8_t                 consIndex,
         uint8_t                *pBuffer,
-        uint16_t                dataSize)
+        uint32_t                dataSize)
 {
     cy_stc_dma_descriptor_t        *pFirstDscr;
     cy_stc_dma_descriptor_config_t  dmaDscrConfig;
@@ -512,14 +512,14 @@ Cy_HBDma_DW_QueueWrite (
     epNum      = pHandle->consSckId[consIndex] - CY_HBDMA_USBHS_IN_EP_00;
     residue    = (dataSize % pHandle->epMaxPktSize);
     epmAddr    = Cy_USBHS_CalculateEpmAddr(epNum, CY_USB_ENDP_DIR_IN);
-    pFirstDscr = &(pHandle->pConsDwDscr[consIndex][1]);
+    pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][1]);
 
     /* If the DMA channel is already enabled, disable it. */
     Cy_DMA_Channel_Disable(DW1, epNum);
 
     /* If 1 or more full packets are to be written out, set up the 2-D DMA descriptor. */
     if (nFullPkts != 0) {
-        pFirstDscr = &(pHandle->pConsDwDscr[consIndex][0]);
+        pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][0]);
 
         dmaDscrConfig.retrigger            = CY_DMA_WAIT_FOR_REACT;
         dmaDscrConfig.interruptType        = CY_DMA_DESCR_CHAIN;
@@ -540,9 +540,9 @@ Cy_HBDma_DW_QueueWrite (
         dmaDscrConfig.yCount               = nFullPkts;
         if (residue != 0) {
             if (residue >= 4U) {
-                dmaDscrConfig.nextDescriptor = &(pHandle->pConsDwDscr[consIndex][1]);
+                dmaDscrConfig.nextDescriptor = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][1]);
             } else {
-                dmaDscrConfig.nextDescriptor = &(pHandle->pConsDwDscr[consIndex][2]);
+                dmaDscrConfig.nextDescriptor = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][2]);
             }
         } else {
             dmaDscrConfig.nextDescriptor   = NULL;
@@ -572,15 +572,15 @@ Cy_HBDma_DW_QueueWrite (
             dmaDscrConfig.yCount               = 0;
             if ((residue & 0x03U) != 0) {
                 dmaDscrConfig.channelState     = CY_DMA_CHANNEL_ENABLED;
-                dmaDscrConfig.nextDescriptor   = &(pHandle->pConsDwDscr[consIndex][2]);
+                dmaDscrConfig.nextDescriptor   = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][2]);
             } else {
                 dmaDscrConfig.channelState     = CY_DMA_CHANNEL_DISABLED;
                 dmaDscrConfig.nextDescriptor   = NULL;
             }
-            Cy_DMA_Descriptor_Init(&(pHandle->pConsDwDscr[consIndex][1]), &dmaDscrConfig);
+            Cy_DMA_Descriptor_Init(Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][1]), &dmaDscrConfig);
         } else {
             if (nFullPkts == 0) {
-                pFirstDscr = &(pHandle->pConsDwDscr[consIndex][2]);
+                pFirstDscr = Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][2]);
             }
         }
 
@@ -603,7 +603,8 @@ Cy_HBDma_DW_QueueWrite (
             dmaDscrConfig.xCount               = (residue & 0x03U);
             dmaDscrConfig.yCount               = 0;
             dmaDscrConfig.nextDescriptor       = NULL;
-            Cy_DMA_Descriptor_Init(&(pHandle->pConsDwDscr[consIndex][2]), &dmaDscrConfig);
+
+            Cy_DMA_Descriptor_Init(Cy_HBDMA_GetDWDesc(pHandle->pConsDwDscr[consIndex][2]), &dmaDscrConfig);
         }
     }
 

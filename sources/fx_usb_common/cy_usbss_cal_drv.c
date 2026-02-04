@@ -8,7 +8,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -65,6 +65,21 @@ static volatile uint32_t gClockMultiplier = 75;
     (((l2r_del) << USB32DEV_PHYSS_USB40PHY_TOP_CDR_SW_CTRL_L2R_START_DELAY_Pos) |                     \
      ((l2d_del_us * gClockMultiplier) << USB32DEV_PHYSS_USB40PHY_TOP_CDR_SW_CTRL_L2D_START_DELAY_Pos) \
      )
+
+/* Default values for the CTLE Look up tables for Gen1 and Gen2 speeds */
+const uint32_t P_LUT_5G[] =  {
+    0x0000C3C3UL, 0x00008484UL, 0x0000B4B4UL, 0x00005454UL,
+    0x0000D4D4UL, 0x00008686UL, 0x00006262UL, 0x0000C6C6UL,
+    0x00006666UL, 0x00000808UL, 0x00004848UL, 0x00000A0AUL,
+    0x0000E6E6UL, 0x00000404UL, 0x00002222UL, 0x0000C2C2UL
+};
+
+const uint32_t P_LUT_10G[] = {
+    0x0000A2A2UL, 0x00006A6AUL, 0x0000FCFCUL, 0x0000DADAUL,
+    0x00002626UL, 0x00007878UL, 0x0000C0C0UL, 0x00009898UL,
+    0x0000EBEBUL, 0x00008A8AUL, 0x00006C6CUL, 0x0000DCDCUL,
+    0x00000000UL, 0x00000404UL, 0x00000808UL, 0x00000202UL
+};
 
 static cy_en_usb_cal_ret_code_t Cy_USBSS_Phy_PllInit
                                         (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
@@ -252,54 +267,70 @@ Cy_USBSS_Cal_GetBusOrientation (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
     USB32DEV_PHYSS_USB40PHY_Type     *phyRegs    = &(base->USB32DEV_PHYSS.USB40PHY[0]);
     USB32DEV_PHYSS_USB40PHY_TOP_Type *phyTopRegs = &(phyRegs->USB40PHY_TOP);
     uint32_t cc0Voltage, cc1Voltage;
-    uint8_t phyIdx = 0;
+    uint8_t attempts = 0, phyIdx = 0;
 
-    /* Enable the 0th PHY which is used for measurement. */
-    phyTopRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
+    /*
+     * If USB-PD message transmission is ongoing at the time of measurement, we may measure
+     * the voltage on the active CC pin as too low. In such cases (voltage on both of the CC pins
+     * is seen to be below 0.3 V), we repeat the measurement after a delay of 2 ms.
+     */
+    do {
+        /* Delay by 2 ms when retrying the measurement. */
+        if (attempts != 0) {
+            Cy_SysLib_Delay(2);
+        }
 
-    /* Basic ADC configuration: Using VDDIO as reference and measuring CC1 pin. */
-    phyTopRegs->ADC  = (
-            (phyTopRegs->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
-            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
-            (0x00UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
-            USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
+        /* Enable the 0th PHY which is used for measurement. */
+        phyTopRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
 
-    /* Enable ADC conversion. */
-    phyTopRegs->ADC |= USB32DEV_PHYSS_USB40PHY_TOP_ADC_SAR_EN_Msk;
+        /* Basic ADC configuration: Using VDDIO as reference and measuring CC1 pin. */
+        phyTopRegs->ADC  = (
+                (phyTopRegs->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
+                (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
+                (0x00UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
+                USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
 
-    /* Wait for conversion to complete and save the measured voltage. */
-    Cy_SysLib_DelayUs(50);
-    DBG_SSCAL_TRACE("ADC=%x ADCSTAT=%x\r\n", phyTopRegs->ADC, phyTopRegs->ADC_STATUS);
-    cc0Voltage = (
-            (phyTopRegs->ADC_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Msk) >>
-            USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Pos);
-    cc0Voltage &= 0x7FUL;
+        /* Enable ADC conversion. */
+        phyTopRegs->ADC |= USB32DEV_PHYSS_USB40PHY_TOP_ADC_SAR_EN_Msk;
 
-    /* Basic ADC configuration: Using VDDIO as reference and measuring CC2 pin. */
-    phyTopRegs->ADC  = (
-            (phyTopRegs->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
-            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
-            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
-            USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
+        /* Wait for conversion to complete and save the measured voltage. */
+        Cy_SysLib_DelayUs(50);
+        DBG_SSCAL_TRACE("ADC=%x ADCSTAT=%x\r\n", phyTopRegs->ADC, phyTopRegs->ADC_STATUS);
+        cc0Voltage = (
+                (phyTopRegs->ADC_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Msk) >>
+                USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Pos);
+        cc0Voltage &= CY_SSCAL_CC_ADC_MAX;
 
-    /* Enable ADC conversion. */
-    phyTopRegs->ADC |= USB32DEV_PHYSS_USB40PHY_TOP_ADC_SAR_EN_Msk;
+        /* Basic ADC configuration: Using VDDIO as reference and measuring CC2 pin. */
+        phyTopRegs->ADC  = (
+                (phyTopRegs->ADC & USB32DEV_PHYSS_USB40PHY_TOP_ADC_LDO_TRIM_Msk) |
+                (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VREF_DAC_SEL_Pos) |
+                (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_ADC_VSEL_Pos) |
+                USB32DEV_PHYSS_USB40PHY_TOP_ADC_ISO_N_Msk);
 
-    /* Wait for conversion to complete and save the measured voltage. */
-    Cy_SysLib_DelayUs(50);
-    DBG_SSCAL_TRACE("ADC=%x ADCSTAT=%x\r\n", phyTopRegs->ADC, phyTopRegs->ADC_STATUS);
-    cc1Voltage = (
-            (phyTopRegs->ADC_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Msk) >>
-            USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Pos);
-    cc1Voltage &= 0x7FUL;
+        /* Enable ADC conversion. */
+        phyTopRegs->ADC |= USB32DEV_PHYSS_USB40PHY_TOP_ADC_SAR_EN_Msk;
 
-    DBG_SSCAL_INFO("CC0 voltage: %x, CC1 voltage: %x\r\n", cc0Voltage, cc1Voltage);
+        /* Wait for conversion to complete and save the measured voltage. */
+        Cy_SysLib_DelayUs(50);
+        DBG_SSCAL_TRACE("ADC=%x ADCSTAT=%x\r\n", phyTopRegs->ADC, phyTopRegs->ADC_STATUS);
+        cc1Voltage = (
+                (phyTopRegs->ADC_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Msk) >>
+                USB32DEV_PHYSS_USB40PHY_TOP_ADC_STATUS_SAR_OUT_Pos);
+        cc1Voltage &= CY_SSCAL_CC_ADC_MAX;
+
+        DBG_SSCAL_INFO("Attempt %d: CC0 voltage: %x, CC1 voltage: %x\r\n", attempts + 1, cc0Voltage, cc1Voltage);
+
+        /* Disable the PHY used for measurement. */
+        phyTopRegs->TOP_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
+
+    } while ((cc1Voltage < CY_SSCAL_CC_VOLT_0P3) && (cc0Voltage < CY_SSCAL_CC_VOLT_0P3) && (attempts++ < 10));
 
     /* Applying simplified logic to detect CC polarity.
-     * If voltage on CC0 is less than ~0.13 V and voltage on CC1 is higher than ~0.13 V;
+     * If voltage on CC0 is less than ~0.13 V and voltage on CC1 is higher than ~0.30 V;
      * go ahead with CC1 polarity. Otherwise, continue with CC0 polarity.
      */
-    if ((cc1Voltage >= 10) && (cc0Voltage < 10)) {
+    if ((cc1Voltage >= CY_SSCAL_CC_VOLT_0P3) && (cc0Voltage < CY_SSCAL_CC_VOLT_0P1)) {
         DBG_SSCAL_INFO("Going ahead with PHY1\r\n");
         Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_SSCAL_EVT_PHY1_SELECT);
         phyIdx = 1;
@@ -307,9 +338,6 @@ Cy_USBSS_Cal_GetBusOrientation (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
         DBG_SSCAL_INFO("Going ahead with PHY0\r\n");
         Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_SSCAL_EVT_PHY0_SELECT);
     }
-
-    /* Disable the PHY used for measurement. */
-    phyTopRegs->TOP_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PHYSS_EN_Msk;
 
     return (phyIdx);
 }
@@ -728,8 +756,20 @@ static void Cy_USBSS_Cal_WaitForTimeout (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                          uint32_t timeoutUs,
                                          cy_en_usbss_delay_event_t eventSignal)
 {
-    if ((NVIC_GetEnableIRQ(CY_USBSS_CAL_TCPWM_INTERRUPT) == false) ||
-        Cy_TCPWM_Counter_GetStatus(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX) == CY_USBSS_CAL_TIMER_RUNNING) {
+#if CY_CPU_CORTEX_M0P
+    IRQn_Type nvicSel = Cy_SysInt_GetNvicConnection(CY_USBSS_CAL_TCPWM_INTERRUPT);
+#endif /* CY_CPU_CORTEX_M0P */
+
+    if (
+#if CY_CPU_CORTEX_M0P
+            (nvicSel < NvicMux0_IRQn) ||
+            (nvicSel > NvicMux7_IRQn) ||
+            (NVIC_GetEnableIRQ(nvicSel) == false) ||
+#else
+            (NVIC_GetEnableIRQ(CY_USBSS_CAL_TCPWM_INTERRUPT) == false) ||
+#endif /* CY_CPU_CORTEX_M0P */
+            (Cy_TCPWM_Counter_GetStatus(TCPWM0, CY_USBSS_CAL_TCPWM_INDEX) == CY_USBSS_CAL_TIMER_RUNNING)
+       ) {
         /* Use blocking delay if the timer is already running and a wait is requested or
          * if user has not registered for the Timer Interrupt */
         Cy_SysLib_DelayUs(timeoutUs);
@@ -769,6 +809,8 @@ Cy_USBSS_Cal_Init (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                    cy_usb_cal_msg_callback_t cb)
 {
     cy_en_usb_cal_ret_code_t retCode = CY_USB_CAL_STATUS_SUCCESS;
+    uint8_t index = 0;
+
     USB32DEV_Type *base = pCalCtxt->regBase;
     USB32DEV_PROT_Type *USB32DEV_PROT = &base->USB32DEV_PROT;
     USB32DEV_MAIN_Type *USB32DEV_MAIN = &base->USB32DEV_MAIN;
@@ -788,6 +830,7 @@ Cy_USBSS_Cal_Init (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     pCalCtxt->lbadCounter = 0;
     pCalCtxt->stopClkOnEpResetEnable = false;
     pCalCtxt->usbConfigLane = CY_USB_CFG_LANE_AUTODETECT;
+    pCalCtxt->usbTxTestMode = false;
 
     pCalCtxt->desiredDmaFreq = CY_HBDMA_CLK_240_MHZ;
     pCalCtxt->currentDmaFreq = CY_HBDMA_CLK_150_MHZ;
@@ -812,6 +855,22 @@ Cy_USBSS_Cal_Init (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
     pCalCtxt->delayEventMask = DELAY_EVENT_NONE;
     Cy_USBSS_Cal_TimerInit();
+
+    /* Set the default signal swing, pre-shoot and de-emphasis values. */
+    Cy_USBSS_SetTransmitAmplitude(pCalCtxt, CY_SSCAL_TXSWING_MAX);
+    Cy_USBSS_SetPreShootnDeEmphasis(pCalCtxt, CY_SSCAL_PRESHOOT_DFLT_x10, CY_SSCAL_DEEMPH_DFLT_x10);
+
+    /* Set the default CTLE LUT mask for all USB Speeds */
+    pCalCtxt->gen1x1LutMask = DEF_LUT_MASK_GEN1X1;
+    pCalCtxt->gen1x2LutMask = DEF_LUT_MASK_GEN1X2;
+    pCalCtxt->gen2x1LutMask = DEF_LUT_MASK_GEN2X1;
+    pCalCtxt->gen2x2LutMask = DEF_LUT_MASK_GEN2X2;
+
+    /* Initialise the LUT array for Gen2 with default values */
+    for (index = 0; index < LUT_WIDTH ; index++)
+    {
+        pCalCtxt->ctleLutArrayGen2[index] = P_LUT_10G[index];
+    }
 
     return retCode;
 }
@@ -1261,12 +1320,29 @@ Cy_USBSS_Cal_Connect (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     USB32DEV_LNK->LNK_LFPS_RX_U2_HANDSHAKE      = 80UL;
     USB32DEV_LNK->LNK_LFPS_RX_U2_HANDSHAKE_GEN2 = 200UL;
 
-    /* Set Warm Reset LFPS detect duration to default. */
-    USB32DEV_LNK->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
+    if (pCalCtxt->usbTxTestMode) {
+        /* Detect Ping.LFPS with a burst duration of 24 to 26 us. */
+        USB32DEV_LNK->LNK_LFPS_RX_PING_GEN2 = 7500UL | (8125UL << 16U);
+        USB32DEV_LNK->LNK_LFPS_RX_PING      = 3000UL | (3250UL << 16U);
 
-    /* Increase upper limit of RX Ping.LFPS burst to 240 ns to give margin during compliance testing. */
-    USB32DEV_LNK->LNK_LFPS_RX_PING      = 0x001E0005UL;
-    USB32DEV_LNK->LNK_LFPS_RX_PING_GEN2 = 0x004B000DUL;
+        /* Detect WarmReset with an LFPS duration of 200 us. */
+        USB32DEV_LNK->LNK_LFPS_RX_RESET_GEN2 = 62500UL;
+        USB32DEV_LNK->LNK_LFPS_RX_RESET      = 25000UL;
+
+        /* Increase Rx.Detect limit to maximum. */
+        USB32DEV_LNK->LNK_LTSSM_OBSERVE |= 0x000000F0UL;
+    } else {
+        /* Set Warm Reset LFPS detect duration to default. */
+        USB32DEV_LNK->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
+        USB32DEV_LNK->LNK_LFPS_RX_RESET      = 10000000UL;
+
+        /* Increase upper limit of RX Ping.LFPS burst to 240 ns to give margin during compliance testing. */
+        USB32DEV_LNK->LNK_LFPS_RX_PING      = 0x001E0005UL;
+        USB32DEV_LNK->LNK_LFPS_RX_PING_GEN2 = 0x004B000DUL;
+
+        /* Set Rx.Detect limit to default value. */
+        USB32DEV_LNK->LNK_LTSSM_OBSERVE = ((USB32DEV_LNK->LNK_LTSSM_OBSERVE & ~0xF0UL) | 0x80UL);
+    }
 
     /*
      * Update Polling.LFPS burst duration to adjust for the ~120ns of LFPS filtering.
@@ -1338,20 +1414,161 @@ Cy_USBSS_Cal_Connect (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     /* Turn on AUTO response to LGO_U3 command from host. */
     USB32DEV_LNK->LNK_COMPLIANCE_PATTERN_8 |= USB32DEV_LNK_COMPLIANCE_PATTERN_8_LFPS_Msk;
 
+    if (pCalCtxt->usbTxTestMode) {
+        /* Jump to compliance state. */
+        DBG_SSCAL_INFO("Forcing link into compliance state\r\n");
+        CY_USBSS_JUMP_TO_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_COMP);
+    }
+
+    pCalCtxt->numRecoveryEntries = 0;
     return CY_USB_CAL_STATUS_SUCCESS;
 }
 
-#define FX3G2_VPTX_MV           (1150U)  /* 1.15 V */
-#define FX3G2_TXSWING_MV        (1150U)  /* 1.15 V */
+/* C(1) = -0.10, C(0) = 0.85, C(-1) = -0.05 */
+#define PHY_TX_CURSOR_C1_DEFAULT  (100)
+#define PHY_TX_CURSOR_C0_DEFAULT  (850)
+#define PHY_TX_CURSOR_CM1_DEFAULT (50)
 
-const uint32_t PhyTxCursorPoints[] = {
-    /* Different PHY TX settings for device characterisation only. */
-#if 0
-    125, 792,  83               /* C(1) = -0.125, C(0) = 0.792, C(-1) = -0.083 */
-    230, 687,  83               /* C(1) = -0.230, C(0) = 0.687, C(-1) = -0.083 */
-#endif
-    100, 850,  50               /* C(1) = -0.10, C(0) = 0.85, C(-1) = -0.05 */
+/* LUT with scaled 10^(val/20) values for the maximum
+ * range for preshoot and deemphasis values (-7 to 3.2)
+ */
+const uint32_t lut_pow_10_scaled[] = {
+    /* Indexes from 0 to 9 (-7.00 to -6.10) */
+    4466, 4518, 4570, 4623, 4677, 4731, 4786, 4841, 4897, 4954,
+    /* Indexes from 10 to 19 (-6.00 to -5.10) */
+    5011, 5069, 5128, 5188, 5248, 5308, 5370, 5432, 5495, 5559,
+    /* Indexes from 20 to 29 (-5.00 to -4.10) */
+    5623, 5688, 5754, 5821, 5888, 5956, 6025, 6095, 6165, 6237,
+    /* Indexes from 30 to 39 (-4.00 to -3.10) */
+    6309, 6382, 6456, 6531, 6606, 6683, 6760, 6839, 6918, 6998,
+    /* Indexes from 40 to 49 (-3.00 to -2.10) */
+    7079, 7161, 7244, 7328, 7413, 7498, 7585, 7673, 7762, 7852,
+    /* Indexes from 50 to 59 (-2.00 to -1.10) */
+    7943, 8035, 8128, 8222, 8317, 8413, 8511, 8609, 8709, 8810,
+    /* Indexes from 60 to 69 (-1.00 to -0.10) */
+    8912, 9015, 9120, 9225, 9332, 9440, 9549, 9660, 9772, 9885,
+    /* Indexes from 70 to 79 (0.00 to 0.90) */
+    10000, 10115, 10232, 10351, 10471, 10592, 10715, 10839, 10964, 11091,
+    /* Indexes from 80 to 89 (1.00 to 1.90) */
+    11220, 11350, 11481, 11614, 11748, 11885, 12022, 12161, 12302, 12445,
+    /* Indexes from 90 to 99 (2.00 to 2.90) */
+    12589, 12735, 12882, 13031, 13182, 13335, 13489, 13645, 13803, 13963,
+    /* Indexes from 100 to 102 (3.0 to 3.2) */
+    14125, 14288, 14454
 };
+
+#define SCALING_FACTOR (10000)
+
+/*********************************************************************************
+ * Function Name: Cy_USBSS_SetPreShootnDeEmphasis
+ *****************************************************************************//**
+ *
+ * Function to set the preshoot an de-emphasis values for USB 3.x PHY TX.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param PS_dBx10
+ * Preshoot value in dB x 10 (e.g., 2.1 dB -> 21)
+ * \param DE_dBx10
+ * De-emphasis value in dB x 10 (e.g., -3.1 dB -> -31)
+ *
+ ********************************************************************************/
+void Cy_USBSS_SetPreShootnDeEmphasis (cy_stc_usbss_cal_ctxt_t *pCalCtxt, int8_t PS_dBx10, int8_t DE_dBx10)
+{
+    int64_t k, l, kl, denom, denomScaled, cm1, c1;
+    uint8_t psIndex, deIndex;
+
+    if (pCalCtxt == NULL) {
+        return;
+    }
+
+    /* Start from the default value */
+    pCalCtxt->usbTxCursorPts[0] = PHY_TX_CURSOR_C1_DEFAULT;
+    pCalCtxt->usbTxCursorPts[1] = PHY_TX_CURSOR_C0_DEFAULT;
+    pCalCtxt->usbTxCursorPts[2] = PHY_TX_CURSOR_CM1_DEFAULT;
+
+    if (((PS_dBx10 >= 12) && (PS_dBx10 <= 32)) && ((DE_dBx10 <= -21) && (DE_dBx10 >=-70)))
+    {
+        /* k = 10 ^(PS_dBx10/20)
+         * l = 10 ^(DE_dBx10/20)
+         */
+        psIndex = PS_dBx10 + 70;
+        deIndex = DE_dBx10 + 70;
+
+        k = lut_pow_10_scaled[psIndex];
+        l = lut_pow_10_scaled[deIndex];
+
+        DBG_SSCAL_TRACE("k = %ld, l = %ld\r\n", k,l);
+        kl = (k * l)/SCALING_FACTOR;
+        denom = 2 * (kl + SCALING_FACTOR - l);
+
+        if(!denom)
+        {
+            DBG_SSCAL_ERR("Invalid denom val with (%d,%d).Setting default.\r\n",PS_dBx10, DE_dBx10);
+            return;
+        }
+
+        if(denom < 0)
+        {
+            denom = -denom;
+        }
+
+        denomScaled = denom * SCALING_FACTOR;
+        /*
+           cm1 = (l * (1-k))/(denom)
+           c1 = (l-1)/denom
+           c0 = 1- abs(cm1) - abs(c1)
+         */
+        cm1 = (l * (SCALING_FACTOR - k));
+        if(cm1 <0)
+        {
+            cm1 = -cm1;
+        }
+
+        c1  =  (l - SCALING_FACTOR);
+        if (c1 <0)
+        {
+            c1 = -c1;
+        }
+
+        pCalCtxt->usbTxCursorPts[0] = ((1000 * c1) + (denom/2))/denom;
+        pCalCtxt->usbTxCursorPts[2] = (1000 * cm1 + (denomScaled/2))/(denomScaled);
+        pCalCtxt->usbTxCursorPts[1] = 1000 - (pCalCtxt->usbTxCursorPts[0] + pCalCtxt->usbTxCursorPts[2]);
+
+        DBG_SSCAL_INFO("PreSh:%d DeEmph:%d\r\n", PS_dBx10, DE_dBx10);
+        DBG_SSCAL_INFO("%d,%d,%d\r\n", pCalCtxt->usbTxCursorPts[0], pCalCtxt->usbTxCursorPts[1],
+                pCalCtxt->usbTxCursorPts[2]);
+    }
+    else
+    {
+        DBG_SSCAL_ERR("Invalid Preshoot/Deemphasis val(%d,%d).Setting default.\r\n",
+                PS_dBx10, DE_dBx10);
+    }
+}
+
+/*********************************************************************************
+ * Function Name: Cy_USBSS_SetTransmitAmplitude
+ *****************************************************************************//**
+ *
+ * Function to set the transmitter differential amplitude in mV units. The default
+ * and maximum allowed value is 1150 mV.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param amplitude_mV
+ * Desired transmitted signal amplitude in millivolt units. Valid range is
+ * from 200 mV to 1150 mV.
+ *
+ ********************************************************************************/
+void Cy_USBSS_SetTransmitAmplitude (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint16_t amplitude_mV)
+{
+    if ((pCalCtxt != NULL) && (amplitude_mV >= CY_SSCAL_TXSWING_MIN) && (amplitude_mV <= CY_SSCAL_TXSWING_MAX)) {
+        pCalCtxt->usbTxAmplitude = amplitude_mV;
+        DBG_SSCAL_INFO("Set USB transmitter amplitude as %d mV\r\n", amplitude_mV);
+    }
+}
 
 /*******************************************************************************
 * Function Name: Cy_USBSS_Phy_TxInit
@@ -1407,8 +1624,8 @@ Cy_USBSS_Phy_TxInit (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
             (0x06UL << USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_REG_TX_AFE_VREG_DRV_SEL_Pos) |
             (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_REG_TX_AFE_TX_DCD_CTRL_Pos) |
             (0x02UL << USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_REG_TX_AFE_TX_DETECTRX_TRIM_Pos) |
-            (0x01UL << USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_REG_TX_AFE_TX_ELECIDLE_DRV_Pos)
-            );                                          /* 0x1846B4DFUL; */
+            (0x03UL << USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_REG_TX_AFE_TX_ELECIDLE_DRV_Pos)
+            );                                          /* 0x3846B4DFUL; */
 
     /* Wait for 10 us to settle voltage regulators */
     Cy_SysLib_DelayUs(10);
@@ -1439,16 +1656,15 @@ Cy_USBSS_Phy_TxInit (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
         ((USB_PHY_TOP->TX_AFE_STATUS & USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_STATUS_ZCAL_CODE_Msk) >>
          USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_STATUS_ZCAL_CODE_Pos);
 
-#if (FX3G2_VPTX_MV != FX3G2_TXSWING_MV)
-    /* nVSwing = (1 - (vSwing / vTx)) * nTotal = (1 - (1.1 V / 1.15 V)) * nTotal. */
-    nVSwing = (nTotal * (FX3G2_VPTX_MV - FX3G2_TXSWING_MV)) / FX3G2_VPTX_MV;
-#else
-    nVSwing = 0;
-#endif /* (FX3G2_VPTX_MV != FX3G2_TXSWING_MV) */
+    if (pCalCtxt->usbTxAmplitude < CY_SSCAL_TXSWING_MAX) {
+        /* nVSwing = (1 - (vSwing / vTx)) * nTotal = (1 - (1.1 V / 1.15 V)) * nTotal. */
+        nVSwing = (nTotal * (CY_SSCAL_TXSWING_MAX - pCalCtxt->usbTxAmplitude)) / CY_SSCAL_TXSWING_MAX;
+    } else {
+        nVSwing = 0;
+    }
 
-    nPost = (PhyTxCursorPoints[0] * (nTotal - nVSwing)) / 1000;
-    nPre  = (PhyTxCursorPoints[2] * (nTotal - nVSwing)) / 1000;
-
+    nPost = (pCalCtxt->usbTxCursorPts[0] * (nTotal - nVSwing)) / 1000;
+    nPre  = (pCalCtxt->usbTxCursorPts[2] * (nTotal - nVSwing)) / 1000;
     /* Calculate the values to be programmed into the TX AFE shift register based on the above values. */
     shiftData[0] = 0x00UL;
     shiftData[1] = 0x00UL;
@@ -2510,7 +2726,7 @@ Cy_USBSS_Cal_SendMsg (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 /* Imported from code used in MSV simulation. */
 
 #define N_EYE_LEVELS    13      /* Number of slicer levels used during eye height sweep */
-#define DELTA_EYE_LEVEL 2       /* Eye height sweep step size: */
+#define DELTA_EYE_LEVEL 3       /* Eye height sweep step size: */
                                 /* N_EYE_LEVELS*DELTA_EYE_LEVEL must be <(64-range for offset) */
 #define EYE_LEVEL_START 1       /* Starting point for eye height measurement (1  = ~45mV0-p,diff) */
                                 /* Maximum Eye Level = EYE_LEVEL_START+DELTA_EYE_LEVEL*N_EYE_LEVELS = 38 */
@@ -2518,7 +2734,6 @@ Cy_USBSS_Cal_SendMsg (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                                 /* remaining dfe_slicepoint steps */
 #define FULL_SWEEP      0       /* When =1, perform a complete sweep of eye height,  */
                                 /* when =0 skip remaining points when error count > FAIL_LIMIT */
-#define LUT_WIDTH       16      /* Number of CTLE settings in the Look-Up Table. */
 #define SLICEPOINT_DEC_G1  4    /* Gen1: Decrement to be applied on DFE slicepoint. */
 #define SLICEPOINT_DEC_G2  2    /* Gen2: Decrement to be applied on DFE slicepoint. */
 
@@ -2639,19 +2854,6 @@ int32_t ftn_max_dfe_tap(int32_t tap1, int32_t tap2, int32_t tap3)
     return cur_max;
 }
 
-const uint32_t P_LUT_5G[] =  {
-    0x0000C3C3UL, 0x00008484UL, 0x0000B4B4UL, 0x00005454UL,
-    0x0000D4D4UL, 0x00008686UL, 0x00006262UL, 0x0000C6C6UL,
-    0x00006666UL, 0x00000808UL, 0x00004848UL, 0x00000A0AUL,
-    0x0000E6E6UL, 0x00000404UL, 0x00002222UL, 0x0000C2C2UL
-};
-
-const uint32_t P_LUT_10G[] = {
-    0x0000A2A2UL, 0x0000C2C2UL, 0x00003030UL, 0x0000C4C4UL,
-    0x00002626UL, 0x0000C6C6UL, 0x0000C0C0UL, 0x00009898UL,
-    0x0000C8C8UL, 0x00008A8AUL, 0x0000DADAUL, 0x0000DCDCUL,
-    0x00000000UL, 0x00000404UL, 0x00000808UL, 0x00000202UL
-};
 
 #define AFE_CAL_RESULT_EYE_COMPLETE     (0x1A)
 #define AFE_CAL_RESULT_LOCKDATA_FAILED  (0x1B)
@@ -2788,11 +2990,6 @@ static void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
  *      1. Updated LUT mask scheme.
  */
 #define CTLE_ALGORITHM_VERSION  0x000Au
-#define LUT_MASK_GEN1X1 (0x0FFF) /* LUT index 0-11 */
-#define LUT_MASK_GEN2X1 (0xFFFF) /* LUT index 0-15 */
-#define LUT_MASK_GEN1X2 (0x3BA9) /* LUT index 0,3,5,7,8,9,11,12,13 */
-#define MIN_LUT_GEN1X2  (0x18A0) /* LUT index 5,7,11,12 */
-#define LUT_MASK_GEN2X2 (0x03FF) /* LUT index 0-9 */
 
 /* Using a global variable to avoid adding a large array to stack. */
 static uint32_t RxEyeErrCnt[LUT_WIDTH][N_EYE_LEVELS] = {{0}};
@@ -2855,9 +3052,9 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
         lut_check_mask = pCalCtxt->activeLutMask;
     } else {
         if (pCalCtxt->dualLaneEnabled) {
-            lut_check_mask = (data_rate == DATARATE_GEN1) ? LUT_MASK_GEN1X2 : LUT_MASK_GEN2X2;
+            lut_check_mask = (data_rate == DATARATE_GEN1) ? pCalCtxt->gen1x2LutMask : pCalCtxt->gen2x2LutMask;
         } else {
-            lut_check_mask = (data_rate == DATARATE_GEN1) ? LUT_MASK_GEN1X1 : LUT_MASK_GEN2X1;
+            lut_check_mask = (data_rate == DATARATE_GEN1) ? pCalCtxt->gen1x1LutMask : pCalCtxt->gen2x1LutMask;
         }
     }
 
@@ -2942,7 +3139,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
 
                 /* Update from LUT */
                 if( data_rate == DATARATE_GEN2 ) {
-                    cur_lut = P_LUT_10G[ lut_index];
+                    cur_lut = pCalCtxt->ctleLutArrayGen2[ lut_index];
                 } else {
                     cur_lut = P_LUT_5G[ lut_index];
                 }
@@ -3459,7 +3656,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                 /* Update CTLE Registers  */
                 cur_cap_gain = final_cap_gain[ bcs_index];
                 if( data_rate == DATARATE_GEN2 ) {
-                    cur_lut = P_LUT_10G[ bcs_index];
+                    cur_lut = pCalCtxt->ctleLutArrayGen2[ bcs_index];
                 } else {
                     cur_lut = P_LUT_5G[ bcs_index];
                 }
@@ -3765,6 +3962,10 @@ void Cy_USBSS_Cal_PrintCtleResults (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t p
         DBG_SSCAL_INFO("                   %x %x %x %x\r\n", pCalCtxt->phyEyeHeight[phyIndex][12],
                 pCalCtxt->phyEyeHeight[phyIndex][13], pCalCtxt->phyEyeHeight[phyIndex][14], pCalCtxt->phyEyeHeight[phyIndex][15]);
         DBG_SSCAL_INFO("PHY%d Best case LUT index=%d\r\n", phyIndex, pCalCtxt->phyLutIndex[phyIndex]);
+        DBG_SSCAL_INFO("Selected LUT Value=0x%x\r\n",
+                pCalCtxt->gen2Enabled?(pCalCtxt->ctleLutArrayGen2[pCalCtxt->phyLutIndex[phyIndex]]):
+                (P_LUT_5G[pCalCtxt->phyLutIndex[phyIndex]]));
+
     }
 }
 
@@ -4513,6 +4714,9 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     /* Restore TS1 holdoff delay to 0. */
                     USB32DEV_LNK->LNK_TX_TS1_HOLDOFF_TIMEOUT = 0;
 
+                    /* Restore LDN timeout to default value. */
+                    USB32DEV_LNK->LNK_LTSSM_LDN_TIMEOUT = 125000UL;
+
                     pPhyRegs->PIPE_OVERRIDE_0 &= ~(0x1800);
                     pPhyRegsAlt->PIPE_OVERRIDE_0 &= ~(0x1800);
                     DBG_SSCAL_TRACE("LNK-U0\r\n");
@@ -4655,10 +4859,12 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                 case CY_USBSS_LNK_STATE_COMP:
                     DBG_SSCAL_INFO("LNK-Compliance\r\n");
 
-                    /* Disable the LFPS filter here. */
-                    pPhyRegs->LOW_POWER_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_LOW_POWER_CTRL_DISABLE_LFPS_FILTER_Msk;
-                    if (pCalCtxt->dualLaneEnabled) {
-                        pPhyRegsAlt->LOW_POWER_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_LOW_POWER_CTRL_DISABLE_LFPS_FILTER_Msk;
+                    if (pCalCtxt->usbTxTestMode == false) {
+                        /* Disable the LFPS filter here. */
+                        pPhyRegs->LOW_POWER_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_LOW_POWER_CTRL_DISABLE_LFPS_FILTER_Msk;
+                        if (pCalCtxt->dualLaneEnabled) {
+                            pPhyRegsAlt->LOW_POWER_CTRL |= USB32DEV_PHYSS_USB40PHY_TOP_LOW_POWER_CTRL_DISABLE_LFPS_FILTER_Msk;
+                        }
                     }
 
                     /* Notify USBD about compliance state entry. */
@@ -4666,13 +4872,26 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
                     break;
 
-                    /* The same handling applies for Recovery.Active and Recovery.Config states. */
                 case CY_USBSS_LNK_STATE_RECOV_ACT:
-                case CY_USBSS_LNK_STATE_RECOV_CNFG:
                     {
+                        pCalCtxt->numRecoveryEntries++;
                         if (pCalCtxt->linkSuspended) {
                             msg.type = CY_USB_CAL_MSG_RESUME_END;
                             Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+                        }
+                    }
+                    break;
+
+                case CY_USBSS_LNK_STATE_RECOV_CNFG:
+                    {
+                        /* If the operations have already been performed in Recovery.Active, don't repeat them. */
+                        if (pCalCtxt->prevLinkState != CY_USBSS_LNK_STATE_RECOV_ACT) {
+                            pCalCtxt->numRecoveryEntries++;
+
+                            if (pCalCtxt->linkSuspended) {
+                                msg.type = CY_USB_CAL_MSG_RESUME_END;
+                                Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+                            }
                         }
                     }
                     break;
@@ -4772,9 +4991,11 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
             pCalCtxt->lpmWarningDone = false;
             pCalCtxt->u2TimeoutVal   = 0;
 
-            /* Set Gen2 LFPS durations to default values. */
-            USB32DEV_LNK->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
-            USB32DEV_LNK->LNK_LFPS_RX_PING_GEN2  = 0x004B000DUL;
+            if (pCalCtxt->usbTxTestMode == false) {
+                /* Set Gen2 LFPS durations to default values. */
+                USB32DEV_LNK->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
+                USB32DEV_LNK->LNK_LFPS_RX_PING_GEN2  = 0x004B000DUL;
+            }
 
             /* Restore default PendingHpTimer value. */
             USB32DEV_LNK->LNK_PENDING_HP_TIMEOUT      = 1250UL;
@@ -4815,7 +5036,6 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                 msg.type = CY_USBSS_CAL_MSG_LNK_DISCONNECT;
             }
             Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
-
             USB32DEV_LNK->LNK_INTR = USB32DEV_LNK_INTR_LTSSM_DISCONNECT_Msk;
         }
 
@@ -5097,6 +5317,10 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     Cy_USBSS_Cal_GetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_IN, &seqnum);
                     DBG_SSCAL_INFO("Sequence number error on EP %d-in with expected sequence %d\r\n", epIdx, seqnum);
                 }
+
+                if ((tmp2 & USB32DEV_PROT_EPI_INTR_RETRY_Msk) != 0) {
+                    pCalCtxt->numRetriesInEP[epIdx]++;
+                }
             }
 
             if ((tmp1 & (0x10000UL << epIdx)) != 0) {
@@ -5113,6 +5337,65 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
        /* Callback to the USB middleware for setting the event */
        msg.type = CY_USBSS_CAL_MSG_EPM_UNDERRUN;
        Cy_USBSS_Cal_SendMsg(pCalCtxt, &msg);
+    }
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_Cal_ForceLoopBack
+ ****************************************************************************//**
+ *
+ * Test mode function to forcibly complete CTLE adaptation and move the LTSSM
+ * into Loopback.Active state. This API MUST NOT be used in any functional
+ * application.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param isGen2
+ * Whether link is expected to be in Gen2 operation.
+ * \param phyIndex
+ * The active USB PHY/Lane index.
+*******************************************************************************/
+void Cy_USBSS_Cal_ForceLoopBack (cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool isGen2, uint8_t phyIndex)
+{
+    USB32DEV_Type     *base;
+    USB32DEV_LNK_Type *USB32DEV_LNK;
+
+    if (pCalCtxt != NULL) {
+        base = pCalCtxt->regBase;
+        USB32DEV_LNK = &base->USB32DEV_LNK;
+
+        pCalCtxt->gen2Enabled = isGen2;
+        pCalCtxt->dualLaneEnabled = false;
+        pCalCtxt->activeLutMask = 0;
+
+        CY_USBSS_FORCE_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_POLLING_RxEQ);
+        z_dfe_ctle_adaptation(pCalCtxt, isGen2 ? DATARATE_GEN2 : DATARATE_GEN1, phyIndex);
+        CY_USBSS_FORCE_LINK_STATE(USB32DEV_LNK, CY_USBSS_LNK_STATE_LPBK_ACTV);
+    }
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_Cal_ForceTxTestMode
+ ****************************************************************************//**
+ *
+ * Test mode function to forcibly put USB PHY0 in transmit test mode so that
+ * another FX device as receiver can perform eye monitor function.
+ *
+ * This function must not be used in actual USB applications.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ * \param enable
+ * Whether TX test mode is to be forced.
+ *
+ *******************************************************************************/
+void Cy_USBSS_Cal_ForceTxTestMode (cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool enable)
+{
+    if ((pCalCtxt != NULL) && (pCalCtxt->pUsbdCtxt != NULL)) {
+        DBG_SSCAL_INFO("USB transmit test mode enable=%d\r\n", enable);
+        pCalCtxt->usbTxTestMode = enable;
     }
 }
 
@@ -5871,6 +6154,7 @@ Cy_USBSS_Cal_EndpSetClearStall (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                 Cy_SysLib_DelayUs(1);
                 pProtBase->PROT_CS |= (CY_USBSS_PROT_CS_SETUP_CLR_BUSY);
             } else {
+                DBG_SSCAL_TRACE("EP0StallClr\r\n");
                 /* Clear EP0 stall bits. No need to clear sequence number explicitly. */
                 pProtBase->PROT_EPI_CS1[0] &= ~CY_USBSS_PROT_EPI_CS1_STALL;
                 pProtBase->PROT_EPO_CS1[0] &= ~CY_USBSS_PROT_EPO_CS1_STALL;
@@ -5943,8 +6227,13 @@ Cy_USBSS_Cal_EndpReset (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
     USB32DEV_PROT_Type *pProtBase;
     USB32DEV_EPM_Type  *pEpmBase;
     USB32DEV_MAIN_Type *pMainBase;
+    USB32DEV_LNK_Type  *pLinkBase;
     uint32_t intState;
+    uint32_t epCsVal = 0;
+    uint32_t epmVal  = 0;
     bool stopClkEn = false;
+    bool lnkInU0 = false;
+    bool isOutEp = false;
 
     if (NULL == pCalCtxt) {
         return(CY_USB_CAL_STATUS_CAL_CTXT_NULL);
@@ -5953,15 +6242,68 @@ Cy_USBSS_Cal_EndpReset (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
     pProtBase = pCalCtxt->pProtBase;
     pMainBase = pCalCtxt->pMainBase;
     pEpmBase  = pCalCtxt->pEpmBase;
-    if ((NULL == pMainBase) || (NULL == pProtBase) || (NULL == pEpmBase)) {
+    pLinkBase = pCalCtxt->pLinkBase;
+    if ((NULL == pMainBase) || (NULL == pProtBase) || (NULL == pEpmBase) || (NULL == pLinkBase)) {
         return(CY_USB_CAL_STATUS_CAL_PROT_BASE_NULL);
     }
 
-    stopClkEn = ((pCalCtxt->stopClkOnEpResetEnable) && (endpNum != 0));
+    /* Special case for reset of Endpoint-0 alone. */
+    if (endpNum == 0) {
+        pEpmBase->IEPM_ENDPOINT[endpNum] |= USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPO_CS1[endpNum] |= CY_USBSS_PROT_EPO_CS1_RESET;
+        pEpmBase->EEPM_ENDPOINT[endpNum] |= USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPI_CS1[endpNum] |= CY_USBSS_PROT_EPI_CS1_RESET;
+        Cy_SysLib_DelayUs(1);
+        pEpmBase->IEPM_ENDPOINT[endpNum] &= ~USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPO_CS1[endpNum] &= ~CY_USBSS_PROT_EPO_CS1_RESET;
+        pEpmBase->EEPM_ENDPOINT[endpNum] &= ~USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPI_CS1[endpNum] &= ~CY_USBSS_PROT_EPI_CS1_RESET;
+
+        return CY_USB_CAL_STATUS_SUCCESS;
+    }
 
     intState = Cy_SysLib_EnterCriticalSection();
 
+    /* If no data commit has happened on the endpoint and it is not in ready state at present,
+     * just clear the sequence number and return. There is nothing to reset.
+     */
+    if (endpDir == CY_USB_ENDP_DIR_IN) {
+        if (
+                ((pProtBase->PROT_EPI_CS1[endpNum] & USB32DEV_PROT_EPI_CS1_VALID_Msk) == 0) ||
+                (
+                 ((pProtBase->PROT_EPI_INTR[endpNum] & USB32DEV_PROT_EPI_INTR_COMMIT_Msk) == 0) &&
+                 ((pEpmBase->EEPM_ENDPOINT[endpNum] & USB32DEV_EPM_EEPM_ENDPOINT_EEPM_EP_READY_Msk) == 0)
+                )
+           ) {
+            DBG_SSCAL_INFO("EPI-%d: Nothing to reset\r\n", endpNum);
+            Cy_USBSS_Cal_SetSeqNum(pCalCtxt, endpNum, endpDir, 0);
+            Cy_SysLib_ExitCriticalSection(intState);
+            return CY_USB_CAL_STATUS_SUCCESS;
+        } else {
+            /* Clear the COMMIT interrupt as we are doing a reset now. */
+            pProtBase->PROT_EPI_INTR[endpNum] = USB32DEV_PROT_EPI_INTR_COMMIT_Msk;
+        }
+    } else {
+        if (
+                ((pProtBase->PROT_EPO_CS1[endpNum] & USB32DEV_PROT_EPO_CS1_VALID_Msk) == 0) ||
+                (
+                 ((pProtBase->PROT_EPO_INTR[endpNum] & USB32DEV_PROT_EPO_INTR_COMMIT_Msk) == 0) &&
+                 ((pEpmBase->IEPM_ENDPOINT[endpNum] & USB32DEV_EPM_IEPM_ENDPOINT_EP_READY_Msk) == 0)
+                )
+           ) {
+            DBG_SSCAL_INFO("EPO-%d: Nothing to reset\r\n", endpNum);
+            Cy_USBSS_Cal_SetSeqNum(pCalCtxt, endpNum, endpDir, 0);
+            Cy_SysLib_ExitCriticalSection(intState);
+            return CY_USB_CAL_STATUS_SUCCESS;
+        } else {
+            /* Clear the COMMIT interrupt as we are doing a reset now. */
+            pProtBase->PROT_EPO_INTR[endpNum] = USB32DEV_PROT_EPO_INTR_COMMIT_Msk;
+        }
+    }
+
     if ((pProtBase->PROT_CS & USB32DEV_PROT_CS_DEVICEADDR_Msk) != 0) {
+        stopClkEn = pCalCtxt->stopClkOnEpResetEnable;
+
         /* Set the NRDYALL bit to block all data transfers and wait for one service interval. */
         pProtBase->PROT_CS = (
                 (pProtBase->PROT_CS & ~(USB32DEV_PROT_CS_SETUP_CLR_BUSY_Msk | USB32DEV_PROT_CS_STATUS_CLR_BUSY_Msk)) |
@@ -5969,52 +6311,53 @@ Cy_USBSS_Cal_EndpReset (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
         Cy_SysLib_DelayUs(125U);
 
         if (stopClkEn) {
-            pMainBase->CTRL &= ~USB32DEV_MAIN_CTRL_CLK_EN_Msk;
+            if (USBSS_CAL_GET_LINK_STATE(pLinkBase) == CY_USBSS_LNK_STATE_U0) {
+                lnkInU0 = true;
+            }
+
+            Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_LNK_EVENT_USB_CLK_STOP);
         }
     }
 
-    if ((CY_USB_ENDP_DIR_OUT == endpDir) || (endpNum == 0)) {
-        pEpmBase->IEPM_ENDPOINT[endpNum] |= USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
-        pProtBase->PROT_EPO_CS1[endpNum] |= (CY_USBSS_PROT_EPO_CS1_RESET | CY_USBSS_PROT_EPO_CS1_VALID);
-    }
-
-    if ((CY_USB_ENDP_DIR_IN == endpDir) || (endpNum == 0)) {
-        pEpmBase->EEPM_ENDPOINT[endpNum] |= USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
-        pProtBase->PROT_EPI_CS1[endpNum] |= (CY_USBSS_PROT_EPI_CS1_RESET | CY_USBSS_PROT_EPI_CS1_VALID);
+    if (CY_USB_ENDP_DIR_OUT == endpDir) {
+        epmVal  = pEpmBase->IEPM_ENDPOINT[endpNum];
+        epCsVal = pProtBase->PROT_EPO_CS1[endpNum];
+        pEpmBase->IEPM_ENDPOINT[endpNum] = epmVal | USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPO_CS1[endpNum] = epCsVal | CY_USBSS_PROT_EPO_CS1_RESET;
+        isOutEp = true;
+    } else {
+        epmVal  = pEpmBase->EEPM_ENDPOINT[endpNum];
+        epCsVal = pProtBase->PROT_EPI_CS1[endpNum];
+        pEpmBase->EEPM_ENDPOINT[endpNum] = epmVal | USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+        pProtBase->PROT_EPI_CS1[endpNum] = epCsVal | CY_USBSS_PROT_EPI_CS1_RESET;
     }
 
     if (stopClkEn) {
-        pMainBase->CTRL |= USB32DEV_MAIN_CTRL_CLK_EN_Msk;
-        __NOP();__NOP();__NOP();__NOP();
+        /*
+         * Gate the main USB clock while clearing the EP reset bit to ensure that all endpoint state
+         * is properly cleared after that.
+         */
         pMainBase->CTRL &= ~USB32DEV_MAIN_CTRL_CLK_EN_Msk;
     } else {
         __NOP();__NOP();__NOP();__NOP();
     }
 
-    if ((CY_USB_ENDP_DIR_OUT == endpDir) || (endpNum == 0)) {
-        pEpmBase->IEPM_ENDPOINT[endpNum] &= ~USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
-        pProtBase->PROT_EPO_CS1[endpNum] &= ~CY_USBSS_PROT_EPO_CS1_RESET;
+    if (isOutEp) {
+        pEpmBase->IEPM_ENDPOINT[endpNum] = epmVal;
+        pProtBase->PROT_EPO_CS1[endpNum] = epCsVal;
+    } else {
+        pEpmBase->EEPM_ENDPOINT[endpNum] = epmVal;
+        pProtBase->PROT_EPI_CS1[endpNum] = epCsVal;
     }
-
-    if ((CY_USB_ENDP_DIR_IN == endpDir) || (endpNum == 0)) {
-        pEpmBase->EEPM_ENDPOINT[endpNum] &= ~USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
-        pProtBase->PROT_EPI_CS1[endpNum] &= ~CY_USBSS_PROT_EPI_CS1_RESET;
-    }
-
-    /* Clear stream error detected status. */
-    pProtBase->PROT_STREAM_ERROR_STATUS |= CY_USBSS_PROT_STREAM_ERROR_STATUS_ERROR_DETECTED;
 
     if (stopClkEn) {
         /* Make sure PCLK is enabled. */
         pMainBase->CTRL |= USB32DEV_MAIN_CTRL_CLK_EN_Msk;
-
-        /* In case of Gen1x2 operation, force link through recovery manually after starting the clock. */
-        if ((pCalCtxt->dualLaneEnabled) && (!pCalCtxt->gen2Enabled)) {
-            if ((pCalCtxt->pLinkBase->LNK_LTSSM_STATE & 0x3F) == 0x10) {
-                CY_USBSS_JUMP_TO_LINK_STATE(pCalCtxt->pLinkBase, CY_USBSS_LNK_STATE_RECOV_ACT);
-            }
-        }
+        Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_LNK_EVENT_USB_CLK_START);
     }
+
+    /* Clear stream error detected status. */
+    pProtBase->PROT_STREAM_ERROR_STATUS |= CY_USBSS_PROT_STREAM_ERROR_STATUS_ERROR_DETECTED;
 
     /* Clear the NRDY_ALL bit to allow data transfers to resume. */
     pProtBase->PROT_CS = (pProtBase->PROT_CS & ~(
@@ -6024,12 +6367,265 @@ Cy_USBSS_Cal_EndpReset (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
 
     Cy_SysLib_ExitCriticalSection(intState);
 
+    /* If link state had been forced, wait until it is back in U0 (with a 5 ms timeout). */
+    if (lnkInU0) {
+        if ((pCalCtxt->dualLaneEnabled) && (!pCalCtxt->gen2Enabled)) {
+            /*
+             * In Gen1x2 case, jump directly into Recovery to avoid an occasional false
+             * transition into U1 state.
+             */
+            CY_USBSS_JUMP_TO_LINK_STATE(pLinkBase, CY_USBSS_LNK_STATE_RECOV_ACT);
+        } else {
+            /*
+             * Normally, we expect the link to go through recovery once the clock has been
+             * stopped and restarted. This will typically be initiated by the upstream host/hub
+             * due to lack of device response to one or more link commands.
+             *
+             * In cases where this did not happen, we will trigger a cycle through link
+             * recovery from the device side. This is done by setting the LDN timeout value
+             * to 5 us so that a timeout is detected compulsorily within the next 15 us.
+             * The LDN timeout is restored to its proper value after 20 us or when the link
+             * re-enters the U0 state (done in the ISR).
+             */
+            Cy_SysLib_DelayUs(1);
+            if (USBSS_CAL_GET_LINK_STATE(pLinkBase) == CY_USBSS_LNK_STATE_U0) {
+                pLinkBase->LNK_LTSSM_LDN_TIMEOUT = 625UL;
+                Cy_SysLib_DelayUs(20);
+                pLinkBase->LNK_LTSSM_LDN_TIMEOUT = 125000UL;
+            }
+        }
+
+        Cy_SysLib_DelayUs(10);
+        if (!Cy_USBSS_Cal_WaitUntilState(pCalCtxt, CY_USBSS_LNK_STATE_U0, 5000)) {
+            DBG_SSCAL_WARN("Link did not return to U0 within 5 ms after resuming clock\r\n");
+        } else {
+            DBG_SSCAL_INFO("Link returned to U0 after clock restart\r\n");
+        }
+    }
+
+
     /*
      * Make sure that the endpoint sequence number is cleared at this point.
-     * This happens implicitly for IN endpoints. Explicit clear is only needed for OUT endpoints.
      */
-    if (CY_USB_ENDP_DIR_OUT == endpDir) {
-        Cy_USBSS_Cal_SetSeqNum(pCalCtxt, endpNum, endpDir, 0);
+    Cy_USBSS_Cal_SetSeqNum(pCalCtxt, endpNum, endpDir, 0);
+
+    return(CY_USB_CAL_STATUS_SUCCESS);
+}   /* End of Function */
+
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_ResetEndpoints
+****************************************************************************//**
+*
+* Function to flush and reset stale state and data on multiple endpoints.
+* The endpoints to be reset are passed in through bitmask parameters.
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+* \param outEpMask
+* Bitmask representing OUT endpoints to be reset.
+*
+* \param inEpMask
+* Bitmask representing IN endpoints to be reset.
+*
+* \param preserveOutSeqNum
+* Bitmask representing OUT endpoints whose sequence numbers are to be preserved.
+*
+* \param preserveInSeqNum
+* Bitmask representing IN endpoints whose sequence numbers are to be preserved.
+*
+* \return
+* The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
+*
+*******************************************************************************/
+cy_en_usb_cal_ret_code_t
+Cy_USBSS_Cal_ResetEndpoints (
+        cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+        uint32_t outEpMask,
+        uint32_t inEpMask,
+        uint32_t preserveOutSeqNum,
+        uint32_t preserveInSeqNum)
+{
+    USB32DEV_PROT_Type *pProtBase;
+    USB32DEV_EPM_Type  *pEpmBase;
+    USB32DEV_MAIN_Type *pMainBase;
+    USB32DEV_LNK_Type  *pLinkBase;
+    uint32_t epIdx;
+    uint32_t intState;
+    uint8_t  outSeq[16], inSeq[16];
+    bool stopClkEn = false;
+    bool lnkInU0 = false;
+
+    if (NULL == pCalCtxt) {
+        return(CY_USB_CAL_STATUS_CAL_CTXT_NULL);
+    }
+
+    pProtBase = pCalCtxt->pProtBase;
+    pMainBase = pCalCtxt->pMainBase;
+    pEpmBase  = pCalCtxt->pEpmBase;
+    pLinkBase = pCalCtxt->pLinkBase;
+    if ((NULL == pMainBase) || (NULL == pProtBase) || (NULL == pEpmBase) || (NULL == pLinkBase)) {
+        return(CY_USB_CAL_STATUS_CAL_PROT_BASE_NULL);
+    }
+
+    /* API only supports reset of endpoints 1 to 15 in each direction. */
+    inEpMask  &= 0xFFFEUL;
+    outEpMask &= 0xFFFEUL;
+    if ((outEpMask == 0) && (inEpMask == 0)) {
+        return CY_USB_CAL_STATUS_SUCCESS;
+    }
+
+    /* Check if there is any state to be reset on each of the endpoints. */
+    for (epIdx = 1; epIdx < 16; epIdx++) {
+        if (
+                ((pProtBase->PROT_EPI_CS1[epIdx] & USB32DEV_PROT_EPI_CS1_VALID_Msk) == 0) ||
+                (
+                 ((pProtBase->PROT_EPI_INTR[epIdx] & USB32DEV_PROT_EPI_INTR_COMMIT_Msk) == 0) &&
+                 ((pEpmBase->EEPM_ENDPOINT[epIdx] & USB32DEV_EPM_EEPM_ENDPOINT_EEPM_EP_READY_Msk) == 0)
+                )
+           ) {
+            inEpMask &= ~(1U << epIdx);
+        }
+
+        if (
+                ((pProtBase->PROT_EPO_CS1[epIdx] & USB32DEV_PROT_EPO_CS1_VALID_Msk) == 0) ||
+                (
+                 ((pProtBase->PROT_EPO_INTR[epIdx] & USB32DEV_PROT_EPO_INTR_COMMIT_Msk) == 0) &&
+                 ((pEpmBase->IEPM_ENDPOINT[epIdx] & USB32DEV_EPM_IEPM_ENDPOINT_EP_READY_Msk) == 0)
+                )
+           ) {
+            outEpMask &= ~(1U << epIdx);
+        }
+    }
+
+    intState = Cy_SysLib_EnterCriticalSection();
+
+    if ((pProtBase->PROT_CS & USB32DEV_PROT_CS_DEVICEADDR_Msk) != 0) {
+        stopClkEn = (pCalCtxt->stopClkOnEpResetEnable);
+
+        /* Set the NRDYALL bit to block all data transfers and wait for one service interval. */
+        pProtBase->PROT_CS = (
+                (pProtBase->PROT_CS & ~(USB32DEV_PROT_CS_SETUP_CLR_BUSY_Msk | USB32DEV_PROT_CS_STATUS_CLR_BUSY_Msk)) |
+                USB32DEV_PROT_CS_NRDY_ALL_Msk);
+        Cy_SysLib_DelayUs(125U);
+
+        if (stopClkEn) {
+            if (USBSS_CAL_GET_LINK_STATE(pLinkBase) == CY_USBSS_LNK_STATE_U0) {
+                lnkInU0 = true;
+            }
+
+            Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_LNK_EVENT_USB_CLK_STOP);
+        }
+    }
+
+    for (epIdx = 1; epIdx < 16; epIdx++) {
+        if ((outEpMask & (1U << epIdx)) != 0) {
+            Cy_USBSS_Cal_GetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_OUT, &outSeq[epIdx]);
+            pEpmBase->IEPM_ENDPOINT[epIdx] |= USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+            pProtBase->PROT_EPO_CS1[epIdx] |= (CY_USBSS_PROT_EPO_CS1_RESET | CY_USBSS_PROT_EPO_CS1_VALID);
+        }
+
+        if ((inEpMask & (1U << epIdx)) != 0) {
+            Cy_USBSS_Cal_GetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_IN, &inSeq[epIdx]);
+            pEpmBase->EEPM_ENDPOINT[epIdx] |= USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+            pProtBase->PROT_EPI_CS1[epIdx] |= (CY_USBSS_PROT_EPI_CS1_RESET | CY_USBSS_PROT_EPI_CS1_VALID);
+        }
+    }
+
+    if (stopClkEn) {
+        /*
+         * Gate the main USB clock while clearing the EP reset bit to ensure that all endpoint state
+         * is properly cleared after that.
+         */
+        pMainBase->CTRL &= ~USB32DEV_MAIN_CTRL_CLK_EN_Msk;
+    } else {
+        __NOP();__NOP();__NOP();__NOP();
+    }
+
+    for (epIdx = 1; epIdx < 16; epIdx++) {
+        if ((outEpMask & (1U << epIdx)) != 0) {
+            pEpmBase->IEPM_ENDPOINT[epIdx] &= ~USB32DEV_EPM_IEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+            pProtBase->PROT_EPO_CS1[epIdx] &= ~CY_USBSS_PROT_EPO_CS1_RESET;
+        }
+
+        if ((inEpMask & (1U << epIdx)) != 0) {
+            pEpmBase->EEPM_ENDPOINT[epIdx] &= ~USB32DEV_EPM_EEPM_ENDPOINT_SOCKET_FLUSH_Msk;
+            pProtBase->PROT_EPI_CS1[epIdx] &= ~CY_USBSS_PROT_EPI_CS1_RESET;
+        }
+    }
+
+    if (stopClkEn) {
+        /* Make sure PCLK is enabled. */
+        Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_LNK_EVENT_USB_CLK_START);
+        pMainBase->CTRL |= USB32DEV_MAIN_CTRL_CLK_EN_Msk;
+    }
+
+    /* Clear stream error detected status. */
+    pProtBase->PROT_STREAM_ERROR_STATUS |= CY_USBSS_PROT_STREAM_ERROR_STATUS_ERROR_DETECTED;
+
+    /* Clear the NRDY_ALL bit to allow data transfers to resume. */
+    pProtBase->PROT_CS = (pProtBase->PROT_CS & ~(
+                USB32DEV_PROT_CS_SETUP_CLR_BUSY_Msk |
+                USB32DEV_PROT_CS_STATUS_CLR_BUSY_Msk |
+                USB32DEV_PROT_CS_NRDY_ALL_Msk));
+
+    Cy_SysLib_ExitCriticalSection(intState);
+
+    /* If link state had been forced, wait until it is back in U0 (with a 5 ms timeout). */
+    if (lnkInU0) {
+        if ((pCalCtxt->dualLaneEnabled) && (!pCalCtxt->gen2Enabled)) {
+            /*
+             * In Gen1x2 case, jump directly into Recovery to avoid an occasional false
+             * transition into U1 state.
+             */
+            CY_USBSS_JUMP_TO_LINK_STATE(pLinkBase, CY_USBSS_LNK_STATE_RECOV_ACT);
+        } else {
+            /*
+             * Normally, we expect the link to go through recovery once the clock has been
+             * stopped and restarted. This will typically be initiated by the upstream host/hub
+             * due to lack of device response to one or more link commands.
+             *
+             * In cases where this did not happen, we will trigger a cycle through link
+             * recovery from the device side. This is done by setting the LDN timeout value
+             * to 5 us so that a timeout is detected compulsorily within the next 15 us.
+             * The LDN timeout is restored to its proper value after 20 us or when the link
+             * re-enters the U0 state (done in the ISR).
+             */
+            Cy_SysLib_DelayUs(1);
+            if (USBSS_CAL_GET_LINK_STATE(pLinkBase) == CY_USBSS_LNK_STATE_U0) {
+                pLinkBase->LNK_LTSSM_LDN_TIMEOUT = 625UL;
+                Cy_SysLib_DelayUs(20);
+                pLinkBase->LNK_LTSSM_LDN_TIMEOUT = 125000UL;
+            }
+        }
+
+        Cy_SysLib_DelayUs(10);
+        if (!Cy_USBSS_Cal_WaitUntilState(pCalCtxt, CY_USBSS_LNK_STATE_U0, 5000)) {
+            DBG_SSCAL_WARN("Link did not return to U0 within 5 ms after resuming clock\r\n");
+        } else {
+            DBG_SSCAL_INFO("Link returned to U0 after clock restart\r\n");
+        }
+    }
+
+    /* Restore or clear the endpoint sequence numbers as required. */
+    for (epIdx = 1; epIdx < 16; epIdx++) {
+        if ((outEpMask & (1U << epIdx)) != 0) {
+            if ((preserveOutSeqNum & (1U << epIdx)) != 0) {
+                Cy_USBSS_Cal_SetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_OUT, outSeq[epIdx]);
+            } else {
+                Cy_USBSS_Cal_SetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_OUT, 0);
+            }
+        }
+
+        if ((inEpMask & (1U << epIdx)) != 0) {
+            if ((preserveInSeqNum & (1U << epIdx)) != 0) {
+                Cy_USBSS_Cal_SetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_IN, inSeq[epIdx]);
+            } else {
+                Cy_USBSS_Cal_SetSeqNum(pCalCtxt, epIdx, CY_USB_ENDP_DIR_IN, 0);
+            }
+        }
     }
 
     return(CY_USB_CAL_STATUS_SUCCESS);
@@ -6499,7 +7095,9 @@ Cy_USBSS_Cal_EndpConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
             epm_ept = (configParam.maxPktSize & USB32DEV_EPM_IEPM_ENDPOINT_PACKET_SIZE_Msk);
 
             /* Clear and enable relevant EPO interrupts. */
-            pProtBase->PROT_EPO_INTR[endpNum] = 0x3FFFFUL;
+            pProtBase->PROT_EPO_INTR[endpNum] = (
+                    USB32DEV_PROT_EPO_INTR_RETRY_Msk |
+                    USB32DEV_PROT_EPO_INTR_OOSERR_Msk);
             pProtBase->PROT_EPO_INTR_MASK[endpNum] = (
                     USB32DEV_PROT_EPO_INTR_RETRY_Msk |
                     USB32DEV_PROT_EPO_INTR_OOSERR_Msk
@@ -6516,7 +7114,9 @@ Cy_USBSS_Cal_EndpConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
             /* Disable and clear all EPO interrupts. */
             pProtBase->PROT_EP_INTR_MASK &= (~(0x01 << (endpNum + CY_USB_MAX_ENDP_NUMBER)));
             pProtBase->PROT_EPO_INTR_MASK[endpNum] = 0;
-            pProtBase->PROT_EPO_INTR[endpNum] = 0x3FFFFUL;
+            pProtBase->PROT_EPO_INTR[endpNum] = (
+                    USB32DEV_PROT_EPO_INTR_RETRY_Msk |
+                    USB32DEV_PROT_EPO_INTR_OOSERR_Msk);
         }
 
         /* Update the endpoint configuration registers. */
@@ -6596,7 +7196,9 @@ Cy_USBSS_Cal_EndpConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
             epm_ept = (configParam.maxPktSize & USB32DEV_EPM_EEPM_ENDPOINT_PACKET_SIZE_Msk);
 
             /* Clear and enable relevant EPI interrupts. */
-            pProtBase->PROT_EPI_INTR[endpNum] = 0x3FFFFUL;
+            pProtBase->PROT_EPI_INTR[endpNum] = (
+                    USB32DEV_PROT_EPI_INTR_RETRY_Msk |
+                    USB32DEV_PROT_EPI_INTR_OOSERR_Msk);
             pProtBase->PROT_EPI_INTR_MASK[endpNum] = (
                     USB32DEV_PROT_EPI_INTR_RETRY_Msk |
                     USB32DEV_PROT_EPI_INTR_OOSERR_Msk);
@@ -6607,11 +7209,14 @@ Cy_USBSS_Cal_EndpConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
         } else {
             prot_ep_cs1 &= ~USB32DEV_PROT_EPI_CS1_VALID_Msk;
             epm_ept = 0x0400UL;
+            pCalCtxt->numRetriesInEP[endpNum] = 0;
 
             /* Disable and clear all EP specific interrupts. */
             pProtBase->PROT_EP_INTR_MASK &= (~(0x01 << endpNum));
             pProtBase->PROT_EPI_INTR_MASK[endpNum] = 0;
-            pProtBase->PROT_EPI_INTR[endpNum] = 0x3FFFFUL;
+            pProtBase->PROT_EPI_INTR[endpNum] = (
+                    USB32DEV_PROT_EPI_INTR_RETRY_Msk |
+                    USB32DEV_PROT_EPI_INTR_OOSERR_Msk);
         }
 
         /* Update the endpoint configuration registers. */
@@ -6622,6 +7227,15 @@ Cy_USBSS_Cal_EndpConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
         if (configParam.valid) {
             /* Make sure sequence number is cleared for the endpoint. */
             Cy_USBSS_Cal_SetSeqNum(pCalCtxt, endpNum, endpDir, 0);
+
+            /* Set EOB/LPF bit to one when sending short packets on ISO-IN endpoints. */
+            if (CY_USB_ENDP_TYPE_ISO == endpType) {
+                pProtBase->PROT_EPI_ENHANCE[endpNum] |= USB32DEV_PROT_EPI_ENHANCE_EN_EOB_SHORT_Msk;
+            } else {
+                pProtBase->PROT_EPI_ENHANCE[endpNum] &= ~USB32DEV_PROT_EPI_ENHANCE_EN_EOB_SHORT_Msk;
+            }
+        } else {
+            pProtBase->PROT_EPI_ENHANCE[endpNum] &= ~USB32DEV_PROT_EPI_ENHANCE_EN_EOB_SHORT_Msk;
         }
     }
 
@@ -7834,6 +8448,49 @@ Cy_USBSS_Cal_PTMConfig (cy_stc_usbss_cal_ctxt_t *pCalCtxt, bool ptmControl)
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function */
 
+static void Cy_USBSS_Cal_ForceComplianceGen2 (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
+{
+    USB32DEV_Type *base = pCalCtxt->regBase;
+    USB32DEV_PHYSS_USB40PHY_TOP_Type *pPhyRegs = &base->USB32DEV_PHYSS.USB40PHY[pCalCtxt->activePhyIdx].USB40PHY_TOP;
+    USB32DEV_PHYSS_USB40PHY_RX_Type *pRxRegs = &base->USB32DEV_PHYSS.USB40PHY[pCalCtxt->activePhyIdx].USB40PHY_RX;
+    USB32DEV_PHYSS_USB40PHY_PLL_SYS_Type *pPllRegs = &base->USB32DEV_PHYSS.USB40PHY[0].USB40PHY_PLL_SYS;
+
+    /* Force rate change to Gen1. */
+    pCalCtxt->gen2Enabled     = false;
+    pCalCtxt->gen1SpeedForced = true;
+
+    /* Assert serializer and PLL reset. */
+    pPhyRegs->TX_AFE_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_TX_SERIALIZER_RST_Msk;
+    pPhyRegs->TOP_CTRL_0    &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PLL_RSTB_Msk;
+
+    /* Rate change in PLL. */
+    pPllRegs->PLL_DIVP_CFG = 0x00000061UL;
+    Cy_SysLib_DelayUs(1);
+    pPllRegs->PLL_DIVP_CFG = 0x000000E1UL;
+
+    /* Update VCO CP gain and rate change in receivers. */
+    pRxRegs->RX_CP_CFG = (
+            (6UL << USB32DEV_PHYSS_USB40PHY_RX_CP_CFG_IPUP_ADJ_Pos) |
+            (6UL << USB32DEV_PHYSS_USB40PHY_RX_CP_CFG_IPDN_ADJ_Pos));
+    pRxRegs->RX_GNRL_CFG = (
+            (pRxRegs->RX_GNRL_CFG & ~USB32DEV_PHYSS_USB40PHY_RX_GNRL_CFG_BUS_BIT_MODE_Msk) |
+            (0x01UL << USB32DEV_PHYSS_USB40PHY_RX_GNRL_CFG_BUS_BIT_MODE_Pos) |
+            USB32DEV_PHYSS_USB40PHY_RX_GNRL_CFG_DATA_RATE_Msk);
+
+    /* Change rate to Gen1 in TOP_CTRL_0 register. */
+    pPhyRegs->TOP_CTRL_0 &= ~USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_RATE_Msk;
+
+    /* De-assert PLL and serializer reset. */
+    pPhyRegs->TOP_CTRL_0    |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_REG_PLL_RSTB_Msk;
+    pPhyRegs->TX_AFE_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_TX_AFE_CTRL_0_TX_SERIALIZER_RST_Msk;
+
+    /* Assert RATE_CHANGE_DONE bit. */
+    Cy_SysLib_DelayUs(10);
+    pPhyRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_RATE_CHANGE_DONE_Msk;
+
+    DBG_SSCAL_INFO("Forced link rate to Gen1\r\n");
+}
+
 /*******************************************************************************
 * Function Name: Cy_USBSS_Cal_EnterLinkCompliance
 ****************************************************************************//**
@@ -7862,6 +8519,10 @@ Cy_USBSS_Cal_EnterLinkCompliance (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
         pCalCtxt->inCompState     = true;
         pCalCtxt->currCompPattern = 0;
         pCalCtxt->gen1SpeedForced = false;
+
+        if ((pCalCtxt->usbTxTestMode) && (pCalCtxt->gen2Enabled)) {
+            Cy_USBSS_Cal_ForceComplianceGen2(pCalCtxt);
+        }
 
         /* Clear and enable interrupt for Ping.LFPS. */
         pLinkBase->LNK_INTR       = USB32DEV_LNK_INTR_RX_PING_LFPS_Msk;
@@ -7924,7 +8585,9 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 
     if ((pCalCtxt != 0) && (pCalCtxt->pLinkBase != 0) && (pCalCtxt->inCompState)) {
         pLinkBase = pCalCtxt->pLinkBase;
-        DBG_SSCAL_INFO("PHY TOP_CTRL:%x gen2En:%d\r\n", pPhyRegs->TOP_CTRL_0, pCalCtxt->gen2Enabled);
+        if (pCalCtxt->usbTxTestMode == false) {
+            DBG_SSCAL_INFO("PHY TOP_CTRL:%x gen2En:%d\r\n", pPhyRegs->TOP_CTRL_0, pCalCtxt->gen2Enabled);
+        }
 
         /* Pick the next compliance pattern value and apply it. */
         pCalCtxt->currCompPattern++;
@@ -7985,12 +8648,14 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     }
                     pPhyRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_RATE_CHANGE_DONE_Msk;
 
-                    /*
-                     * Need to modify PING and RESET LFPS detect durations as link may not realise
-                     * that DUT has switched back to Gen1 operation.
-                     */
-                    pLinkBase->LNK_LFPS_RX_RESET_GEN2 = pLinkBase->LNK_LFPS_RX_RESET;
-                    pLinkBase->LNK_LFPS_RX_PING_GEN2  = pLinkBase->LNK_LFPS_RX_PING;
+                    if (pCalCtxt->usbTxTestMode == false) {
+                        /*
+                         * Need to modify PING and RESET LFPS detect durations as link may not realise
+                         * that DUT has switched back to Gen1 operation.
+                         */
+                        pLinkBase->LNK_LFPS_RX_RESET_GEN2 = pLinkBase->LNK_LFPS_RX_RESET;
+                        pLinkBase->LNK_LFPS_RX_PING_GEN2 = pLinkBase->LNK_LFPS_RX_PING;
+                    }
 
                     pCalCtxt->gen1SpeedForced = true;
                 }
@@ -8001,6 +8666,9 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 
                 /* When switching from CP8 (Gen1) to CP9 (Gen2), force rate change without relying on interrupt. */
                 if (pLinkBase->LNK_COMPLIANCE_PATTERN_OBSERVE == 0x12) {
+                    if (pCalCtxt->usbTxTestMode) {
+                        DBG_SSCAL_INFO("Gen2 re-enable\r\n");
+                    }
                     pCalCtxt->gen2Enabled = true;
 
                     /* Assert serializer and PLL reset. */
@@ -8054,11 +8722,14 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
                     }
                     pPhyRegs->TOP_CTRL_0 |= USB32DEV_PHYSS_USB40PHY_TOP_CTRL_0_RATE_CHANGE_DONE_Msk;
 
-                    /* Set Gen2 LFPS durations to default values. */
-                    pLinkBase->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
-                    pLinkBase->LNK_LFPS_RX_PING_GEN2  = 0x004B000DUL;
+                    if (pCalCtxt->usbTxTestMode == false) {
+                        /* Set Gen2 LFPS durations to default values. */
+                        pLinkBase->LNK_LFPS_RX_RESET_GEN2 = 25000000UL;
+                        pLinkBase->LNK_LFPS_RX_PING_GEN2  = 0x004B000DUL;
+                    }
 
                     pCalCtxt->currCompPattern = 9;
+                    pCalCtxt->gen1SpeedForced = false;
                 }
             }
         }
@@ -8177,7 +8848,40 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
         }
 
         Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_SSCAL_EVT_NEXT_CP_SEL);
-        DBG_SSCAL_INFO("CP: %x %x\r\n", pCalCtxt->currCompPattern, pLinkBase->LNK_COMPLIANCE_PATTERN_OBSERVE);
+
+        if (pCalCtxt->usbTxTestMode) {
+            DBG_SSCAL_INFO("Selected pattern CP%d\r\n", pCalCtxt->currCompPattern);
+
+            /*
+             * In Gen1 case, test is done using CP3 pattern (COM)
+             * In Gen2 case, test is done using CP9 pattern (pseudo random data).
+             * Once we get to this pattern, increase the LFPS burst requirement for Ping.LFPS to avoid
+             * the possibility of unexpected compliance pattern transitions.
+             */
+            if ((pCalCtxt->gen2Enabled == false) && (pCalCtxt->gen1SpeedForced == false)) {
+                /* Gen1 */
+                if (pCalCtxt->currCompPattern == 3) {
+                    pLinkBase->LNK_LFPS_RX_PING_GEN2 = 12500UL | (18750UL << 16U);
+                    pLinkBase->LNK_LFPS_RX_PING      = 5000UL | (7500UL << 16U);
+                }
+                if (pCalCtxt->currCompPattern > 3) {
+                    DBG_SSCAL_INFO("Gen1Rst: Pattern=%d\r\n", pCalCtxt->currCompPattern);
+                    Cy_SysLib_Delay(1);
+                }
+            } else {
+                /* Gen2 */
+                if (pCalCtxt->currCompPattern == 9) {
+                    pLinkBase->LNK_LFPS_RX_PING_GEN2 = 12500UL | (18750UL << 16U);
+                    pLinkBase->LNK_LFPS_RX_PING      = 5000UL | (7500UL << 16U);
+                }
+                if (pCalCtxt->currCompPattern > 9) {
+                    DBG_SSCAL_INFO("Gen2Rst: Pattern=%d\r\n", pCalCtxt->currCompPattern);
+                    Cy_SysLib_Delay(1);
+                }
+            }
+        } else {
+            DBG_SSCAL_INFO("CP: %x %x\r\n", pCalCtxt->currCompPattern, pLinkBase->LNK_COMPLIANCE_PATTERN_OBSERVE);
+        }
     }
 }
 
@@ -8712,6 +9416,84 @@ void Cy_USBSS_Cal_SelectConfigLane (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 {
     if ((pCalCtxt != NULL) && (laneSel <= CY_USB_CFG_LANE_1)) {
         pCalCtxt->usbConfigLane = laneSel;
+    }
+}
+
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_UpdateCtleLutMask
+ ****************************************************************************//**
+ *
+ * Function to update the LUT selection mask for selected USB Speeds.
+ * This API should be called before Cy_USBD_Connect if the changed mask
+ * is to be applied during USB RX Equalisation stage
+ *
+ * \param pCalCtxt
+ * USBSS Controller context structure.
+ * \param usbSpeed
+ * USB Speed for which the LUT mask is to be updated
+ * \param lutMask
+ * LUT selection mask to be applied for the selected USB speed
+ *
+ * *******************************************************************************/
+
+void Cy_USBSS_UpdateCtleLutMask(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                               cy_en_usb_speed_t usbSpeed,
+                               uint16_t lutMask)
+{
+    if ((pCalCtxt != NULL) && (lutMask > 0))
+    {
+        switch(usbSpeed)
+        {
+            case CY_USBD_USB_DEV_SS_GEN1:
+                pCalCtxt->gen1x1LutMask = lutMask;
+                break;
+            case CY_USBD_USB_DEV_SS_GEN1X2:
+                pCalCtxt->gen1x2LutMask = lutMask;
+                break;
+            case CY_USBD_USB_DEV_SS_GEN2:
+                pCalCtxt->gen2x1LutMask = lutMask;
+                break;
+            case CY_USBD_USB_DEV_SS_GEN2X2:
+                pCalCtxt->gen2x2LutMask = lutMask;
+                break;
+            default:
+                /* Invalid Speed */
+                break;
+        }
+        DBG_SSCAL_INFO("Speed=%d, LUT Mask=%x\r\n", usbSpeed, lutMask);
+    }
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBSS_UpdateGen2CtleLutConfig
+ ****************************************************************************//**
+ *
+ * Function to update the CTLE configuration look up table for USB Gen2 speeds.
+ * This API should be called before Cy_USBD_Connect() for the provided LUT configs
+ * to be used during USB RX equalization stage.
+ *
+ * \param pCalCtxt
+ * The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+ * allocated by the user.
+ *
+ * \param pLutConfigArray
+ * Pointer to array of LUT configurations
+ *
+ *******************************************************************************/
+
+void Cy_USBSS_UpdateGen2CtleLutConfig(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+                                     uint32_t *pLutConfigArray)
+{
+    uint8_t index = 0;
+    /* Copy the received array to the pCalCtxt->ctleLutArrayGen2 array used for RX Equalization */
+    if ((pCalCtxt != NULL) && (pLutConfigArray != NULL))
+    {
+        for (index = 0; index < LUT_WIDTH; index++)
+        {
+            pCalCtxt->ctleLutArrayGen2[index] = pLutConfigArray[index];
+        }
+        DBG_SSCAL_INFO("Gen2 CTLE LUT array updated\r\n");
     }
 }
 

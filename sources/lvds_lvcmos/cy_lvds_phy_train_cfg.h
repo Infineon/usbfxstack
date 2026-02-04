@@ -1,0 +1,219 @@
+/***************************************************************************//**
+* \file cy_lvds_phy_train_cfg.h
+* \version 1.00
+*
+* GPIF configuration used to implement LVDS PHY custom training sequence.
+*
+*******************************************************************************
+* \copyright
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
+* an affiliate of Cypress Semiconductor Corporation.
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+ * Project Name: CustomLVDS.cyfx
+ * Time : 12/12/2025 16:59:30
+ *
+ * This file is generated based on a pre-defined LVDS receiver state machine and must not
+ * be modified. This does not make use of any control signals and can be used in all LVDS
+ * use cases without any change.
+ */
+
+#ifndef _CY_LVDS_PHY_TRAIN_CFG_H_
+#define _CY_LVDS_PHY_TRAIN_CFG_H_
+
+#include "cy_lvds.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+/* Summary
+   Number of states in the state machine
+ */
+#define CY_LVDS_GPIF_NUMBER_OF_STATES 21
+
+/* Summary
+   Mapping of user defined state names to state indices
+ */
+#define CY_LVDS_GPIF_START 0
+#define CY_LVDS_GPIF_IDLE 1
+#define CY_LVDS_GPIF_DATA 2
+#define CY_LVDS_GPIF_FRAMEEND 3
+#define CY_LVDS_GPIF_CPU_WAIT 4
+#define CY_LVDS_GPIF_P0_TRAINSTART 5
+#define CY_LVDS_GPIF_P0_WAIT_FW 6
+#define CY_LVDS_GPIF_P0_WAIT_SIG 7
+#define CY_LVDS_GPIF_P0_TRAINHOLD 8
+#define CY_LVDS_GPIF_P0_TRAINDATA 9
+#define CY_LVDS_GPIF_P0_BUFDONE1 10
+#define CY_LVDS_GPIF_P0_BUFDONE2 11
+#define CY_LVDS_GPIF_P0_BUFDONE3 12
+#define CY_LVDS_GPIF_P1_TRAINSTART 13
+#define CY_LVDS_GPIF_P1_WAIT_FW 14
+#define CY_LVDS_GPIF_P1_WAIT_SIG 15
+#define CY_LVDS_GPIF_P1_TRAINHOLD 16
+#define CY_LVDS_GPIF_P1_TRAINDATA 17
+#define CY_LVDS_GPIF_P1_BUFDONE1 18
+#define CY_LVDS_GPIF_P1_BUFDONE2 19
+#define CY_LVDS_GPIF_P1_BUFDONE3 20
+
+
+/* Summary
+   Initial value of early outputs from the state machine.
+ */
+#define CY_LVDS_GPIF_ALPHA_START 0x0
+#define CY_LVDS_GPIF_ALPHA_P0_TRAINSTART 0x0
+#define CY_LVDS_GPIF_ALPHA_P1_TRAINSTART 0x0
+
+const cy_stc_lvds_gpif_wavedata_t _CyGpifLvdsTrainWaveData[] = {
+    {{0x2E4CFA01,0x00400106,0x80000000,0x00000006},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x1E70FA02,0x20400000,0x80000000,0x00000002},{0x4E739E03,0x0040000A,0x80000000,0x00000000}},
+    {{0x2E4CFA01,0x00400106,0x80000000,0x00000006},{0x4E739E04,0x00000000,0x80000100,0x00000000}},
+    {{0x5E739E06,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x6E739C07,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739A08,0x00400100,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x4E739A09,0x20400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x4E739E0A,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739E0B,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739A0C,0x00400100,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739E0E,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x6E739C0F,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739A10,0x08400100,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x4E739A11,0x28400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x4E739E12,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739E13,0x00400000,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}},
+    {{0x5E739A14,0x08400100,0x80000000,0x00000000},{0x00000000,0x00000000,0x00000000,0x00000000}}
+};
+
+const uint16_t _CyGpifLvdsTrainTransition[] = {
+    0x0000, 0x7777, 0x8888, 0xF0F0, 0x5555, 0xAAAA, 0xFFFF
+};
+
+const uint8_t _CyGpifLvdsTrainStateMap[] = {
+    0,1,0,2,0,3,4,5,6,7,8,9,6,10,11,12,13,14,15,16,13
+};
+
+const cy_stc_lvds_gpif_reg_data_t _CyGpifLvdsTrainRegData[] = {
+    {0x00000000, 0x00008000}, /* GPIF_CONFIG */
+    {0x00000004, 0x00000000}, /* GPIF_BUS_CONFIG */
+    {0x00000008, 0x00000000}, /* GPIF_BUS_CONFIG2 */
+    {0x0000000C, 0x00000005}, /* GPIF_AD_CONFIG */
+    {0x00000010, 0x03020100}, /* GPIF_CTL_FUNC0 */
+    {0x00000014, 0x07060504}, /* GPIF_CTL_FUNC1 */
+    {0x00000018, 0x0B0A0908}, /* GPIF_CTL_FUNC2 */
+    {0x0000001C, 0x0F0E0D0C}, /* GPIF_CTL_FUNC3 */
+    {0x00000020, 0x13121110}, /* GPIF_CTL_FUNC4 */
+    {0x00000030, 0xFFFFFFFF}, /* GPIF_INTR */
+    {0x00000034, 0x00000000}, /* GPIF_INTR_MASK */
+    {0x00000038, 0x00000000}, /* GPIF_INTR_MASKED */
+    {0x0000003C, 0x00000000}, /* GPIF_INTR_SET */
+    {0x00000050, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[0] */
+    {0x00000054, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[1] */
+    {0x00000058, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[2] */
+    {0x0000005C, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[3] */
+    {0x00000060, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[4] */
+    {0x00000064, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[5] */
+    {0x00000068, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[6] */
+    {0x0000006C, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[7] */
+    {0x00000070, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[8] */
+    {0x00000074, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[9] */
+    {0x00000078, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[10] */
+    {0x0000007C, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[11] */
+    {0x00000080, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[12] */
+    {0x00000084, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[13] */
+    {0x00000088, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[14] */
+    {0x0000008C, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[15] */
+    {0x00000090, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[16] */
+    {0x00000094, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[17] */
+    {0x00000098, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[18] */
+    {0x0000009C, 0x00000000}, /* GPIF_CTRL_BUS_DIRECTION[19] */
+    {0x000000B0, 0x00000000}, /* GPIF_CTRL_BUS_DEFAULT */
+    {0x000000B8, 0x00000000}, /* GPIF_CTRL_BUS_TOGGLE */
+    {0x000000B4, 0x00000000}, /* GPIF_CTRL_BUS_POLARITY */
+    {0x00000100, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[0] */
+    {0x00000104, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[1] */
+    {0x00000108, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[2] */
+    {0x0000010C, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[3] */
+    {0x00000110, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[4] */
+    {0x00000114, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[5] */
+    {0x00000118, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[6] */
+    {0x0000011C, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[7] */
+    {0x00000120, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[8] */
+    {0x00000124, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[9] */
+    {0x00000128, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[10] */
+    {0x0000012C, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[11] */
+    {0x00000130, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[12] */
+    {0x00000134, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[13] */
+    {0x00000138, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[14] */
+    {0x0000013C, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[15] */
+    {0x00000140, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[16] */
+    {0x00000144, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[17] */
+    {0x00000148, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[18] */
+    {0x0000014C, 0x00000000}, /* GPIF_CTRL_BUS_SELECT[19] */
+    {0x00000160, 0x00000000}, /* GPIF_CTRL_COUNT_CONFIG */
+    {0x00000164, 0x00000000}, /* GPIF_CTRL_COUNT_RESET */
+    {0x00000168, 0x00000000}, /* GPIF_CTRL_COUNT_LIMIT */
+    {0x00000170, 0x00000000}, /* GPIF_ADDR_COUNT_CONFIG */
+    {0x00000174, 0x00000000}, /* GPIF_ADDR_COUNT_RESET */
+    {0x00000178, 0x00000000}, /* GPIF_ADDR_COUNT_LIMIT */
+    {0x00000180, 0x00000000}, /* GPIF_STATE_COUNT_CONFIG */
+    {0x00000184, 0x00000000}, /* GPIF_STATE_COUNT_LIMIT */
+    {0x00000190, 0x00000000}, /* GPIF_DATA_COUNT_CONFIG */
+    {0x00000194, 0x00000000}, /* GPIF_DATA_COUNT_RESET_LSB */
+    {0x0000019C, 0x00000000}, /* GPIF_DATA_COUNT_RESET_MSB */
+    {0x000001A0, 0x00000000}, /* GPIF_DATA_COUNT_LIMIT_LSB */
+    {0x000001A4, 0x00000000}, /* GPIF_DATA_COUNT_LIMIT_MSB */
+    {0x000001A8, 0x00000000}, /* GPIF_CTRL_COMP_VALUE */
+    {0x000001AC, 0x00000000}, /* GPIF_CTRL_COMP_MASK */
+    {0x000001B0, 0x00000000}, /* GPIF_DATA_COMP_VALUE_WORD0 */
+    {0x000001B4, 0x00000000}, /* GPIF_DATA_COMP_VALUE_WORD1 */
+    {0x000001B8, 0x00000000}, /* GPIF_DATA_COMP_VALUE_WORD2 */
+    {0x000001BC, 0x00000000}, /* GPIF_DATA_COMP_VALUE_WORD3 */
+    {0x000001D0, 0x00000000}, /* GPIF_DATA_COMP_MASK_WORD0 */
+    {0x000001D4, 0x00000000}, /* GPIF_DATA_COMP_MASK_WORD1 */
+    {0x000001D8, 0x00000000}, /* GPIF_DATA_COMP_MASK_WORD2 */
+    {0x000001DC, 0x00000000}, /* GPIF_DATA_COMP_MASK_WORD3 */
+    {0x000001E0, 0x00000000}, /* GPIF_ADDR_COMP_VALUE */
+    {0x000001E4, 0x00000000}, /* GPIF_ADDR_COMP_MASK */
+    {0x00000200, 0x00000000}, /* GPIF_WAVEFORM_CTRL_STAT */
+    {0x00000204, 0x00000000}, /* GPIF_WAVEFORM_SWITCH */
+    {0x00000208, 0x00000000}, /* GPIF_WAVEFORM_SWITCH_TIMEOUT */
+    {0x00000210, 0x00000000}, /* GPIF_CRC_CONFIG */
+    {0x00000218, 0xFFFFFFFF}, /* GPIF_BETA_DEASSERT */
+    {0x000002B0, 0x00000000}, /* LINK_IDLE_CONFIG */
+};
+
+/* GPIF configuration used by Custom LVDS PHY training implementation. */
+const cy_stc_lvds_gpif_config_t _CyGpifLvdsTrainConfig = {
+    (uint16_t)(sizeof(_CyGpifLvdsTrainStateMap)/sizeof(uint8_t)),
+    (cy_stc_lvds_gpif_wavedata_t *) _CyGpifLvdsTrainWaveData,
+    (uint8_t *) _CyGpifLvdsTrainStateMap,
+    (uint16_t)(sizeof(_CyGpifLvdsTrainTransition)/sizeof(uint16_t)),
+    (uint16_t *) _CyGpifLvdsTrainTransition,
+    (uint16_t)(sizeof(_CyGpifLvdsTrainRegData)/sizeof(cy_stc_lvds_gpif_reg_data_t)),
+    (cy_stc_lvds_gpif_reg_data_t *) _CyGpifLvdsTrainRegData
+};
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* _CY_LVDS_PHY_TRAIN_CFG_H_ */
+
+/*[]*/
+

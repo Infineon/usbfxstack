@@ -8,7 +8,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2025), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -1615,6 +1615,44 @@ void Cy_USBSS_Cal_ITPIntrUpdate (
         bool itpIntrEnable)
 {
 
+}
+
+/*******************************************************************************
+* Function Name: Cy_USBSS_Cal_ResetEndpoints
+****************************************************************************//**
+*
+* Function to flush and reset stale state and data on multiple endpoints.
+* The endpoints to be reset are passed in through bitmask parameters.
+*
+* \param pCalCtxt
+* The pointer to the USBSS context structure \ref cy_stc_usbss_cal_ctxt_t
+* allocated by the user.
+*
+* \param outEpMask
+* Bitmask representing OUT endpoints to be reset.
+*
+* \param inEpMask
+* Bitmask representing IN endpoints to be reset.
+*
+* \param preserveOutSeqNum
+* Bitmask representing OUT endpoints whose sequence numbers are to be preserved.
+*
+* \param preserveInSeqNum
+* Bitmask representing IN endpoints whose sequence numbers are to be preserved.
+*
+* \return
+* The status code of the function execution \ref cy_en_usb_cal_ret_code_t.
+*
+*******************************************************************************/
+cy_en_usb_cal_ret_code_t
+Cy_USBSS_Cal_ResetEndpoints (
+        cy_stc_usbss_cal_ctxt_t *pCalCtxt,
+        uint32_t outEpMask,
+        uint32_t inEpMask,
+        uint32_t preserveOutSeqNum,
+        uint32_t preserveInSeqNum)
+{
+    return CY_USB_CAL_STATUS_SUCCESS;
 }
 
 #if defined(__cplusplus)

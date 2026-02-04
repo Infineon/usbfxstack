@@ -54,6 +54,10 @@ var group__group__usbfxstack__hb__dma__structs =
       [ "cb", "group__group__usbfxstack__hb__dma__structs.html#a487749d786f6d16d1f0dcb54bac7ebfd", null ],
       [ "userCtx", "group__group__usbfxstack__hb__dma__structs.html#a736ad364d5b9df00c89e843b9026874a", null ]
     ] ],
+    [ "cy_stc_hbdma_dw_descriptor_t", "group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t", [
+      [ "padding", "group__group__usbfxstack__hb__dma__structs.html#af295ca505f2fa4cb61f959826336409d", null ],
+      [ "dwDscr", "group__group__usbfxstack__hb__dma__structs.html#a4bbc678f188fcd737f04ef36cc96a9cd", null ]
+    ] ],
     [ "cy_stc_hbdma_channel_t", "group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t", [
       [ "pContext", "group__group__usbfxstack__hb__dma__structs.html#a730ad05cad6efcc5e06d3d679986553d", null ],
       [ "type", "group__group__usbfxstack__hb__dma__structs.html#a300a2be3ed679f119152d9a8a9a21e99", null ],
@@ -91,11 +95,11 @@ var group__group__usbfxstack__hb__dma__structs =
       [ "ingressDWRqtQueued", "group__group__usbfxstack__hb__dma__structs.html#ad80cab9607001b6602800b66c48c4477", null ],
       [ "egressDWRqtQueued", "group__group__usbfxstack__hb__dma__structs.html#afff06802fca2cd85c5fcd601bb9189bf", null ],
       [ "epMaxPktSize", "group__group__usbfxstack__hb__dma__structs.html#a60ceb24347b90970239bb43858a9c173", null ],
-      [ "pProdDwDscr", "group__group__usbfxstack__hb__dma__structs.html#a3fd5c71684a28ada919e1c57df57ab2a", null ],
-      [ "pConsDwDscr", "group__group__usbfxstack__hb__dma__structs.html#a27f0faad9d110869d932d67084aacd56", null ],
-      [ "curIngressXferSize", "group__group__usbfxstack__hb__dma__structs.html#a22284e310a778b99dd1d527a3ee36a16", null ],
+      [ "pProdDwDscr", "group__group__usbfxstack__hb__dma__structs.html#a60474104bf1b7b0cd11df2e1f47604db", null ],
+      [ "pConsDwDscr", "group__group__usbfxstack__hb__dma__structs.html#a0d29ec7ac02c366d1ef254974e119814", null ],
+      [ "curIngressXferSize", "group__group__usbfxstack__hb__dma__structs.html#aff658dbb8a0c8297e6ec096a88163976", null ],
       [ "pCurEgressDataBuf", "group__group__usbfxstack__hb__dma__structs.html#a0c9ecada55c075f0df35690fcb1103b0", null ],
-      [ "curEgressXferSize", "group__group__usbfxstack__hb__dma__structs.html#ad376ec484d34ee11f1343c4a171c6028", null ]
+      [ "curEgressXferSize", "group__group__usbfxstack__hb__dma__structs.html#acb7b7f7cc698a521b7cd2231dab39b40", null ]
     ] ],
     [ "cy_stc_hbdma_buff_status_t", "group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__buff__status__t", [
       [ "pBuffer", "group__group__usbfxstack__hb__dma__structs.html#aa2cdf62d9c3f68774f2498b03a30bb6b", null ],
@@ -121,7 +125,7 @@ var group__group__usbfxstack__hb__dma__structs =
       [ "pBufMgr", "group__group__usbfxstack__hb__dma__structs.html#a251578ac0fe01d6ea2e5b5637507260b", null ],
       [ "socketUsed", "group__group__usbfxstack__hb__dma__structs.html#a644b713b749f5daa555a2e9ae645ef05", null ],
       [ "sckChannelMap", "group__group__usbfxstack__hb__dma__structs.html#a36b0ad41eaebccad16316db44bfdb499", null ],
-      [ "dwDscrList", "group__group__usbfxstack__hb__dma__structs.html#ad7162be6b591859eb379430d2bd86d56", null ],
+      [ "dwDscrList", "group__group__usbfxstack__hb__dma__structs.html#aad6e8ffce7e53c9c8bc3926e0b438b72", null ],
       [ "usbIngMultEnable", "group__group__usbfxstack__hb__dma__structs.html#a7ece7a55e6faf5cb536de04622d02db3", null ],
       [ "usbEgrMultEnable", "group__group__usbfxstack__hb__dma__structs.html#abcbf673d4071bf3e2cd7eaa828b411f1", null ],
       [ "en_64k", "group__group__usbfxstack__hb__dma__structs.html#a897fc019c7006fb1596c63c00e5874b5", null ],

@@ -7,5 +7,6 @@ var searchData=
   ['notification_4',['notification',['../group__group__usbfxstack__hb__dma__structs.html#a821438c370515397e36fe4118c29e761',1,'cy_stc_hbdma_channel_t']]],
   ['numofaltsettings_5',['numOfAltSettings',['../group__group__usbfxstack__usb__common__structs.html#a8663b9fd83f141aa3edc4202131d6c4d',1,'cy_stc_usb_usbd_ctxt_t']]],
   ['numofintfinactivecfg_6',['numOfIntfInActiveCfg',['../group__group__usbfxstack__usb__common__structs.html#afe307a3c73a6b1919ef1eb6354b478e1',1,'cy_stc_usb_usbd_ctxt_t']]],
-  ['numphyinitialized_7',['numPhyInitialized',['../group__group__usbfxstack__usb__common__structs.html#ad5857c1fd5c8eb4c5c271f00742de496',1,'cy_stc_usbss_cal_ctxt_t']]]
+  ['numphyinitialized_7',['numPhyInitialized',['../group__group__usbfxstack__usb__common__structs.html#ad5857c1fd5c8eb4c5c271f00742de496',1,'cy_stc_usbss_cal_ctxt_t']]],
+  ['numrecoveryentries_8',['numRecoveryEntries',['../group__group__usbfxstack__usb__common__structs.html#ab9dd59af22214698ed4dadf45be25157',1,'cy_stc_usbd_devstats_t::numRecoveryEntries()'],['../group__group__usbfxstack__usb__common__structs.html#afabb49a69a2931538bf78b9ae1596a8d',1,'cy_stc_usbss_cal_ctxt_t::numRecoveryEntries()']]]
 ];

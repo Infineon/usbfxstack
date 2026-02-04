@@ -29,6 +29,7 @@ var group__group__usbfxstack__hb__dma__macros =
     [ "CY_HBDMA_MAX_BUFFER_SIZE", "group__group__usbfxstack__hb__dma__macros.html#ga5fd778c8f710ae2297c356f95125d02e", null ],
     [ "CY_HBDMA_TASK_STACK_DEPTH", "group__group__usbfxstack__hb__dma__macros.html#gaf1e6b044d94fd966b9f907dd4d3e4f46", null ],
     [ "CY_HBDMA_TASK_PRIORITY", "group__group__usbfxstack__hb__dma__macros.html#ga5fc4b5d408f1765799b62889ef755966", null ],
+    [ "Cy_HBDMA_GetDWDesc", "group__group__usbfxstack__hb__dma__macros.html#ga9fec8dc7cc2f4043376c8762bc97e4dc", null ],
     [ "CY_HBDMA_VERSION_H", "group__group__usbfxstack__hb__dma__macros.html#gadd2677061fb59deb6f0c8873655f8f80", null ],
     [ "HBDMA_VERSION_MAJOR", "group__group__usbfxstack__hb__dma__macros.html#ga27e144a67f2c71eb1e4cbdb9e1a81137", null ],
     [ "HBDMA_VERSION_MINOR", "group__group__usbfxstack__hb__dma__macros.html#ga5203b1cb3c963289f9ecfdef53803a38", null ],

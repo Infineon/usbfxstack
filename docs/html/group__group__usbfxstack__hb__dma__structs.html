@@ -107,6 +107,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:structcy__stc__hbdma__chn__config__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__chn__config__t">cy_stc_hbdma_chn_config_t</a></td></tr>
 <tr class="memdesc:structcy__stc__hbdma__chn__config__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure encapsulating the configuration parameters for a High BandWidth DMA channel to be created.  <a href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__chn__config__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__hbdma__chn__config__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structcy__stc__hbdma__dw__descriptor__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t">cy_stc_hbdma_dw_descriptor_t</a></td></tr>
+<tr class="memdesc:structcy__stc__hbdma__dw__descriptor__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Context structure used by the HBW DW descriptor list allocator.  <a href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t">More...</a><br /></td></tr>
+<tr class="separator:structcy__stc__hbdma__dw__descriptor__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structcy__stc__hbdma__channel__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a></td></tr>
 <tr class="memdesc:structcy__stc__hbdma__channel__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure encapsulation all configuration and state information associated with a High BandWidth DMA channel.  <a href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">More...</a><br /></td></tr>
 <tr class="separator:structcy__stc__hbdma__channel__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -476,6 +479,35 @@ User context for the callback. </td></tr>
 
 </div>
 </div>
+<a name="structcy__stc__hbdma__dw__descriptor__t" id="structcy__stc__hbdma__dw__descriptor__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structcy__stc__hbdma__dw__descriptor__t">&#9670;&nbsp;</a></span>cy_stc_hbdma_dw_descriptor_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct cy_stc_hbdma_dw_descriptor_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="af295ca505f2fa4cb61f959826336409d" name="af295ca505f2fa4cb61f959826336409d"></a>uint32_t</td>
+<td class="fieldname">
+padding[2]</td>
+<td class="fielddoc">
+8 byte padding for 32 byte alignment </td></tr>
+<tr><td class="fieldtype">
+<a id="a4bbc678f188fcd737f04ef36cc96a9cd" name="a4bbc678f188fcd737f04ef36cc96a9cd"></a>cy_stc_dma_descriptor_t</td>
+<td class="fieldname">
+dwDscr</td>
+<td class="fielddoc">
+DataWire descriptors. </td></tr>
+</table>
+
+</div>
+</div>
 <a name="structcy__stc__hbdma__channel__t" id="structcy__stc__hbdma__channel__t"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#structcy__stc__hbdma__channel__t">&#9670;&nbsp;</a></span>cy_stc_hbdma_channel_t</h2>
 
@@ -706,19 +738,19 @@ epMaxPktSize</td>
 <td class="fielddoc">
 Maximum packet size for the USBHS endpoint. </td></tr>
 <tr><td class="fieldtype">
-<a id="a3fd5c71684a28ada919e1c57df57ab2a" name="a3fd5c71684a28ada919e1c57df57ab2a"></a>cy_stc_dma_descriptor_t *</td>
+<a id="a60474104bf1b7b0cd11df2e1f47604db" name="a60474104bf1b7b0cd11df2e1f47604db"></a><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t">cy_stc_hbdma_dw_descriptor_t</a> *</td>
 <td class="fieldname">
 pProdDwDscr[2]</td>
 <td class="fielddoc">
 Current DataWire descriptor pointer for producer channels. </td></tr>
 <tr><td class="fieldtype">
-<a id="a27f0faad9d110869d932d67084aacd56" name="a27f0faad9d110869d932d67084aacd56"></a>cy_stc_dma_descriptor_t *</td>
+<a id="a0d29ec7ac02c366d1ef254974e119814" name="a0d29ec7ac02c366d1ef254974e119814"></a><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t">cy_stc_hbdma_dw_descriptor_t</a> *</td>
 <td class="fieldname">
 pConsDwDscr[2]</td>
 <td class="fielddoc">
 Current DataWire descriptor pointer for consumer channels. </td></tr>
 <tr><td class="fieldtype">
-<a id="a22284e310a778b99dd1d527a3ee36a16" name="a22284e310a778b99dd1d527a3ee36a16"></a>uint16_t</td>
+<a id="aff658dbb8a0c8297e6ec096a88163976" name="aff658dbb8a0c8297e6ec096a88163976"></a>uint32_t</td>
 <td class="fieldname">
 curIngressXferSize[2]</td>
 <td class="fielddoc">
@@ -730,7 +762,7 @@ pCurEgressDataBuf[2]</td>
 <td class="fielddoc">
 Current buffer from which egress DataWire channel is reading. </td></tr>
 <tr><td class="fieldtype">
-<a id="ad376ec484d34ee11f1343c4a171c6028" name="ad376ec484d34ee11f1343c4a171c6028"></a>uint16_t</td>
+<a id="acb7b7f7cc698a521b7cd2231dab39b40" name="acb7b7f7cc698a521b7cd2231dab39b40"></a>uint32_t</td>
 <td class="fieldname">
 curEgressXferSize[2]</td>
 <td class="fielddoc">
@@ -906,7 +938,7 @@ sckChannelMap[<a class="el" href="group__group__usbfxstack__hb__dma__macros.html
 <td class="fielddoc">
 Table used to map sockets to DMA channels. </td></tr>
 <tr><td class="fieldtype">
-<a id="ad7162be6b591859eb379430d2bd86d56" name="ad7162be6b591859eb379430d2bd86d56"></a>cy_stc_dma_descriptor_t *</td>
+<a id="aad6e8ffce7e53c9c8bc3926e0b438b72" name="aad6e8ffce7e53c9c8bc3926e0b438b72"></a><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__dw__descriptor__t">cy_stc_hbdma_dw_descriptor_t</a> *</td>
 <td class="fieldname">
 dwDscrList</td>
 <td class="fielddoc">
