@@ -2,6 +2,7 @@ var group__group__usbfxstack__hb__dma__functions =
 [
     [ "Cy_HBDma_Init", "group__group__usbfxstack__hb__dma__functions.html#gab7604ab75c6effda2157d432dc0e8075", null ],
     [ "Cy_HBDma_DeInit", "group__group__usbfxstack__hb__dma__functions.html#ga7afaba6c4e0610da3f9240442b3c5ead", null ],
+    [ "Cy_HBDma_Reset", "group__group__usbfxstack__hb__dma__functions.html#ga9d9b2bc7941694556223f0f623b480e9", null ],
     [ "Cy_HBDma_GetDescriptor", "group__group__usbfxstack__hb__dma__functions.html#ga8a99bdb364b392c87d12f143f8488288", null ],
     [ "Cy_HBDma_SetDescriptor", "group__group__usbfxstack__hb__dma__functions.html#ga815ddd5d10b5a5bc14927c0522b10c8f", null ],
     [ "Cy_HBDma_GetSocketStatus", "group__group__usbfxstack__hb__dma__functions.html#gac0d27f05e71c9f155e6512a62ee4264a", null ],

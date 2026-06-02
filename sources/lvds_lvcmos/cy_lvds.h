@@ -86,6 +86,16 @@ extern "C" {
 
 #define SipBlkInitConfig                        *((volatile uint32_t *)0x406C0068UL)
 
+/** LVDS port 0 identifier. */
+#define CY_LVDS_LVCMOS_PORT_0               (0)
+/** LVDS port 1 identifier. */
+#define CY_LVDS_LVCMOS_PORT_1               (1)
+
+/** GPIF state machine 0 identifier. */
+#define CY_GPIF_STATEMACHINE_0              (0)
+/** GPIF state machine 1 identifier. */
+#define CY_GPIF_STATEMACHINE_1              (1)
+
 #if (!LVCMOS_16BIT_SDR)
 
 /** Number of DMA threads supported by the LVDS IP. */
@@ -122,7 +132,7 @@ extern "C" {
 #endif /*LVCMOS_16BIT_SDR*/
 
 /** Timeout loop count used during PHY initialization. */
-#define CY_LVDS_MAX_TIMEOUT_COUNT           (2500u)
+#define CY_LVDS_MAX_TIMEOUT_COUNT           (250000u)
 
 /** Number of distinct states that are possible in a GPIF state machine when DSS is enabled. */
 #define GPIF_MAX_STATE(numDss)              (0 ? 255: ((256/(numDss * 2)) - 1))
@@ -743,6 +753,14 @@ typedef enum
     CY_LVDS_ENHANCED_MODE                       /**< Enhanced mode of LVDS interface operation. */
 } cy_en_lvds_slave_fifo_mode_t;
 
+
+typedef enum
+{
+    CY_LVDS_UNKNOWN_STATE = 0,                  /**< Link state cannot be determined. */
+    CY_LVDS_LVCMOS_L0_STATE,                    /**< Link is in L0 state (Active) */
+    CY_LVDS_L1_STATE,                           /**< Link is in L1 state */
+    CY_LVDS_LVCMOS_L3_STATE                     /**< Link is in L3 state */
+} cy_en_lvds_link_state_t;
 
 /** \} group_usbfxstack_lvds_lvcmos_enums */
 
@@ -1828,6 +1846,7 @@ __STATIC_INLINE void Cy_LVDS_PhyGpioSet                         (LVDSSS_LVDS_Typ
 __STATIC_INLINE void Cy_LVDS_PhyGpioClr                         (LVDSSS_LVDS_Type* base, uint8_t portNo, cy_en_lvds_phy_gpio_index_t pinNo);
 __STATIC_INLINE bool Cy_LVDS_PhyGpioRead                        (LVDSSS_LVDS_Type* base, uint8_t portNo, cy_en_lvds_phy_gpio_index_t pinNo);
 __STATIC_INLINE void Cy_LVDS_ThreadDisable                      (LVDSSS_LVDS_Type* base, uint8_t threadIndex);
+__STATIC_INLINE void Cy_LVDS_ConfigureCtrlOutPin                (LVDSSS_LVDS_Type* base, uint8_t portNo, uint8_t ctrlNo, cy_en_lvds_phy_ctrl_bus_out_signal_t outputSelect, bool isActiveLow);
 
 
 
@@ -2653,6 +2672,46 @@ __STATIC_INLINE void Cy_LVDS_DisableLoopbackMode(LVDSSS_LVDS_Type * base)
 }
 
 /*******************************************************************************
+* Function Name: Cy_LVDS_ConfigureCtrlOutPin
+****************************************************************************//**
+*
+* Function to select the signal and polarity of the output signal driven on
+* an LVCMOS control pin. This function is expected to be called after the LVDS
+* and GPIF blocks have been initialized using Cy_LVDS_Init_Ext or Cy_LVDS_Init.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param portNo
+* Sensor interface port number
+*
+* \param ctrlNo
+* Control signal number
+*
+* \param outputSelect
+* Type of output to be driven on the selected pin
+*
+* \param isActiveLow
+* Whether signal should be configured as active low output
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_LVDS_ConfigureCtrlOutPin(LVDSSS_LVDS_Type* base,
+                                        uint8_t portNo,
+                                        uint8_t ctrlNo,
+                                        cy_en_lvds_phy_ctrl_bus_out_signal_t outputSelect,
+                                        bool isActiveLow)
+{
+    if ((base != NULL) && (portNo < 2) && (ctrlNo < 20) && (outputSelect <= CY_LVDS_PHY_BUS_OUT_LOGIC_0)) {
+        base->GPIF[portNo].GPIF_CTRL_BUS_DIRECTION[ctrlNo] = LVDSSS_LVDS_GPIF_GPIF_CTRL_BUS_DIRECTION_OEN_Msk;
+        base->GPIF[portNo].GPIF_CTRL_BUS_POLARITY = (
+                (base->GPIF[portNo].GPIF_CTRL_BUS_POLARITY & ~(1UL << ctrlNo)) |
+                (isActiveLow << ctrlNo)
+                );
+        base->GPIF[portNo].GPIF_CTRL_BUS_SELECT[ctrlNo] = (uint32_t)outputSelect;
+    }
+}
+
+/*******************************************************************************
 * Function Name: Cy_LVDS_PhyGpioSet
 ****************************************************************************//**
 *
@@ -2833,6 +2892,30 @@ bool Cy_LVDS_CustomTraining_ApplyResults(
 bool Cy_LVDS_CustomTraining_Task(
         cy_stc_lvds_context_t *pDrvCtxt);
 
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_QueryResults
+ ***************************************************************************//**
+ *
+ * Function to query the results of the LVDS custom training where available.
+ *
+ * \param pDrvCtxt
+ * Pointer to LVDS driver context structure.
+ * \param portNo
+ * LVDS port number
+ * \param pOptimalPhase
+ * Return parameter to be filled with array of optimal phase information
+ * \param pWindowSize
+ * Return parameter to be filled with array of passing delay windows.
+ *
+ * \return
+ * true if the training results are being returned, false otherwise.
+ ******************************************************************************/
+bool Cy_LVDS_CustomTraining_QueryResults(
+        cy_stc_lvds_context_t *pDrvCtxt,
+        uint8_t                portNo,
+        uint8_t              **pOptimalPhase,
+        uint8_t              **pWindowSize);
+
 #ifndef DOXYGEN
 
 /*******************************************************************************
@@ -2887,6 +2970,228 @@ Cy_LVDS_CustomTraining_Enable(
         cy_stc_hbdma_mgr_context_t *pDmaMgr);
 
 #endif /* DOXYGEN */
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_SetWakeupInterruptMask
+****************************************************************************//**
+*
+* Set additional bits in the global LVDS wakeup interrupt mask. This does not clear
+* any interrupt mask bits which are already set.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param interruptMask
+* The value determines which status changes will cause an interrupt.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_LVDS_SetWakeupInterruptMask(LVDSSS_LVDS_Type * base, uint32_t interruptMask)
+{
+    base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_MASK |= interruptMask;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_GetWakeupInterruptMask
+****************************************************************************//**
+*
+* Get the mask bits set in LVDS wakeup interrupt.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptMask(LVDSSS_LVDS_Type * base)
+{
+    return (base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_MASK);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_GetWakeupInterruptStatusMasked
+****************************************************************************//**
+*
+* Get LVDS Wakeup interrupt masked value.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \return
+* The bit fields set indicate which interrupts are raised to the CPU.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptStatusMasked(LVDSSS_LVDS_Type * base)
+{
+    return (base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_MASKED);
+}
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_GetWakeupInterruptStatus
+****************************************************************************//**
+*
+* Returns the value of wakeup interrupt register.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \return
+* Value of interrupt status register.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptStatus(LVDSSS_LVDS_Type * base)
+{
+    return (base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR);
+}
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ClearWakeupInterrupt
+****************************************************************************//**
+*
+* Clears the wakeup interrupt register.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param interrupt
+* The bitmask of statuses to clear.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_LVDS_ClearWakeupInterrupt(LVDSSS_LVDS_Type * base, uint32_t interrupt)
+{
+    base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR = interrupt;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_SetWakeupInterrupt
+****************************************************************************//**
+*
+* Set the wakeup interrupt register.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param interrupt
+* Bit mask value of the register fields which needs to be set.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_LVDS_SetWakeupInterrupt(LVDSSS_LVDS_Type * base, uint32_t interrupt)
+{
+    base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_SET = interrupt;
+}
+
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_AllowL1Entry
+ * ****************************************************************************//**
+ *
+ * Allow support for L2 low power state on the specified port.
+ * /param base
+ * Pointer to the LVDS register base address
+ *
+ * /param port
+ * Index of the port number (0 or 1)
+ ******************************************************************************/
+
+
+__STATIC_INLINE void Cy_LVDS_AllowL1Entry(LVDSSS_LVDS_Type * base, uint8_t port)
+{
+    base->LVDS_LOW_PWR_INTR.LOW_PWR_CTL[port] &= ~(LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LOW_PWR_CTL_MASK_L1_ENTRY_Msk);
+}
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_DisableL1Entry
+ * ****************************************************************************//**
+ *
+ * Disable support for L1 low power state on the specified port.
+ * Hardware prevents entry to L1 state even if FPGA requests entry using
+ * L1ENTER control byte.
+ *
+ * /param base
+ * Pointer to the LVDS register base address
+ *
+ * /param port
+ * Index of the port number (0 or 1)
+ ******************************************************************************/
+
+__STATIC_INLINE void Cy_LVDS_DisableL1Entry(LVDSSS_LVDS_Type * base, uint8_t port)
+{
+    base->LVDS_LOW_PWR_INTR.LOW_PWR_CTL[port] |= LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LOW_PWR_CTL_MASK_L1_ENTRY_Msk;
+}
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_AllowL3Entry
+ * ****************************************************************************//**
+ *
+ * Allow support for L3 low power state on the specified port.
+ * /param base
+ * Pointer to the LVDS register base address
+ *
+ * /param port
+ * Index of the port number (0 or 1)
+ ******************************************************************************/
+
+__STATIC_INLINE void Cy_LVDS_AllowL3Entry(LVDSSS_LVDS_Type * base, uint8_t port)
+{
+    base->LVDS_LOW_PWR_INTR.LOW_PWR_CTL[port] &= ~(LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LOW_PWR_CTL_MASK_L3_ENTRY_Msk);
+}
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_DisableL3Entry
+ * ****************************************************************************//**
+ *
+ * Disable support for L3 low power state on the specified port.
+ * Hardware prevents entry to L3 state even if FPGA requests entry using
+ * L3 ENTRY Control pin (default P0CTL3).
+ *
+ * /param base
+ * Pointer to the LVDS register base address
+ *
+ * /param port
+ * Index of the port number (0 or 1)
+ ******************************************************************************/
+
+__STATIC_INLINE void Cy_LVDS_DisableL3Entry(LVDSSS_LVDS_Type * base, uint8_t port)
+{
+    base->LVDS_LOW_PWR_INTR.LOW_PWR_CTL[port] |= LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LOW_PWR_CTL_MASK_L3_ENTRY_Msk;
+}
+/*******************************************************************************
+* Function Name: Cy_LVDS_IsWidelinkModeActive
+****************************************************************************//**
+*
+* Returns true if the link is configured in wide link mode, false otherwise.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param lvdsContext
+* Pointer to the LVDS context structure
+*
+* \return
+* true if the device is in Widelink mode,
+* false if device is in Narrowlink mode
+*******************************************************************************/
+
+bool Cy_LVDS_IsWidelinkModeActive(LVDSSS_LVDS_Type *base,
+        cy_stc_lvds_context_t *lvdsContext);
+
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_GetLinkState
+ * ****************************************************************************//**
+*
+* Returns the current link state of the specified Sensor Interface Port.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param sipNo
+* Sensor Interface Port number
+* \return
+* Current link state of the specified Sensor Interface Port.
+*******************************************************************************/
+
+cy_en_lvds_link_state_t Cy_LVDS_GetLinkState(LVDSSS_LVDS_Type *base, uint8_t sipNo);
 
 /** \} group_usbfxstack_lvds_lvcmos_functions */
 

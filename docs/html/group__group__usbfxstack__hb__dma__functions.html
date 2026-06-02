@@ -98,6 +98,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7afaba6c4e0610da3f9240442b3c5ead"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga7afaba6c4e0610da3f9240442b3c5ead">Cy_HBDma_DeInit</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__context__t">cy_stc_hbdma_context_t</a> *pContext)</td></tr>
 <tr class="memdesc:ga7afaba6c4e0610da3f9240442b3c5ead"><td class="mdescLeft">&#160;</td><td class="mdescRight">De-initialize the High BandWidth DMA adapter.  <a href="group__group__usbfxstack__hb__dma__functions.html#ga7afaba6c4e0610da3f9240442b3c5ead">More...</a><br /></td></tr>
 <tr class="separator:ga7afaba6c4e0610da3f9240442b3c5ead"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9d9b2bc7941694556223f0f623b480e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga9d9b2bc7941694556223f0f623b480e9">Cy_HBDma_Reset</a> (<a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__context__t">cy_stc_hbdma_context_t</a> *pContext, bool usbReset, bool lvds0Reset, bool lvds1Reset)</td></tr>
+<tr class="memdesc:ga9d9b2bc7941694556223f0f623b480e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all High BandWidth DMA adapters by de-initializing and re-initializing them.  <a href="group__group__usbfxstack__hb__dma__functions.html#ga9d9b2bc7941694556223f0f623b480e9">More...</a><br /></td></tr>
+<tr class="separator:ga9d9b2bc7941694556223f0f623b480e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8a99bdb364b392c87d12f143f8488288"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__hb__dma__enums.html#gaf3e10413a429d02d39bde06bd19fa9ab">cy_en_hbdma_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__hb__dma__functions.html#ga8a99bdb364b392c87d12f143f8488288">Cy_HBDma_GetDescriptor</a> (uint16_t dscrIndex, <a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__desc__t">cy_stc_hbdma_desc_t</a> *dscr_p)</td></tr>
 <tr class="memdesc:ga8a99bdb364b392c87d12f143f8488288"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads and returns the contents of the High BandWidth DMA descriptor with the specified index.  <a href="group__group__usbfxstack__hb__dma__functions.html#ga8a99bdb364b392c87d12f143f8488288">More...</a><br /></td></tr>
 <tr class="separator:ga8a99bdb364b392c87d12f143f8488288"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -364,6 +367,58 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pContext</td><td>Pointer to the HBDma driver context structure. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga9d9b2bc7941694556223f0f623b480e9" name="ga9d9b2bc7941694556223f0f623b480e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9d9b2bc7941694556223f0f623b480e9">&#9670;&nbsp;</a></span>Cy_HBDma_Reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_HBDma_Reset </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__context__t">cy_stc_hbdma_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pContext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>usbReset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>lvds0Reset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>lvds1Reset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reset all High BandWidth DMA adapters by de-initializing and re-initializing them. </p>
+<p >This step is required when the application is disabling and re-enabling any of the core blocks (USBSS or LVDS).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pContext</td><td>Pointer to the HBDma driver context structure. </td></tr>
+    <tr><td class="paramname">usbReset</td><td>Whether to reset the USB DMA adapters. </td></tr>
+    <tr><td class="paramname">lvds0Reset</td><td>Whether to reset the LVDS Port-0 DMA adapter. </td></tr>
+    <tr><td class="paramname">lvds1Reset</td><td>Whether to reset the LVDS Port-1 DMA adapter. </td></tr>
   </table>
   </dd>
 </dl>

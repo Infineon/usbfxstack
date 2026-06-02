@@ -47,6 +47,42 @@
 extern "C" {
 #endif
 
+/* @brief Lookup table for human-readable USB speed strings */
+static const char * const cy_usbd_speed_strings[] =
+{
+    "Not connected",
+    "USB Full-Speed",
+    "USB High-Speed",
+    "USB 5Gbps",
+    "USB 10Gbps (1x2)",
+    "USB 10Gbps (2x1)",
+    "USB 20Gbps"
+};
+
+#define CY_USBD_SPEED_STRING_COUNT \
+    (sizeof(cy_usbd_speed_strings) / sizeof(cy_usbd_speed_strings[0]))
+
+/* @brief Lookup table to map USBD power states with SSCAL layer power states */
+static const cy_en_usbd_usb_powerstate_t cy_usbd_sscal_powerstate_map[] =
+{
+    CY_USBD_USBSS_LINK_U0,
+    CY_USBD_USBSS_LINK_U1,
+    CY_USBD_USBSS_LINK_U2,
+    CY_USBD_USBSS_LINK_U3,
+    CY_USBD_USBSS_COMPLIANCE
+};
+
+/** @brief Structure used to store information about the IN Endpoint DMA transfers
+ *  that need to be restarted after waking from deep sleep.
+ */
+typedef struct {
+    uint8_t *pDataBuf;                  /**< Pointer to memory containing the data
+                                             to be copied into EPM. */
+    uint16_t dataSize;                  /**< Size of data to be copied into EPM. */
+} cy_stc_app_egress_ep_state_t;
+
+static cy_stc_app_egress_ep_state_t gl_EgressEpState[CY_USB_MAX_ENDP_NUMBER];
+
 static const uint32_t cy_usbd_version_num = USBD_VERSION_NUM;
 
 /* Variable that tracks the number of completed timer ticks. */
@@ -140,7 +176,8 @@ Cy_USBD_Ep0DmaChn_Cb (
 *
 * \return
 * CY_USBD_STATUS_SUCCESS if operation is successful.
-* CY_USBD_STATUS_FAILURE if high bandwidth DMA manager pointer NULL.
+* CY_USBD_STATUS_FAILURE if high bandwidth DMA initialization fails.
+* CY_USBD_STATUS_MALLOC_FAILED if memory allocation fails.
 *
 *******************************************************************************/
 static cy_en_usbd_ret_code_t
@@ -148,6 +185,7 @@ Cy_USB_Create_Ep0HbDmaChannels (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
 {
     cy_stc_hbdma_chn_config_t dmaConfig;
     cy_en_hbdma_mgr_status_t  mgrStat;
+    cy_en_usbd_ret_code_t     retCode = CY_USBD_STATUS_SUCCESS;
 
     if (pUsbdCtxt->pHBDmaMgr == NULL) {
         DBG_USBD_WARN("HBDMA Mgr is NULL\r\n");
@@ -156,6 +194,10 @@ Cy_USB_Create_Ep0HbDmaChannels (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
 
     /* Allocate a buffer large enough to hold the maximum EP0 transfer. */
     pUsbdCtxt->inEp0ScratchBuffer = Cy_HBDma_BufMgr_Alloc(pUsbdCtxt->pHBDmaMgr->pBufMgr, 4096UL);
+    if (pUsbdCtxt->inEp0ScratchBuffer == NULL) {
+        DBG_USBD_ERR("Memory allocation failure\r\n");
+        return CY_USBD_STATUS_MALLOC_FAILED;
+    }
 
     dmaConfig.size           = 512;                        /* DMA Buffer size in bytes */
     dmaConfig.count          = 1;                          /* DMA Buffer Count */
@@ -175,26 +217,36 @@ Cy_USB_Create_Ep0HbDmaChannels (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     mgrStat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
                                       &(pUsbdCtxt->outEp0DmaUsb3Ch),
                                       &dmaConfig);
-    if (mgrStat != CY_HBDMA_MGR_SUCCESS)
-    {
+    if (mgrStat != CY_HBDMA_MGR_SUCCESS) {
         DBG_USBD_ERR("HB-DMA-OUT Ch failed 0x%x\r\n", mgrStat);
-        return CY_USBD_STATUS_FAILURE;
+        retCode = CY_USBD_STATUS_FAILURE;
+    } else {
+        dmaConfig.chType         = CY_HBDMA_TYPE_MEM_TO_IP;    /* DMA Channel type: from HB-SRAM to USB3 IP */
+        dmaConfig.prodSck[0]     = CY_HBDMA_VIRT_SOCKET_WR;    /* Producer Socket ID: HB-SRAM */
+        dmaConfig.consSck[0]     = CY_HBDMA_USBEG_SOCKET_00;   /* Consumer Socket ID: USB EGRESS */
+
+        mgrStat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
+                &(pUsbdCtxt->inEp0DmaUsb3Ch),
+                &dmaConfig);
+        if (mgrStat != CY_HBDMA_MGR_SUCCESS) {
+            /* Destroy the OUT EP0 channel which was created earlier. */
+            Cy_HBDma_Channel_Destroy(&(pUsbdCtxt->outEp0DmaUsb3Ch));
+
+            DBG_USBD_ERR("HB-DMA-IN Ch failed 0x%x\r\n", mgrStat);
+            retCode = CY_USBD_STATUS_FAILURE;
+        }
     }
 
-    dmaConfig.chType         = CY_HBDMA_TYPE_MEM_TO_IP;    /* DMA Channel type: from HB-SRAM to USB3 IP */
-    dmaConfig.prodSck[0]     = CY_HBDMA_VIRT_SOCKET_WR;    /* Producer Socket ID: HB-SRAM */
-    dmaConfig.consSck[0]     = CY_HBDMA_USBEG_SOCKET_00;   /* Consumer Socket ID: USB EGRESS */
-
-    mgrStat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
-                                      &(pUsbdCtxt->inEp0DmaUsb3Ch),
-                                      &dmaConfig);
-    if (mgrStat != CY_HBDMA_MGR_SUCCESS)
-    {
-        DBG_USBD_ERR("HB-DMA-IN Ch failed 0x%x\r\n", mgrStat);
-        return CY_USBD_STATUS_FAILURE;
+    if (retCode != CY_USBD_STATUS_SUCCESS) {
+        if (pUsbdCtxt->inEp0ScratchBuffer != NULL) {
+            Cy_HBDma_BufMgr_Free(pUsbdCtxt->pHBDmaMgr->pBufMgr, pUsbdCtxt->inEp0ScratchBuffer);
+            pUsbdCtxt->inEp0ScratchBuffer = NULL;
+        }
+    } else {
+        DBG_USBD_INFO("HB-DMA EP0 init done\r\n");
     }
-    DBG_USBD_INFO("HB-DMA EP0 init done\r\n");
-    return CY_USBD_STATUS_SUCCESS;
+
+    return retCode;
 }
 
 
@@ -356,8 +408,8 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     pUsbdCtxt->pSsCalCtxt = pSsCalCtxt;
     pUsbdCtxt->pAppCtxt = pAppCtxt;
     pUsbdCtxt->pCpuDmacBase = pCpuDmacBase;
-    pUsbdCtxt->channel0 = 0x00;
-    pUsbdCtxt->channel1 = 0x01;
+    pUsbdCtxt->channel0 = CY_USBD_DMA_EP0_IN_CHN_NUM;
+    pUsbdCtxt->channel1 = CY_USBD_DMA_EP0_OUT_CHN_NUM;
     pUsbdCtxt->pHBDmaMgr = pHbDmaMgrCtxt;
     pUsbdCtxt->usb2FallbackDisable = false;
 
@@ -413,9 +465,13 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     pUsbdCtxt->intfRemoteWakeEnabled = 0x00;
     pUsbdCtxt->numOfIntfInActiveCfg = 0x00;
     pUsbdCtxt->ssOnBusResetDisable = false;
+    pUsbdCtxt->hsCtleSel = CY_USBHS_CTLE_SEL_5; /* Stack default */
 
     /* Initialize the USBHS and USBSS IP */
     Cy_USBHS_Cal_Init(pUsbdCtxt->pCalCtxt, pUsbdCtxt, Cy_USBD_ProcessMsg);
+
+    /* Select the default CTLE setting. */
+    Cy_USBHS_Cal_SetCtleSelValue(pUsbdCtxt->pCalCtxt, pUsbdCtxt->hsCtleSel);
 
     if (pHbDmaMgrCtxt != NULL) {
         Cy_USBSS_Cal_Init(pUsbdCtxt->pSsCalCtxt, pUsbdCtxt, Cy_USBD_ProcessMsg);
@@ -436,7 +492,11 @@ Cy_USB_USBD_Init (void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         Cy_USBSS_Cal_SetGen2EBDepth(pUsbdCtxt->pSsCalCtxt, FX3G2_DFLT_GEN2_EB_DEPTH);
 
         /* Initialize the HB-DMA channel for EP0 IN and OUT */
-        Cy_USB_Create_Ep0HbDmaChannels(pUsbdCtxt);
+        retCode = Cy_USB_Create_Ep0HbDmaChannels(pUsbdCtxt);
+        if (retCode != CY_USBD_STATUS_SUCCESS) {
+            DBG_USBD_ERR("Initialization of EP0 DMA channels failed\r\n");
+            return retCode;
+        }
     }
 
 #if FREERTOS_ENABLE
@@ -816,6 +876,28 @@ Cy_USBD_GetDeviceSpeed (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     return(pUsbdCtxt->devSpeed);
 }   /* end of function */
 
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetDeviceSpeedStr
+****************************************************************************//**
+*
+* This API returns the device's operating speed as a human-readable string
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \return
+* "Unknown Speed" if device speed is out of range or context is NULL.
+* String representing the device speed otherwise.
+*******************************************************************************/
+const char *
+Cy_USBD_GetDeviceSpeedStr(const cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
+{
+    if (!pUsbdCtxt || pUsbdCtxt->devSpeed >= CY_USBD_SPEED_STRING_COUNT) {
+        return "Unknown Speed";
+    }
+    return cy_usbd_speed_strings[pUsbdCtxt->devSpeed];
+}
 
 /*******************************************************************************
 * Function name: Cy_USBD_SetDeviceSpeed
@@ -4051,15 +4133,26 @@ Cy_USB_USBD_SendEndp0DataSs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         return (CY_USBD_STATUS_CTXT_NULL);
     }
 
-    if ((pBuffer == NULL) || (bufferSize == 0)) {
-        DBG_USBD_ERR("SndEnd0DataSs:bufferOrSize Null\r\n");
+    if (pUsbdCtxt->inEp0ScratchBuffer == NULL) {
+        DBG_USBD_ERR("Scratch RAM buffer for data copy not available\r\n");
+        return (CY_USBD_STATUS_MALLOC_FAILED);
+    }
+
+    if ((pBuffer == NULL) && (bufferSize != 0)) {
+        DBG_USBD_ERR("SndEnd0DataSs:buffer Null\r\n");
         return (CY_USBD_STATUS_BAD_PARAM);
     }
 
     /* Make sure we are in U0 state before proceeding. */
     Cy_USBSS_Cal_GetUsbLinkActive(pUsbdCtxt->pSsCalCtxt);
 
-    if (bufferSize != 0) {
+    if (bufferSize == 0) {
+        /* Since we are sending ZLP, buffer will not be used. We just need to use a valid buffer pointer. */
+        pDst = pUsbdCtxt->inEp0ScratchBuffer;
+
+        /* Send data with length of 0. */
+        DBG_USBD_INFO("SendData: wlen=0\r\n");
+    } else {
         /* If the data to be sent is not present in HBW SRAM, make a copy and send from there. */
         if (((uint32_t)pBuffer < CY_HBW_SRAM_BASE_ADDR) || ((uint32_t)pBuffer >= CY_HBW_SRAM_LAST_ADDR)) {
             if (((uint32_t)pBuffer & 0x03) != 0) {
@@ -4069,66 +4162,60 @@ Cy_USB_USBD_SendEndp0DataSs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 
             pSrc = (uint32_t *)pBuffer;
             pDst = pUsbdCtxt->inEp0ScratchBuffer;
-            for (idx = 0; idx < ((bufferSize + 3) >> 2); idx++)
-            {
+            for (idx = 0; idx < ((bufferSize + 3) >> 2); idx++) {
                 pDst[idx] = pSrc[idx];
             }
         } else {
             pDst = (uint32_t *)pBuffer;
         }
 
+        /* If sending a multiple of max. packet size which is less than the size requested, a ZLP needs to be sent. */
         if ((pUsbdCtxt->setupReq.wLength > bufferSize) && ((bufferSize & 0x1FFU) == 0)) {
             zlpReqd = true;
         }
+    }
 
-        /* Send the data to EP0 using HB DMA */
-        dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch),
-                                              0,
-                                              (uint8_t *)pDst,
-                                              bufferSize);
+    /* Send the data to EP0 using HB DMA. SendData can handle the case where bufferSize is 0 as well. */
+    dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch),
+            0,
+            (uint8_t *)pDst,
+            bufferSize);
 
-        /* Handle possibility of race condition with clean-up at the end of previous transfer. */
-        if (dmaStatus == CY_HBDMA_MGR_SEQUENCE_ERROR) {
-            Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
-            dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0, (uint8_t *)pDst, bufferSize);
-        }
+    /* Handle possibility of race condition with clean-up at the end of previous transfer. */
+    if (dmaStatus == CY_HBDMA_MGR_SEQUENCE_ERROR) {
+        Cy_HBDma_Channel_Reset(&(pUsbdCtxt->inEp0DmaUsb3Ch));
+        dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0, (uint8_t *)pDst, bufferSize);
+    }
 
-        if(dmaStatus == CY_HBDMA_MGR_SUCCESS) {
+    if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
+        /* Clear the busy bit to complete the transfer */
+        Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
 
-            /* Clear the busy bit to complete the transfer */
-            Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
-
-            dmaStatus = Cy_HBDma_Channel_WaitForSendCplt(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0);
-            if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
-                /* Complete the transfer with a ZLP where needed. */
-                if (zlpReqd) {
-                    dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch),
-                                                          0,
-                                                          (uint8_t *)pDst,
-                                                          0);
-                    if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
-                        dmaStatus = Cy_HBDma_Channel_WaitForSendCplt(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0);
-                    }
+        dmaStatus = Cy_HBDma_Channel_WaitForSendCplt(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0);
+        if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
+            /* Complete the transfer with a ZLP where needed. */
+            if (zlpReqd) {
+                dmaStatus = Cy_HBDma_Channel_SendData(&(pUsbdCtxt->inEp0DmaUsb3Ch),
+                        0,
+                        (uint8_t *)pDst,
+                        0);
+                if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
+                    dmaStatus = Cy_HBDma_Channel_WaitForSendCplt(&(pUsbdCtxt->inEp0DmaUsb3Ch), 0);
                 }
             }
-
-            if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
-                pUsbdCtxt->ep0SendDone = true;
-                DBG_USBD_TRACE("EP0Send Done\r\n");
-                retStatus = CY_USBD_STATUS_SUCCESS;
-            } else {
-                DBG_USBD_ERR("HBDMA error: 0x%x\r\n", dmaStatus);
-            }
         }
-        else
-        {
+
+        if (dmaStatus == CY_HBDMA_MGR_SUCCESS) {
+            pUsbdCtxt->ep0SendDone = true;
+            DBG_USBD_TRACE("EP0Send Done\r\n");
+            retStatus = CY_USBD_STATUS_SUCCESS;
+        } else {
             DBG_USBD_ERR("HBDMA error: 0x%x\r\n", dmaStatus);
         }
-    } else {
-        /* Send data with length of 0. */
-        DBG_USBD_INFO("SendData: wlen=0\r\n");
-        Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
-        retStatus = CY_USBD_STATUS_SUCCESS;
+    }
+    else
+    {
+        DBG_USBD_ERR("HBDMA error: 0x%x\r\n", dmaStatus);
     }
 
     return retStatus;
@@ -4172,9 +4259,25 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         return (CY_USBD_STATUS_CTXT_NULL);
     }
 
-    if ((pBuffer == NULL) || (bufferSize == 0)) {
-        DBG_USBD_ERR("SndEnd0DataHs:bufferOrSize Null\r\n");
+    if (pBuffer == NULL) {
+        DBG_USBD_ERR("SndEnd0DataHs:buffer Null\r\n");
         return (CY_USBD_STATUS_BAD_PARAM);
+    }
+
+    /* Special handling for ZLP: Use SendEgressZLP function. */
+    if (bufferSize == 0) {
+        if (Cy_USBHS_Cal_SendEgressZLP(pUsbdCtxt->pCalCtxt, 0x00) == CY_USB_CAL_STATUS_SUCCESS) {
+
+            /* Clear busy bit to get the data moving. */
+            Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
+
+            /* Make sure USB link is in L0 until the transfer is completed. */
+            Cy_USBD_GetUSBLinkActive(pUsbdCtxt);
+
+            return CY_USBD_STATUS_SUCCESS;
+        } else {
+            return CY_USBD_STATUS_FAILURE;
+        }
     }
 
     /*
@@ -4216,7 +4319,6 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
         dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
         dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-        dscr_config.dataPrefetch = false;
         dscr_config.dataSize = CY_USBD_DMA_WORD;
         dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4245,7 +4347,6 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-            dscr_config.dataPrefetch = false;
             dscr_config.dataSize = CY_USBD_DMA_BYTE;
             dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
             dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4269,7 +4370,6 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-            dscr_config.dataPrefetch = false;
             dscr_config.dataSize = CY_USBD_DMA_BYTE;
             dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
             dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4288,7 +4388,7 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         }
     }
 
-    Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0, CY_DMAC_INTR_MASK);
+    Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0, CY_USBD_DMA_INTR_MASK);
     Cy_USBD_DMAChn_SetDesc(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0,
                            pDmaCh0InXferDscr);
     Cy_USBD_DMAChn_Enable(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0);
@@ -4341,24 +4441,32 @@ Cy_USB_USBD_SendEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0, dmaIntr);
         DBG_USBD_TRACE("%x DONE\r\n", dmaIntr);
     } else {
-        DBG_USBD_WARN("Ep0Send TIMEOUT\r\n");
-
-        /* Disable the DMA channel. */
-        Cy_USBD_DMAChn_Disable(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0);
-
         /*
-         * Flush any data in the EPM buffer. Trigger will need to be set for
-         * next DMA transfer.
+         * If a new request has been received and the DMA channel has got disabled due to transfer completion,
+         * there is no error condition to be handled. Handle error only in cases where no new request has been
+         * received or if the DMA channel is still active.
          */
-        Cy_USBD_FlushEndp(pUsbdCtxt, 0, CY_USB_ENDP_DIR_IN);
-        pUsbdCtxt->ep0SendDone = false;
+        if (
+                (Cy_USBHS_Cal_IsNewCtrlRqtReceived(pUsbdCtxt->pCalCtxt) == false) ||
+                (Cy_USBD_DMAChn_IsEnabled(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0))
+           ) {
+            DBG_USBD_WARN("Ep0Send TIMEOUT\r\n");
 
-        if (Cy_USBHS_Cal_IsNewCtrlRqtReceived(pUsbdCtxt->pCalCtxt) == false) {
+            /* Disable the DMA channel. */
+            Cy_USBD_DMAChn_Disable(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0);
+
+            /*
+             * Flush any data in the EPM buffer. Trigger will need to be set for
+             * next DMA transfer.
+             */
+            Cy_USBD_FlushEndp(pUsbdCtxt, 0, CY_USB_ENDP_DIR_IN);
+            pUsbdCtxt->ep0SendDone = false;
+
             retval = CY_USBD_STATUS_TIMEOUT;
         }
     }
 
-    return  retval;
+    return retval;
 }   /* End of function */
 
 /*******************************************************************************
@@ -4565,7 +4673,6 @@ Cy_USB_USBD_RecvEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
         dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
         dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-        dscr_config.dataPrefetch = false;
         dscr_config.dataSize = CY_USBD_DMA_WORD;
         dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4593,7 +4700,6 @@ Cy_USB_USBD_RecvEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-            dscr_config.dataPrefetch = false;
             dscr_config.dataSize = CY_USBD_DMA_BYTE;
             dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
             dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4616,7 +4722,6 @@ Cy_USB_USBD_RecvEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             dscr_config.interruptType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
             dscr_config.triggerInType = CY_USBD_DMA_DESCR_CHAIN;
-            dscr_config.dataPrefetch = false;
             dscr_config.dataSize = CY_USBD_DMA_BYTE;
             dscr_config.srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
             dscr_config.dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -4678,12 +4783,12 @@ bool Cy_USBD_IsEp0ReceiveDone (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
         if (pUsbdCtxt->devSpeed <= CY_USBD_USB_DEV_HS) {
             if (Cy_USBD_DMAChn_IsEnabled(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt), pUsbdCtxt->channel1)) {
                 ep0_idle = false;
-            }
 
-            if (Cy_USBHS_Cal_IsNewCtrlRqtReceived(pUsbdCtxt->pCalCtxt)) {
-                DBG_USBD_TRACE("Recv abort\r\n");
-                Cy_USB_USBD_RetireRecvEndp0DataHs(pUsbdCtxt);
-                ep0_idle = true;
+                if (Cy_USBHS_Cal_IsNewCtrlRqtReceived(pUsbdCtxt->pCalCtxt)) {
+                    DBG_USBD_TRACE("Recv abort\r\n");
+                    Cy_USB_USBD_RetireRecvEndp0DataHs(pUsbdCtxt);
+                    ep0_idle = true;
+                }
             }
         } else {
             ep0_idle = (pUsbdCtxt->pEp0ReceiveBuffer == NULL);
@@ -4907,7 +5012,7 @@ Cy_USBD_HandleGetDscr (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             }
         }
     } else {
-        DBG_USBD_INFO("SndSTALL\r\n");
+        DBG_USBD_INFO("SndSTALL[DSCR:0x%x]\r\n",dscrType);
         retStatus = Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, CY_USB_ENDP_0,
                                                   CY_USB_ENDP_DIR_IN, CY_USB_SET);
     }
@@ -7583,7 +7688,6 @@ Cy_USB_USBD_InitEndp0InCpuDmaDscrConfig (cy_stc_usbd_dma_descr_conf_t
         pEndp0InCpuDmaDscrConfig->triggerOutType = CY_USBD_DMA_X_LOOP;
         pEndp0InCpuDmaDscrConfig->triggerInType = CY_USBD_DMA_X_LOOP;
         pEndp0InCpuDmaDscrConfig->channelState = CY_USBD_DMA_CHN_ENABLED;
-        pEndp0InCpuDmaDscrConfig->dataPrefetch = false;
         pEndp0InCpuDmaDscrConfig->dataSize = CY_USBD_DMA_WORD;
         pEndp0InCpuDmaDscrConfig->srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         pEndp0InCpuDmaDscrConfig->dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -7605,7 +7709,6 @@ Cy_USB_USBD_InitEndp0InCpuDmaDscrConfig (cy_stc_usbd_dma_descr_conf_t
         pEndp0InCpuDmaDscrConfig->triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
         pEndp0InCpuDmaDscrConfig->triggerInType = CY_USBD_DMA_DESCR_CHAIN;
         pEndp0InCpuDmaDscrConfig->channelState = CY_USBD_DMA_CHN_DISABLED;
-        pEndp0InCpuDmaDscrConfig->dataPrefetch = false;
         pEndp0InCpuDmaDscrConfig->dataSize = CY_USBD_DMA_BYTE;
         pEndp0InCpuDmaDscrConfig->srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         pEndp0InCpuDmaDscrConfig->dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -7649,7 +7752,6 @@ Cy_USB_USBD_InitEndp0OutCpuDmaDscrConfig (cy_stc_usbd_dma_descr_conf_t *pEndp0Ou
         pEndp0OutdscrConfig->triggerOutType = CY_USBD_DMA_X_LOOP;     /* Trigger to be generated after each packet. */
         pEndp0OutdscrConfig->triggerInType = CY_USBD_DMA_X_LOOP;      /* Input trigger starts transfer of one packet. */
         pEndp0OutdscrConfig->channelState = CY_USBD_DMA_CHN_ENABLED;
-        pEndp0OutdscrConfig->dataPrefetch = false;
         pEndp0OutdscrConfig->dataSize = CY_USBD_DMA_WORD;             /* Transfer 4 bytes on each AHB cycle. */
         pEndp0OutdscrConfig->srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         pEndp0OutdscrConfig->dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -7669,7 +7771,6 @@ Cy_USB_USBD_InitEndp0OutCpuDmaDscrConfig (cy_stc_usbd_dma_descr_conf_t *pEndp0Ou
         pEndp0OutdscrConfig->triggerOutType = CY_USBD_DMA_DESCR_CHAIN;
         pEndp0OutdscrConfig->triggerInType = CY_USBD_DMA_DESCR_CHAIN;
         pEndp0OutdscrConfig->channelState = CY_USBD_DMA_CHN_DISABLED;
-        pEndp0OutdscrConfig->dataPrefetch = false;
         pEndp0OutdscrConfig->dataSize = CY_USBD_DMA_BYTE;
         pEndp0OutdscrConfig->srcTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
         pEndp0OutdscrConfig->dstTransferSize = CY_USBD_DMA_XFER_SIZE_DATA;
@@ -7709,6 +7810,7 @@ Cy_USB_USBD_InitCpuDmaChannelCfg (cy_stc_usbd_dma_chn_conf_t *pDmaChCfg,
                                   cy_stc_usbd_dma_descr_t *pDmaDscr)
 {
     pDmaChCfg->descriptor = pDmaDscr;
+    pDmaChCfg->preemptable = false;
     pDmaChCfg->priority = 1;
     pDmaChCfg->enable = false;
     pDmaChCfg->bufferable = false;
@@ -7738,7 +7840,12 @@ Cy_USB_USBD_cpuDmaInit (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     cy_stc_usbd_dma_chn_conf_t cpuDmaCh0InConfig;
     cy_stc_usbd_dma_chn_conf_t cpuDmaCh1OutConfig;
 
+    /* Make sure DMA blocks are enabled. */
     Cy_DMAC_Enable(pUsbdCtxt->pCpuDmacBase);
+
+    /* Repeated enable of the block is allowed and does not need to be guarded against. */
+    Cy_DMA_Enable(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt));
+    Cy_DMA_Enable(Cy_USBD_EP0In_DmaBase(pUsbdCtxt));
 
     /*
      * Prepare DMA channel for IN tranfer.  This includes prepare DMA dscr
@@ -8215,13 +8322,15 @@ Cy_USBD_ProcessMsg (void *pUsbd, void *pCalMgs)
     } else {
 
         /*
-         * If this is a control request, ensure that STALL on EP0 is cleared
-         * immediately and that L1 entry is disallowed till request has been
+         * If this is a control request and there is no ongoing EP0-IN data transfer, ensure that
+         * STALL on EP0 is cleared immediately and that L1 entry is disallowed till request has been
          * handled.
          */
         if (pMsg->type == CY_USB_CAL_MSG_SUDAV) {
-            Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, CY_USB_ENDP_0,
-                                          CY_USB_ENDP_DIR_IN, CY_USB_CLEAR);
+            if (Cy_USBD_DMAChn_IsEnabled(Cy_USBD_EP0In_DmaBase(pUsbdCtxt), pUsbdCtxt->channel0) == false) {
+                Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, CY_USB_ENDP_0,
+                        CY_USB_ENDP_DIR_IN, CY_USB_CLEAR);
+            }
         }
 
         /* When a new control request is received, make sure that USB ingress/egress sockets
@@ -8472,6 +8581,63 @@ Cy_USBD_GetUSBLinkActive (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
 }   /* End of function   */
 
 
+
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetUSBPowerState
+****************************************************************************//**
+*
+* This function returns the current USB power state (U0/U1/U2 for USB3 and
+* L0/SUSPEND for USB2) of the device.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \return
+* Current USB power state of the device.
+*******************************************************************************/
+
+cy_en_usbd_usb_powerstate_t
+Cy_USBD_GetUSBPowerState(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
+{
+    if (!pUsbdCtxt)
+    {
+        return CY_USBD_STATE_UNKNOWN;
+    }
+
+    if (pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_HS)
+    {
+        cy_en_usbss_lnk_power_mode_t ssPowerState;
+
+        if (Cy_USBSS_Cal_GetLinkPowerState(pUsbdCtxt->pSsCalCtxt, &ssPowerState)
+                != CY_USB_CAL_STATUS_SUCCESS)
+        {
+            return CY_USBD_STATE_UNKNOWN;
+        }
+
+        return cy_usbd_sscal_powerstate_map[ssPowerState];
+    }
+
+    if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_FS)
+    {
+        if (Cy_USBHS_Cal_IsLinkActive(pUsbdCtxt->pCalCtxt))
+        {
+            return CY_USBD_USBHS_LINK_ACTIVE;
+        }
+
+        switch (pUsbdCtxt->devState)
+        {
+            case CY_USB_DEVICE_STATE_HS_L1:
+                return CY_USBD_USBHS_LINK_L1;
+            case CY_USB_DEVICE_STATE_SUSPEND:
+                return CY_USBD_USBHS_LINK_SUSPEND;
+            default:
+                return CY_USBD_STATE_UNKNOWN;
+        }
+    }
+    return CY_USBD_STATE_UNKNOWN;
+}   /* End of function   */
+
 /*******************************************************************************
 * Function name: Cy_USBD_LpmDisable
 ****************************************************************************//**
@@ -8616,7 +8782,7 @@ Cy_USB_USBD_RetireRecvEndp0DataHs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     Cy_USBD_FlushEndp(pUsbdCtxt, 0x00, CY_USB_ENDP_DIR_OUT);
 
     /* Clear pending DMA interrupts and status variables. */
-    Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt), pUsbdCtxt->channel1, CY_DMAC_INTR_MASK);
+    Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt), pUsbdCtxt->channel1, CY_USBD_DMA_INTR_MASK);
     pUsbdCtxt->pEp0ReceiveBuffer = NULL;
     pUsbdCtxt->ep0ExpRcvSize = 0;
     return;
@@ -8896,6 +9062,7 @@ Cy_USBD_EP0OutDma_IntrHandler (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
         /* Clear pending interrupts on the DMA channel. */
         dmaIntr = Cy_USBD_DMAChn_GetIntrStatus(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt), pUsbdCtxt->channel1);
         Cy_USBD_DMAChn_ClearIntr(Cy_USBD_EP0Out_DmaBase(pUsbdCtxt), pUsbdCtxt->channel1, dmaIntr);
+        (void)dmaIntr;
 
         /* Notify the application about the DMA transfer completion. */
         if ((pUsbdCtxt->ep0RecvCb != NULL) && (pUsbdCtxt->pEp0ReceiveBuffer != NULL)) {
@@ -9114,9 +9281,290 @@ bool Cy_USBD_ControlUsb2Support (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     }
 }
 
+/*******************************************************************************
+* Function name: Cy_USBD_PrepareUsbHsForDeepSleep
+****************************************************************************//**
+* Saves IN endpoint EPM data and DMA state before deep sleep. EPM data is lost
+* during deep sleep and must be restored on wake-up.
+*
+* For each IN endpoint with an active DMA transfer:
+* 1. If data is partially transferred to EPM: saves the remaining buffer address
+*    and size for resume after wake-up.
+* 2. If data is in EPM but not from an active DMA: returns failure (cannot locate
+*    source buffer for restoration).
+*
+* Must be paired with Cy_USBD_RestoreUsbHsAfterDeepSleep() after wake-up.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \param pCpuDw1Base
+* CPU DW1 base address for IN endpoint DMA transfers.
+*
+* \return
+* true if preparation successful, false otherwise.
+*******************************************************************************/
+
+static bool Cy_USBD_PrepareUsbHsForDeepSleep (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, DW_Type *pCpuDw1Base)
+{
+    cy_stc_hbdma_channel_t *pChannel;
+    uint32_t epNumber;
+    uint32_t dbgEp, t1;
+    bool allowSleep = true;
+
+    if((!pUsbdCtxt) || (!pCpuDw1Base))
+    {
+        return false;
+    }
+
+    /* Block all further data transfer by setting NAKALL bit. */
+    Cy_USB_USBD_EndpSetClearNakNrdyAll(pUsbdCtxt, true);
+
+    for (epNumber = 1; epNumber < CY_USB_MAX_ENDP_NUMBER; epNumber++) {
+        gl_EgressEpState[epNumber].pDataBuf = NULL;
+        gl_EgressEpState[epNumber].dataSize = 0;
+
+        /* Locate the channel corresponding to the endpoint. */
+        pChannel = pUsbdCtxt->pHBDmaMgr->sckChannelMap[CY_HBDMA_MGR_USBHS_IN_ADAPTER_ID][epNumber];
+        if (pChannel == NULL) {
+            continue;
+        }
+
+        dbgEp = MXS40USBHSDEV_USBHSDEV->EEPM_DEBUG_ENDPOINT[epNumber];
+
+        /* Check whether we have an ongoing data transfer into the endpoint. */
+        if (pChannel->egressDWRqtQueued[0]) {
+            /* Calculate how much data is left in the DMA transfer. */
+            if (Cy_DMA_Channel_GetCurrentDescriptor(pCpuDw1Base, epNumber) ==
+                    CY_USBHS_INEP_GET_DW_DESC(pChannel, 0)) {
+                /* 2D descriptor not complete. Find out how many packets have been completed. */
+                t1 = Cy_DMA_Channel_GetCurrentYIndex(pCpuDw1Base, epNumber);
+
+                if ((t1 == 0) && ((dbgEp & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk) != 0)) {
+                    /* There is no option to restore the data that is currently sitting in EPM.
+                     * Block deep sleep entry.
+                     */
+                    DBG_USBD_TRACE("EP %d busy: %x %x\r\n", epNumber, t1, dbgEp);
+                    allowSleep = false;
+                    break;
+                }
+
+                t1 -= (dbgEp & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk);
+            } else {
+                if (pChannel->curEgressXferSize[0] <= pChannel->epMaxPktSize) {
+                    if ((dbgEp & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk)!= 0) {
+                        DBG_USBD_TRACE("EP %d busy: %x\r\n", epNumber, dbgEp);
+                        allowSleep = false;
+                        break;
+                    } else {
+                        t1 = 0;
+                    }
+                } else {
+                    t1 = Cy_DMA_Descriptor_GetYloopDataCount(CY_USBHS_INEP_GET_DW_DESC(pChannel, 0));
+                    t1 -= (dbgEp & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk);
+                }
+            }
+
+            gl_EgressEpState[epNumber].pDataBuf = pChannel->pCurEgressDataBuf[0] + t1 * pChannel->epMaxPktSize;
+            gl_EgressEpState[epNumber].dataSize = pChannel->curEgressXferSize[0] - t1 * pChannel->epMaxPktSize;
+        } else {
+            /* No ongoing transfer into the endpoint. Check if the EPM has data sitting there. */
+            if ((dbgEp & USBHSDEV_EEPM_DEBUG_ENDPOINT_EGRS_P_REQUESTS_Msk) != 0) {
+                DBG_USBD_TRACE("EP %d busy: %x\r\n", epNumber, dbgEp);
+                allowSleep = false;
+                break;
+            }
+        }
+    }
+
+    if (allowSleep) {
+        for (epNumber = 1; epNumber < CY_USB_MAX_ENDP_NUMBER; epNumber++) {
+            /* Disable the DMA channels. */
+            Cy_DMA_Channel_Disable(pCpuDw1Base, epNumber);
+        }
+
+        /* Flush the egress EPM. */
+        Cy_USBD_FlushEndpAll(pUsbdCtxt, CY_USB_ENDP_DIR_IN);
+    } else {
+        /* Clear the NAKALL bit. */
+        Cy_USB_USBD_EndpSetClearNakNrdyAll(pUsbdCtxt, false);
+    }
+
+    return allowSleep;
+}
+
+/*******************************************************************************
+* Function name: Cy_USBD_RestoreUsbHsPreSleepState
+****************************************************************************//**
+* Restores IN endpoint DMA state after waking from deep sleep. Re-queues any
+* pending DMA transfers that were saved by Cy_USBD_PrepareUsbHsForDeepSleep().
+*
+* For each IN endpoint:
+* - Resets DMA trigger state
+* - Re-queues any saved partial transfers
+* - Clears NAKALL bit to resume USB communication
+*
+* Also resets EP0 trigger state to handle control transfers correctly.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \note Called after Cy_USBD_PrepareUsbHsForDeepSleep() and deep sleep wake-up
+*******************************************************************************/
+static void Cy_USBD_RestoreUsbHsPreSleepState(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
+{
+    cy_stc_hbdma_channel_t *pChannel;
+    uint32_t epNumber;
+
+    if(!pUsbdCtxt)
+    {
+        return;
+    }
+
+    /* Trigger needs to be given for the next EP0-IN request. */
+    pUsbdCtxt->ep0SendDone = false;
+
+    for (epNumber = 1; epNumber < CY_USB_MAX_ENDP_NUMBER; epNumber++) {
+        /* Locate the channel corresponding to the endpoint. */
+        pChannel = pUsbdCtxt->pHBDmaMgr->sckChannelMap[CY_HBDMA_MGR_USBHS_IN_ADAPTER_ID][epNumber];
+
+        if (pChannel == NULL)
+            continue;
+
+        pChannel->egressDWTrigDone[0]  = false;
+
+        if (gl_EgressEpState[epNumber].pDataBuf != NULL) {
+           DBG_USBD_TRACE("Requeue: ep=%d size=%x\r\n", epNumber, gl_EgressEpState[epNumber].dataSize);
+
+            pChannel->egressDWRqtQueued[0] = false;
+            Cy_HBDma_DW_QueueWrite(pChannel, 0,
+                    gl_EgressEpState[epNumber].pDataBuf, gl_EgressEpState[epNumber].dataSize);
+
+            gl_EgressEpState[epNumber].pDataBuf = NULL;
+            gl_EgressEpState[epNumber].dataSize = 0;
+        }
+    }
+
+    /* Clear the NAKALL bit after all state is restored. */
+    Cy_USB_USBD_EndpSetClearNakNrdyAll(pUsbdCtxt, false);
+}
+
+/********************************************************************************
+* Function name: Cy_USBD_EnterDeepsleep
+****************************************************************************//**
+*
+* Prepares the USB device for deep sleep entry, enters deep sleep mode, and
+* restores USB state upon wake-up.
+*
+* The function performs the following steps:
+* 1. Validates USB link is in suspend state (L2 for HS or U3 for SS)
+* 2. Saves endpoint DMA state (HS) or prepares PHY (SS)
+* 3. Deinitializes the USB PLL
+* 4. Enters deep sleep until an interrupt occurs
+* 5. Reinitializes the USB PLL after wake-up
+* 6. Restores saved USB state
+*
+* \param pUsbdCtxt
+* Pointer to the USBD context structure. Must not be NULL.
+*
+* \param pCpuDw1Base
+* Pointer to the CPU DW1 (DataWire) base address used for IN endpoint DMA
+* transfers. Required for USB HS mode. Must not be NULL.
+*
+* \return
+* - CY_USBD_STATUS_SUCCESS: Deep sleep entry and wake-up successful
+* - CY_USBD_STATUS_CTXT_NULL: Invalid NULL pointer parameter
+* - CY_USBD_STATUS_FAILURE: USB not in suspend state or preparation failed
+* - CY_USBD_STATUS_TIMEOUT: PLL initialization timeout after wake-up
+*
+*******************************************************************************/
+
+cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        DW_Type *pCpuDw1Base)
+{
+    uint32_t intMask;
+    cy_en_usbd_usb_powerstate_t usbPowerState = CY_USBD_STATE_UNKNOWN;
+    cy_en_usbd_ret_code_t retCode = CY_USBD_STATUS_FAILURE;
+
+    if((!pUsbdCtxt) || (!pCpuDw1Base))
+    {
+        return CY_USBD_STATUS_CTXT_NULL;
+    }
+
+    usbPowerState = Cy_USBD_GetUSBPowerState(pUsbdCtxt);
+    if((usbPowerState != CY_USBD_USBHS_LINK_SUSPEND) && (usbPowerState != CY_USBD_USBSS_LINK_U3))
+    {
+        return CY_USBD_STATUS_FAILURE;
+    }
+
+
+    if(pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_HS)
+    {
+        if (!Cy_USBSS_Cal_DeepSleepPrep(pUsbdCtxt->pSsCalCtxt))
+        {
+            return CY_USBD_STATUS_FAILURE;
+        }
+    }
+    else
+    {
+        if(!Cy_USBD_PrepareUsbHsForDeepSleep(pUsbdCtxt, pCpuDw1Base))
+        {
+            return CY_USBD_STATUS_FAILURE;
+        }
+    }
+
+    intMask = Cy_SysLib_EnterCriticalSection();
+    Cy_USBHS_Cal_DeinitPLL(pUsbdCtxt->pCalCtxt);
+    retCode = Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+    if (Cy_USBHS_Cal_InitPLL(pUsbdCtxt->pCalCtxt) == CY_USB_CAL_STATUS_TIMEOUT)
+    {
+        retCode = CY_USBD_STATUS_TIMEOUT;
+    }
+
+    if(pUsbdCtxt->devSpeed <= CY_USBD_USB_DEV_HS)
+    {
+        Cy_USBD_RestoreUsbHsPreSleepState(pUsbdCtxt);
+    }
+    Cy_SysLib_ExitCriticalSection(intMask);
+    return retCode;
+}
+
+
+/*******************************************************************************
+* Function name: Cy_USBD_SelectHSCtleConfig
+****************************************************************************//**
+*
+* Selects the HS CTLE configuration for USB 2.x operation. Call this API
+* before enabling the USB connection to override the stack default
+* (CY_USBHS_CTLE_SEL_5). Refer to cy_en_hs_ctle_sel_t for available options.
+*
+* \param pUsbdCtxt USB Stack context structure.
+* \param ctleSel Desired HS CTLE configuration selection.
+*
+* \return
+* CY_USBD_STATUS_SUCCESS: CTLE configuration selection registered successfully.
+* CY_USBD_STATUS_CTXT_NULL: Invalid NULL pointer parameter.
+* CY_USBD_STATUS_FAILURE: ctleSel out of range or lower-layer error.
+*******************************************************************************/
+cy_en_usbd_ret_code_t
+Cy_USBD_SelectHSCtleConfig (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        cy_en_hs_ctle_sel_t ctleSel)
+{
+    if ((pUsbdCtxt == NULL) || (pUsbdCtxt->pCalCtxt == NULL)) {
+        return CY_USBD_STATUS_CTXT_NULL;
+    }
+    if ((uint32_t)ctleSel > CY_USBHS_CTLE_SEL_7) {
+        return CY_USBD_STATUS_FAILURE;
+    }
+    pUsbdCtxt->hsCtleSel = ctleSel;
+    if (Cy_USBHS_Cal_SetCtleSelValue(pUsbdCtxt->pCalCtxt, pUsbdCtxt->hsCtleSel) != CY_USB_CAL_STATUS_SUCCESS) {
+        return CY_USBD_STATUS_FAILURE;
+    }
+    return CY_USBD_STATUS_SUCCESS;
+}
+
 #if defined(__cplusplus)
 }
 #endif
 
 /* End of file */
-

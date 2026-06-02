@@ -314,6 +314,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5b79af95768ea0662caab9e773f3bc41"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41">Cy_LVDS_ThreadDisable</a> (LVDSSS_LVDS_Type *base, uint8_t threadIndex)</td></tr>
 <tr class="memdesc:ga5b79af95768ea0662caab9e773f3bc41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable the specified LVDS data thread.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41">More...</a><br /></td></tr>
 <tr class="separator:ga5b79af95768ea0662caab9e773f3bc41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafc835c40a1435cc71e56fc1d6fa7f650"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gafc835c40a1435cc71e56fc1d6fa7f650">Cy_LVDS_ConfigureCtrlOutPin</a> (LVDSSS_LVDS_Type *base, uint8_t portNo, uint8_t ctrlNo, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga40476e04823de9860eb7a986b0c9c66b">cy_en_lvds_phy_ctrl_bus_out_signal_t</a> outputSelect, bool isActiveLow)</td></tr>
+<tr class="memdesc:gafc835c40a1435cc71e56fc1d6fa7f650"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to select the signal and polarity of the output signal driven on an LVCMOS control pin.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gafc835c40a1435cc71e56fc1d6fa7f650">More...</a><br /></td></tr>
+<tr class="separator:gafc835c40a1435cc71e56fc1d6fa7f650"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc">Cy_LVDS_PllBypassControl</a> (bool pllBypassEnable)</td></tr>
 <tr class="memdesc:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="mdescLeft">&#160;</td><td class="mdescRight">In LVDS mode of operation, a PLL is used to generate a clean version of the interface clock input received.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc">More...</a><br /></td></tr>
 <tr class="separator:ga9fdd7552f8e3e7a714befbe5793d7adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -326,6 +329,45 @@ Functions</h2></td></tr>
 <tr class="memitem:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4">Cy_LVDS_CustomTraining_Task</a> (<a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *pDrvCtxt)</td></tr>
 <tr class="memdesc:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which updates states related LVDS custom training sequence.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4">More...</a><br /></td></tr>
 <tr class="separator:ga96eabf104faacf38cb2d47b85c4dd5f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga13aeb235b91d730ea8898b7e6fb3ed39"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga13aeb235b91d730ea8898b7e6fb3ed39">Cy_LVDS_CustomTraining_QueryResults</a> (<a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *pDrvCtxt, uint8_t portNo, uint8_t **pOptimalPhase, uint8_t **pWindowSize)</td></tr>
+<tr class="memdesc:ga13aeb235b91d730ea8898b7e6fb3ed39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to query the results of the LVDS custom training where available.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga13aeb235b91d730ea8898b7e6fb3ed39">More...</a><br /></td></tr>
+<tr class="separator:ga13aeb235b91d730ea8898b7e6fb3ed39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6ccfcd370b5c7d6beb810ec94860fad9"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga6ccfcd370b5c7d6beb810ec94860fad9">Cy_LVDS_SetWakeupInterruptMask</a> (LVDSSS_LVDS_Type *base, uint32_t interruptMask)</td></tr>
+<tr class="memdesc:ga6ccfcd370b5c7d6beb810ec94860fad9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set additional bits in the global LVDS wakeup interrupt mask.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga6ccfcd370b5c7d6beb810ec94860fad9">More...</a><br /></td></tr>
+<tr class="separator:ga6ccfcd370b5c7d6beb810ec94860fad9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa6e68c63d621917a36c119bd13cadd5d"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa6e68c63d621917a36c119bd13cadd5d">Cy_LVDS_GetWakeupInterruptMask</a> (LVDSSS_LVDS_Type *base)</td></tr>
+<tr class="memdesc:gaa6e68c63d621917a36c119bd13cadd5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the mask bits set in LVDS wakeup interrupt.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa6e68c63d621917a36c119bd13cadd5d">More...</a><br /></td></tr>
+<tr class="separator:gaa6e68c63d621917a36c119bd13cadd5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga00c82eb9c27b3fd35b5c5f848d5abf03"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga00c82eb9c27b3fd35b5c5f848d5abf03">Cy_LVDS_GetWakeupInterruptStatusMasked</a> (LVDSSS_LVDS_Type *base)</td></tr>
+<tr class="memdesc:ga00c82eb9c27b3fd35b5c5f848d5abf03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get LVDS Wakeup interrupt masked value.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga00c82eb9c27b3fd35b5c5f848d5abf03">More...</a><br /></td></tr>
+<tr class="separator:ga00c82eb9c27b3fd35b5c5f848d5abf03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga15dd972fc8bcba2bea6ba433b4d9fbb3"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga15dd972fc8bcba2bea6ba433b4d9fbb3">Cy_LVDS_GetWakeupInterruptStatus</a> (LVDSSS_LVDS_Type *base)</td></tr>
+<tr class="memdesc:ga15dd972fc8bcba2bea6ba433b4d9fbb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of wakeup interrupt register.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga15dd972fc8bcba2bea6ba433b4d9fbb3">More...</a><br /></td></tr>
+<tr class="separator:ga15dd972fc8bcba2bea6ba433b4d9fbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga09f82de55cb48d38aef3954261ebc460"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga09f82de55cb48d38aef3954261ebc460">Cy_LVDS_ClearWakeupInterrupt</a> (LVDSSS_LVDS_Type *base, uint32_t interrupt)</td></tr>
+<tr class="memdesc:ga09f82de55cb48d38aef3954261ebc460"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the wakeup interrupt register.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga09f82de55cb48d38aef3954261ebc460">More...</a><br /></td></tr>
+<tr class="separator:ga09f82de55cb48d38aef3954261ebc460"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga779405c1c1a17e685066855c0fabd10b"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga779405c1c1a17e685066855c0fabd10b">Cy_LVDS_SetWakeupInterrupt</a> (LVDSSS_LVDS_Type *base, uint32_t interrupt)</td></tr>
+<tr class="memdesc:ga779405c1c1a17e685066855c0fabd10b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the wakeup interrupt register.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga779405c1c1a17e685066855c0fabd10b">More...</a><br /></td></tr>
+<tr class="separator:ga779405c1c1a17e685066855c0fabd10b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0bbcd49c0444b1dd289644f97c58a215"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga0bbcd49c0444b1dd289644f97c58a215">Cy_LVDS_AllowL1Entry</a> (LVDSSS_LVDS_Type *base, uint8_t port)</td></tr>
+<tr class="memdesc:ga0bbcd49c0444b1dd289644f97c58a215"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allow support for L2 low power state on the specified port.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga0bbcd49c0444b1dd289644f97c58a215">More...</a><br /></td></tr>
+<tr class="separator:ga0bbcd49c0444b1dd289644f97c58a215"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab1c30d4ac9459b415483a39b2d4a31df"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gab1c30d4ac9459b415483a39b2d4a31df">Cy_LVDS_DisableL1Entry</a> (LVDSSS_LVDS_Type *base, uint8_t port)</td></tr>
+<tr class="memdesc:gab1c30d4ac9459b415483a39b2d4a31df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable support for L1 low power state on the specified port.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gab1c30d4ac9459b415483a39b2d4a31df">More...</a><br /></td></tr>
+<tr class="separator:gab1c30d4ac9459b415483a39b2d4a31df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa81077ea5e1e724de6ebf73cd8ed347b"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa81077ea5e1e724de6ebf73cd8ed347b">Cy_LVDS_AllowL3Entry</a> (LVDSSS_LVDS_Type *base, uint8_t port)</td></tr>
+<tr class="memdesc:gaa81077ea5e1e724de6ebf73cd8ed347b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allow support for L3 low power state on the specified port.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa81077ea5e1e724de6ebf73cd8ed347b">More...</a><br /></td></tr>
+<tr class="separator:gaa81077ea5e1e724de6ebf73cd8ed347b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf6c10667fc6caa0318bc97e884952fac"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaf6c10667fc6caa0318bc97e884952fac">Cy_LVDS_DisableL3Entry</a> (LVDSSS_LVDS_Type *base, uint8_t port)</td></tr>
+<tr class="memdesc:gaf6c10667fc6caa0318bc97e884952fac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable support for L3 low power state on the specified port.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaf6c10667fc6caa0318bc97e884952fac">More...</a><br /></td></tr>
+<tr class="separator:gaf6c10667fc6caa0318bc97e884952fac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa33ec9fe2b5e24c4848a22dd450db182"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa33ec9fe2b5e24c4848a22dd450db182">Cy_LVDS_IsWidelinkModeActive</a> (LVDSSS_LVDS_Type *base, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *lvdsContext)</td></tr>
+<tr class="memdesc:gaa33ec9fe2b5e24c4848a22dd450db182"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the link is configured in wide link mode, false otherwise.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaa33ec9fe2b5e24c4848a22dd450db182">More...</a><br /></td></tr>
+<tr class="separator:gaa33ec9fe2b5e24c4848a22dd450db182"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabff1a0849501099ee17ca7c87cb4688e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga916515235573de86f9f3e6ac8ee21dd5">cy_en_lvds_link_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gabff1a0849501099ee17ca7c87cb4688e">Cy_LVDS_GetLinkState</a> (LVDSSS_LVDS_Type *base, uint8_t sipNo)</td></tr>
+<tr class="memdesc:gabff1a0849501099ee17ca7c87cb4688e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current link state of the specified Sensor Interface Port.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gabff1a0849501099ee17ca7c87cb4688e">More...</a><br /></td></tr>
+<tr class="separator:gabff1a0849501099ee17ca7c87cb4688e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga61948472300f47cafbe3dff11508da0b" name="ga61948472300f47cafbe3dff11508da0b"></a>
@@ -3640,6 +3682,65 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gafc835c40a1435cc71e56fc1d6fa7f650" name="gafc835c40a1435cc71e56fc1d6fa7f650"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafc835c40a1435cc71e56fc1d6fa7f650">&#9670;&nbsp;</a></span>Cy_LVDS_ConfigureCtrlOutPin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_ConfigureCtrlOutPin </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>portNo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>ctrlNo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga40476e04823de9860eb7a986b0c9c66b">cy_en_lvds_phy_ctrl_bus_out_signal_t</a>&#160;</td>
+          <td class="paramname"><em>outputSelect</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isActiveLow</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to select the signal and polarity of the output signal driven on an LVCMOS control pin. </p>
+<p >This function is expected to be called after the LVDS and GPIF blocks have been initialized using Cy_LVDS_Init_Ext or Cy_LVDS_Init.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">portNo</td><td>Sensor interface port number</td></tr>
+    <tr><td class="paramname">ctrlNo</td><td>Control signal number</td></tr>
+    <tr><td class="paramname">outputSelect</td><td>Type of output to be driven on the selected pin</td></tr>
+    <tr><td class="paramname">isActiveLow</td><td>Whether signal should be configured as active low output </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ga9fdd7552f8e3e7a714befbe5793d7adc" name="ga9fdd7552f8e3e7a714befbe5793d7adc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9fdd7552f8e3e7a714befbe5793d7adc">&#9670;&nbsp;</a></span>Cy_LVDS_PllBypassControl()</h2>
 
@@ -3771,6 +3872,456 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the training task is yet to be completed, false if task is complete. </dd></dl>
+
+</div>
+</div>
+<a id="ga13aeb235b91d730ea8898b7e6fb3ed39" name="ga13aeb235b91d730ea8898b7e6fb3ed39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga13aeb235b91d730ea8898b7e6fb3ed39">&#9670;&nbsp;</a></span>Cy_LVDS_CustomTraining_QueryResults()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_LVDS_CustomTraining_QueryResults </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDrvCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>portNo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t **&#160;</td>
+          <td class="paramname"><em>pOptimalPhase</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t **&#160;</td>
+          <td class="paramname"><em>pWindowSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to query the results of the LVDS custom training where available. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDrvCtxt</td><td>Pointer to LVDS driver context structure. </td></tr>
+    <tr><td class="paramname">portNo</td><td>LVDS port number </td></tr>
+    <tr><td class="paramname">pOptimalPhase</td><td>Return parameter to be filled with array of optimal phase information </td></tr>
+    <tr><td class="paramname">pWindowSize</td><td>Return parameter to be filled with array of passing delay windows.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the training results are being returned, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga6ccfcd370b5c7d6beb810ec94860fad9" name="ga6ccfcd370b5c7d6beb810ec94860fad9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6ccfcd370b5c7d6beb810ec94860fad9">&#9670;&nbsp;</a></span>Cy_LVDS_SetWakeupInterruptMask()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_SetWakeupInterruptMask </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>interruptMask</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set additional bits in the global LVDS wakeup interrupt mask. </p>
+<p >This does not clear any interrupt mask bits which are already set.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">interruptMask</td><td>The value determines which status changes will cause an interrupt. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gaa6e68c63d621917a36c119bd13cadd5d" name="gaa6e68c63d621917a36c119bd13cadd5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa6e68c63d621917a36c119bd13cadd5d">&#9670;&nbsp;</a></span>Cy_LVDS_GetWakeupInterruptMask()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptMask </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the mask bits set in LVDS wakeup interrupt. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga00c82eb9c27b3fd35b5c5f848d5abf03" name="ga00c82eb9c27b3fd35b5c5f848d5abf03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga00c82eb9c27b3fd35b5c5f848d5abf03">&#9670;&nbsp;</a></span>Cy_LVDS_GetWakeupInterruptStatusMasked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptStatusMasked </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get LVDS Wakeup interrupt masked value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The bit fields set indicate which interrupts are raised to the CPU. </dd></dl>
+
+</div>
+</div>
+<a id="ga15dd972fc8bcba2bea6ba433b4d9fbb3" name="ga15dd972fc8bcba2bea6ba433b4d9fbb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga15dd972fc8bcba2bea6ba433b4d9fbb3">&#9670;&nbsp;</a></span>Cy_LVDS_GetWakeupInterruptStatus()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE uint32_t Cy_LVDS_GetWakeupInterruptStatus </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the value of wakeup interrupt register. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Value of interrupt status register. </dd></dl>
+
+</div>
+</div>
+<a id="ga09f82de55cb48d38aef3954261ebc460" name="ga09f82de55cb48d38aef3954261ebc460"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga09f82de55cb48d38aef3954261ebc460">&#9670;&nbsp;</a></span>Cy_LVDS_ClearWakeupInterrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_ClearWakeupInterrupt </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>interrupt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears the wakeup interrupt register. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">interrupt</td><td>The bitmask of statuses to clear. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga779405c1c1a17e685066855c0fabd10b" name="ga779405c1c1a17e685066855c0fabd10b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga779405c1c1a17e685066855c0fabd10b">&#9670;&nbsp;</a></span>Cy_LVDS_SetWakeupInterrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_SetWakeupInterrupt </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>interrupt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the wakeup interrupt register. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">interrupt</td><td>Bit mask value of the register fields which needs to be set. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga0bbcd49c0444b1dd289644f97c58a215" name="ga0bbcd49c0444b1dd289644f97c58a215"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0bbcd49c0444b1dd289644f97c58a215">&#9670;&nbsp;</a></span>Cy_LVDS_AllowL1Entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_AllowL1Entry </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allow support for L2 low power state on the specified port. </p>
+<p >/param base Pointer to the LVDS register base address</p>
+<p >/param port Index of the port number (0 or 1) </p>
+
+</div>
+</div>
+<a id="gab1c30d4ac9459b415483a39b2d4a31df" name="gab1c30d4ac9459b415483a39b2d4a31df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab1c30d4ac9459b415483a39b2d4a31df">&#9670;&nbsp;</a></span>Cy_LVDS_DisableL1Entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_DisableL1Entry </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Disable support for L1 low power state on the specified port. </p>
+<p >Hardware prevents entry to L1 state even if FPGA requests entry using L1ENTER control byte.</p>
+<p >/param base Pointer to the LVDS register base address</p>
+<p >/param port Index of the port number (0 or 1) </p>
+
+</div>
+</div>
+<a id="gaa81077ea5e1e724de6ebf73cd8ed347b" name="gaa81077ea5e1e724de6ebf73cd8ed347b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa81077ea5e1e724de6ebf73cd8ed347b">&#9670;&nbsp;</a></span>Cy_LVDS_AllowL3Entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_AllowL3Entry </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allow support for L3 low power state on the specified port. </p>
+<p >/param base Pointer to the LVDS register base address</p>
+<p >/param port Index of the port number (0 or 1) </p>
+
+</div>
+</div>
+<a id="gaf6c10667fc6caa0318bc97e884952fac" name="gaf6c10667fc6caa0318bc97e884952fac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf6c10667fc6caa0318bc97e884952fac">&#9670;&nbsp;</a></span>Cy_LVDS_DisableL3Entry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_INLINE void Cy_LVDS_DisableL3Entry </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Disable support for L3 low power state on the specified port. </p>
+<p >Hardware prevents entry to L3 state even if FPGA requests entry using L3 ENTRY Control pin (default P0CTL3).</p>
+<p >/param base Pointer to the LVDS register base address</p>
+<p >/param port Index of the port number (0 or 1) </p>
+
+</div>
+</div>
+<a id="gaa33ec9fe2b5e24c4848a22dd450db182" name="gaa33ec9fe2b5e24c4848a22dd450db182"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa33ec9fe2b5e24c4848a22dd450db182">&#9670;&nbsp;</a></span>Cy_LVDS_IsWidelinkModeActive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_LVDS_IsWidelinkModeActive </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *&#160;</td>
+          <td class="paramname"><em>lvdsContext</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns true if the link is configured in wide link mode, false otherwise. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">lvdsContext</td><td>Pointer to the LVDS context structure</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the device is in Widelink mode, false if device is in Narrowlink mode </dd></dl>
+
+</div>
+</div>
+<a id="gabff1a0849501099ee17ca7c87cb4688e" name="gabff1a0849501099ee17ca7c87cb4688e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabff1a0849501099ee17ca7c87cb4688e">&#9670;&nbsp;</a></span>Cy_LVDS_GetLinkState()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#ga916515235573de86f9f3e6ac8ee21dd5">cy_en_lvds_link_state_t</a> Cy_LVDS_GetLinkState </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>sipNo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the current link state of the specified Sensor Interface Port. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address</td></tr>
+    <tr><td class="paramname">sipNo</td><td>Sensor Interface Port number </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Current link state of the specified Sensor Interface Port. </dd></dl>
 
 </div>
 </div>

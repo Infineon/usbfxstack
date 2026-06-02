@@ -195,9 +195,6 @@ Cy_HBDma_Init (
  *
  * \param pContext
  * Pointer to the HBDma driver context structure.
- *
- * \return
- * void
  *******************************************************************************/
 void
 Cy_HBDma_DeInit (
@@ -250,6 +247,102 @@ Cy_HBDma_DeInit (
 }
 
 /*******************************************************************************
+ * Function name: Cy_HBDma_Reset
+ ****************************************************************************//**
+ *
+ * Reset all High BandWidth DMA adapters by de-initializing and re-initializing
+ * them. This step is required when the application is disabling and re-enabling
+ * any of the core blocks (USBSS or LVDS).
+ *
+ * \param pContext
+ * Pointer to the HBDma driver context structure.
+ * \param usbReset
+ * Whether to reset the USB DMA adapters.
+ * \param lvds0Reset
+ * Whether to reset the LVDS Port-0 DMA adapter.
+ * \param lvds1Reset
+ * Whether to reset the LVDS Port-1 DMA adapter.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Reset (
+        cy_stc_hbdma_context_t *pContext,
+        bool usbReset,
+        bool lvds0Reset,
+        bool lvds1Reset)
+{
+    uint32_t sckIndex;
+    uint32_t ad0_ctrl, ad0_conf;
+    uint32_t ad1_ctrl, ad1_conf;
+
+    if (pContext != NULL) {
+
+        if ((usbReset) && (pContext->usb3Enabled)) {
+            /* Save the adapter control and configuration register values. */
+            ad0_ctrl = pContext->USBIN_SCK_GBL->ADAPTER_CTRL;
+            ad0_conf = pContext->USBIN_SCK_GBL->ADAPTER_CONF;
+            ad1_ctrl = pContext->USBEG_SCK_GBL->ADAPTER_CTRL;
+            ad1_conf = pContext->USBEG_SCK_GBL->ADAPTER_CONF;
+
+            /* Run through all the sockets in the USB block and disable them. */
+            for (sckIndex = 0; sckIndex < CY_HBDMA_SOCK_PER_ADAPTER; sckIndex++) {
+                pContext->USBIN_SCK[sckIndex].SCK_STATUS &= ~USB32DEV_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk;
+                pContext->USBEG_SCK[sckIndex].SCK_STATUS &= ~USB32DEV_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk;
+            }
+
+            /* Disable the DMA adapters. */
+            pContext->USBIN_SCK_GBL->ADAPTER_CTRL = 0;
+            pContext->USBEG_SCK_GBL->ADAPTER_CTRL = 0;
+            Cy_SysLib_DelayUs(100);
+
+            /* Re-enable the DMA adapters. */
+            pContext->USBIN_SCK_GBL->ADAPTER_CTRL = ad0_ctrl;
+            pContext->USBEG_SCK_GBL->ADAPTER_CTRL = ad1_ctrl;
+            pContext->USBIN_SCK_GBL->ADAPTER_CONF = ad0_conf;
+            pContext->USBEG_SCK_GBL->ADAPTER_CONF = ad1_conf;
+        }
+
+        if ((lvds0Reset) && (pContext->lvdsEnabled)) {
+            /* Save the adapter control and configuration register values. */
+            ad0_ctrl = pContext->LVDSAD0_SCK_GBL->ADAPTER_CTRL;
+            ad0_conf = pContext->LVDSAD0_SCK_GBL->ADAPTER_CONF;
+
+            /* Run through all the sockets in the LVDS block and disable them. */
+            for (sckIndex = 0; sckIndex < CY_HBDMA_SOCK_PER_ADAPTER; sckIndex++) {
+                pContext->LVDSAD0_SCK[sckIndex].SCK_STATUS &= ~LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk;
+            }
+
+            /* Disable the DMA adapters. */
+            pContext->LVDSAD0_SCK_GBL->ADAPTER_CTRL = 0;
+            Cy_SysLib_DelayUs(100);
+
+            /* Re-enable the DMA adapters. */
+            pContext->LVDSAD0_SCK_GBL->ADAPTER_CTRL = ad0_ctrl;
+            pContext->LVDSAD0_SCK_GBL->ADAPTER_CONF = ad0_conf;
+        }
+
+        if ((lvds1Reset) && (pContext->lvdsEnabled)) {
+            /* Save the adapter control and configuration register values. */
+            ad1_ctrl = pContext->LVDSAD1_SCK_GBL->ADAPTER_CTRL;
+            ad1_conf = pContext->LVDSAD1_SCK_GBL->ADAPTER_CONF;
+
+            /* Run through all the sockets in the LVDS block and disable them. */
+            for (sckIndex = 0; sckIndex < CY_HBDMA_SOCK_PER_ADAPTER; sckIndex++) {
+                pContext->LVDSAD1_SCK[sckIndex].SCK_STATUS &= ~LVDSSS_LVDS_ADAPTER_DMA_SCK_STATUS_GO_ENABLE_Msk;
+            }
+
+            /* Disable the DMA adapters. */
+            pContext->LVDSAD1_SCK_GBL->ADAPTER_CTRL = 0;
+            Cy_SysLib_DelayUs(100);
+
+            /* Re-enable the DMA adapters. */
+            pContext->LVDSAD1_SCK_GBL->ADAPTER_CTRL = ad1_ctrl;
+            pContext->LVDSAD1_SCK_GBL->ADAPTER_CONF = ad1_conf;
+        }
+    }
+}
+
+/*******************************************************************************
  * Function name: Cy_HBDma_GetDescriptor
  ****************************************************************************//**
  *
@@ -292,7 +385,7 @@ Cy_HBDma_GetDescriptor (
         pDscr->chain   = pSrc->chain;
         pDscr->size    = pSrc->size;
 #else
-        /* We use DW1.channel0 set to the same priority as other DW1 channels to read the descriptor.
+        /* We use DW1.channel19 set to the same priority as other DW1 channels to read the descriptor.
          * This ensures that the read does not interrupt another ongoing DW1 read operation.
          * We also make sure that a complete 32-byte region is read from the DMA RAM and then
          * extract the required fields.
@@ -300,6 +393,7 @@ Cy_HBDma_GetDescriptor (
         uint32_t dw_descr[6];
         uint32_t dscrtmp[8];
         uint32_t intMask;
+        uint32_t pollCnt = 0;
 
         intMask = Cy_SysLib_EnterCriticalSection();
         pSrc = (cy_stc_hbdma_desc_t *)(CY_HBDMA_GET_DESC_ADDR(dscrIndex & 0xFFFE));
@@ -315,33 +409,47 @@ Cy_HBDma_GetDescriptor (
         DW1->CTL |= 0x80000000UL;
 
         /* Clear stale channel interrupt. */
-        DW1_CH_STRUCT0->INTR        = 0x00000001UL;
-        DW1_CH_STRUCT0->INTR_MASK   = 0;
+        DW1_CH_STRUCT19->INTR        = 0x00000001UL;
+        DW1_CH_STRUCT19->INTR_MASK   = 0;
 
         /* Enable channel with above descriptor and set lowest priority. */
-        DW1_CH_STRUCT0->CH_CURR_PTR = (uint32_t)dw_descr;
-        DW1_CH_STRUCT0->CH_IDX      = 0;
-        DW1_CH_STRUCT0->CH_CTL      = 0x80000300UL;
+        DW1_CH_STRUCT19->CH_CURR_PTR = (uint32_t)dw_descr;
+        DW1_CH_STRUCT19->CH_IDX      = 0;
+        DW1_CH_STRUCT19->CH_CTL      = 0x80000300UL;
 
         /* Trigger the DataWire channel. */
-        Cy_TrigMux_SwTrigger(TRIG_OUT_MUX_1_PDMA1_TR_IN0, CY_TRIGGER_TWO_CYCLES);
+        Cy_TrigMux_SwTrigger(TRIG_OUT_1TO1_1_SCB0_RX_TO_PDMA1_TR_IN19, CY_TRIGGER_TWO_CYCLES);
 
         /* Wait until the transfer is complete and make sure interrupt is cleared. */
-        while (DW1_CH_STRUCT0->INTR == 0);
-        DW1_CH_STRUCT0->INTR = 0x00000001UL;
+        while ((DW1_CH_STRUCT19->INTR == 0) && (pollCnt++ < 20000));
+        if (DW1_CH_STRUCT19->INTR != 0) {
+            DW1_CH_STRUCT19->INTR = 0x00000001UL;
 
-        if ((dscrIndex & 0x01) != 0) {
-            /* Odd descriptor: Take values from second half of the buffer. */
-            pDscr->pBuffer = (uint8_t *)(dscrtmp[4] | 0x1C000000UL);
-            pDscr->sync    = dscrtmp[5];
-            pDscr->chain   = dscrtmp[6];
-            pDscr->size    = dscrtmp[7];
+            if ((dscrIndex & 0x01) != 0) {
+                /* Odd descriptor: Take values from second half of the buffer. */
+                pDscr->pBuffer = (uint8_t *)(dscrtmp[4] | 0x1C000000UL);
+                pDscr->sync    = dscrtmp[5];
+                pDscr->chain   = dscrtmp[6];
+                pDscr->size    = dscrtmp[7];
+            } else {
+                /* Even descriptor: Take values from first half of the buffer. */
+                pDscr->pBuffer = (uint8_t *)(dscrtmp[0] | 0x1C000000UL);
+                pDscr->sync    = dscrtmp[1];
+                pDscr->chain   = dscrtmp[2];
+                pDscr->size    = dscrtmp[3];
+            }
         } else {
-            /* Even descriptor: Take values from first half of the buffer. */
-            pDscr->pBuffer = (uint8_t *)(dscrtmp[0] | 0x1C000000UL);
-            pDscr->sync    = dscrtmp[1];
-            pDscr->chain   = dscrtmp[2];
-            pDscr->size    = dscrtmp[3];
+            /* DW transfer timed out. Do direct memory read as backup. */
+            pSrc = (cy_stc_hbdma_desc_t *)(CY_HBDMA_GET_DESC_ADDR(dscrIndex));
+
+            /* Upper bits of buffer address might have been masked in the descriptor and need to be restored. */
+            pDscr->pBuffer = (uint8_t *)((uint32_t)(pSrc->pBuffer) | 0x1C000000UL);
+            pDscr->sync    = pSrc->sync;
+            pDscr->chain   = pSrc->chain;
+            pDscr->size    = pSrc->size;
+
+            /* Disable the channel forcibly. */
+            DW1_CH_STRUCT19->CH_CTL = 0x00000300UL;
         }
 
         Cy_SysLib_ExitCriticalSection(intMask);
@@ -958,6 +1066,9 @@ Cy_HBDma_SendSocketEvent (
     cy_en_hbdma_status_t status = CY_HBDMA_SUCCESS;
     uint32_t intMask;
     uint8_t  mux_id, mux_inp;
+
+    /* Same action is performed for both produce and consume events. */
+    (void)isProduceEvent;
 
     HbDma_Get_TrigMux_By_Socket(sock_id, &mux_id);
     HbDma_Get_MuxInput_By_Socket(sock_id, &mux_inp);

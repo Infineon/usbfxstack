@@ -233,6 +233,15 @@ Cy_HBDma_Mgr_DeInit (
         }
 
         if (status == CY_HBDMA_MGR_SUCCESS) {
+#if FREERTOS_ENABLE
+            /* Delete the message queue. */
+            vQueueUnregisterQueue(pContext->dmaIntrQueue);
+            vQueueDelete(pContext->dmaIntrQueue);
+
+            /* Delete the manager task. */
+            vTaskDelete(pContext->dmaMgrTask);
+#endif /* FREERTOS_ENABLE */
+
 #if CY_CPU_CORTEX_M4
             /* Free the DMA descriptor list. */
             if (pContext->dwDscrList != NULL) {
@@ -2549,6 +2558,8 @@ Cy_HBDma_Channel_Create (
         pHandle->curEgressXferSize[1]  = 0;
         pHandle->curIngressXferSize[0] = 0;
         pHandle->curIngressXferSize[1] = 0;
+        pHandle->pendIngrSlpSize[0]    = 0;
+        pHandle->pendIngrSlpSize[1]    = 0;
 
         if (pHandle->type != CY_HBDMA_TYPE_MEM_TO_IP) {
             if (CY_HBDMA_IS_USBHS_OUT_EP(pHandle->prodSckId[0])) {

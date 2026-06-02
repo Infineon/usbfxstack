@@ -99,7 +99,8 @@ var group__group__usbfxstack__hb__dma__structs =
       [ "pConsDwDscr", "group__group__usbfxstack__hb__dma__structs.html#a0d29ec7ac02c366d1ef254974e119814", null ],
       [ "curIngressXferSize", "group__group__usbfxstack__hb__dma__structs.html#aff658dbb8a0c8297e6ec096a88163976", null ],
       [ "pCurEgressDataBuf", "group__group__usbfxstack__hb__dma__structs.html#a0c9ecada55c075f0df35690fcb1103b0", null ],
-      [ "curEgressXferSize", "group__group__usbfxstack__hb__dma__structs.html#acb7b7f7cc698a521b7cd2231dab39b40", null ]
+      [ "curEgressXferSize", "group__group__usbfxstack__hb__dma__structs.html#acb7b7f7cc698a521b7cd2231dab39b40", null ],
+      [ "pendIngrSlpSize", "group__group__usbfxstack__hb__dma__structs.html#aa5cf6d0b576d450a54bc059fa6ec4563", null ]
     ] ],
     [ "cy_stc_hbdma_buff_status_t", "group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__buff__status__t", [
       [ "pBuffer", "group__group__usbfxstack__hb__dma__structs.html#aa2cdf62d9c3f68774f2498b03a30bb6b", null ],

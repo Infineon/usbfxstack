@@ -284,7 +284,7 @@ Cy_USBSS_Cal_SendMsg (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 void
 Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }
 
 /*******************************************************************************
@@ -300,7 +300,7 @@ Cy_USBSS_Cal_IntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 void
 Cy_USBSS_Cal_WakeupIntrHandler (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }
 
 /*******************************************************************************
@@ -436,7 +436,7 @@ Cy_USBSS_Cal_SetLinkPowerState (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 *******************************************************************************/
 void Cy_USBSS_Cal_GetUsbLinkActive (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }
 
 /*******************************************************************************
@@ -521,7 +521,7 @@ Cy_USBSS_Cal_ProtSendAckTp (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint32_t endpNum,
                             cy_en_usb_endp_dir_t endpDir, uint8_t numP,
                             uint16_t bulkStream)
 {
-   
+
     return(CY_USB_CAL_STATUS_SUCCESS);
 }   /* end of function  */
 
@@ -1342,7 +1342,7 @@ bool
 Cy_USBSS_Cal_EndpIsStallSet (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                              uint32_t endpNum, cy_en_usb_endp_dir_t endpDir)
 {
-   
+
     return false;
 }   /* End of function() */
 
@@ -1459,7 +1459,7 @@ Cy_USBSS_Cal_EnterLinkCompliance (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 void
 Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }
 
 
@@ -1477,7 +1477,7 @@ Cy_USBSS_Cal_NextCompliancePattern (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 void
 Cy_USBSS_Cal_ExitLinkCompliance (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }   /* end of function */
 
 /*******************************************************************************
@@ -1497,7 +1497,7 @@ Cy_USBSS_Cal_ExitLinkCompliance (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 bool
 Cy_USBSS_Cal_DeepSleepPrep (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
     return true;
 }
 
@@ -1516,7 +1516,7 @@ Cy_USBSS_Cal_DeepSleepPrep (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 void
 Cy_USBSS_Cal_DeepSleepExit (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
 {
-   
+
 }
 
 /*******************************************************************************

@@ -1,4 +1,4 @@
-# USBFXStack Middleware Library 1.3.2
+# USBFXStack Middleware Library 1.3.3
 
 The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
 
@@ -8,14 +8,14 @@ As best practices and development flows are continuously evolving, it is recomme
 
 **USB 3.2 devices:**
 
-- [EZ-USB&trade; FX20](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx20-usb-20-gbps-peripheral-controller): Up to 20 Gbps, USB 3.2 Gen2x2
-- [EZ-USB&trade; FX10](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller): Up to 10 Gbps, USB 3.2 Gen2
-- [EZ-USB&trade; FX5N](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller): Up to 10 Gbps, USB 3.2 Gen1x2
-- [EZ-USB&trade; FX5](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx5-usb-5-gbps-peripheral-controller): Up to 5 Gbps, USB 3.2 Gen1
+- [EZ-USB&trade; FX20](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx20-usb-20-gbps-peripheral-controller?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880008&aid=ai010888): Up to 20 Gbps, USB 3.2 Gen2x2
+- [EZ-USB&trade; FX10](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880007&aid=ai010888): Up to 10 Gbps, USB 3.2 Gen2
+- [EZ-USB&trade; FX5N](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx10-fx5n-usb-10-gbps-peripheral-controller?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880007&aid=ai010888): Up to 10 Gbps, USB 3.2 Gen1x2
+- [EZ-USB&trade; FX5](https://www.infineon.com/products/universal-serial-bus/usb-3-2-peripheral-controllers/ez-usb-fx5-usb-5-gbps-peripheral-controller?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880006&aid=ai010888): Up to 5 Gbps, USB 3.2 Gen1
 
 **USB 2.0 devices:**
 
-- [EZ-USB&trade; FX2G3](https://www.infineon.com/promo/ez-usb-fx2g3): Up to 480 Mbps, USB 2.0
+- [EZ-USB&trade; FX2G3](https://www.infineon.com/products/universal-serial-bus/usb-2-0-peripheral-controllers/ez-usb-fx2g3-usb-2-0-peripheral-controller?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880005&aid=ai010888): Up to 480 Mbps, USB 2.0
 
 ## Features
 
@@ -34,7 +34,11 @@ For further details and documentation, see the following resources:
 
 - [USBFXStack API Reference Manual](https://infineon.github.io/usbfxstack/api_reference_manual.html)
 
-- [ModusToolbox&trade; software environment, quick start guide, documentation, and videos](https://www.infineon.com/modustoolbox)
+- [ModusToolbox&trade; software environment, quick start guide, documentation, and videos](https://www.infineon.com/modustoolbox?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_productpage&utm_term=usbfxstack&uid=ci0108880004&aid=ai010888)
+
+- [USB 3.2 peripheral controller webinar](https://www.infineon.com/event/webinar/2025/usb1020gbps?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_eventpage&utm_term=usbfxstack&uid=ci0108880002&aid=ai010888)
+
+- [USB 2.0 peripheral controller webinar](https://www.infineon.com/event/webinar/2026/usb-2-0-platforms-for-imaging-scanning-biometrics?utm_campaign=202602_glob_en_pss.p.supsp_usb&utm_medium=3rdptmedia&utm_source=github_repository&utm_content=website_eventpage&utm_term=usbfxstack&uid=ci0108880001&aid=ai010888)
 
 - [Infineon Technologies AG](https://www.infineon.com)
 

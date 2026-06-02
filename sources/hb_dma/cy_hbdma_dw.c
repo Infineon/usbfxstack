@@ -11,7 +11,7 @@
 *
 *******************************************************************************
 * \copyright
-* (c) (2024), Cypress Semiconductor Corporation (an Infineon company) or
+* (c) (2026), Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.
 *
 * SPDX-License-Identifier: Apache-2.0
@@ -96,6 +96,7 @@ Cy_HBDma_DW_Configure (
 
                     pHandle->ingressDWRqtQueued[i] = false;
                     pHandle->curIngressXferSize[i] = 0;
+                    pHandle->pendIngrSlpSize[i] = 0;
                 }
             }
         }
@@ -135,6 +136,8 @@ Cy_HBDma_DW_Configure (
                 }
             }
         }
+
+        stat = CY_HBDMA_MGR_SUCCESS;
     }
 
     return stat;
@@ -174,6 +177,7 @@ Cy_HBDma_DW_QueueRead (
     uint16_t                        nFullPkts;
     uint8_t                         epNum;
     cy_stc_usb_usbd_ctxt_t         *pUsbdCtxt = NULL;
+    bool                            triggerReqd = false;
 
     /* Parameter validity checks. */
     if ((pHandle == NULL) || (pHandle->type == CY_HBDMA_TYPE_MEM_TO_IP) || (prodIndex >= pHandle->prodSckCount) ||
@@ -188,6 +192,14 @@ Cy_HBDma_DW_QueueRead (
     }
 
     pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t *)(pHandle->pContext->pUsbStackCtx);
+
+    /* Handle pending short packet. */
+    if ((pHandle->pendIngrSlpSize[prodIndex] != 0) && (dataSize >= pHandle->epMaxPktSize)) {
+        dataSize = pHandle->pendIngrSlpSize[prodIndex];
+        pHandle->curIngressXferSize[prodIndex] = dataSize;
+        pHandle->pendIngrSlpSize[prodIndex] = 0;
+        triggerReqd = true;
+    }
 
     /* Maximum number of packets per descriptor is 256. */
     if (dataSize >= (pHandle->epMaxPktSize << 8U)) {
@@ -305,11 +317,19 @@ Cy_HBDma_DW_QueueRead (
     Cy_DMA_Channel_Init(DW0, epNum, &dmaChannelConfig);
     Cy_DMA_Channel_SetInterruptMask(DW0, epNum, CY_DMA_INTR_MASK);
 
-    pHandle->ingressDWRqtQueued[prodIndex] = true;
+    /* curIngressXferSize and ingressDWRqtQueued fields are only to be set when reading
+     * more than one full packet of data.
+     */
     if (nFullPkts != 0) {
         pHandle->curIngressXferSize[prodIndex] = dataSize;
+        pHandle->ingressDWRqtQueued[prodIndex] = true;
     }
     Cy_DMA_Channel_Enable(DW0, epNum);
+
+    if (triggerReqd) {
+        /* Send trigger to DataWire channel so that the partial packet is read out. */
+        Cy_TrigMux_SwTrigger(TRIG_IN_MUX_0_USBHSDEV_TR_OUT0 + epNum, CY_TRIGGER_TWO_CYCLES);
+    }
 
     if (Cy_USBD_GetEndpointType(pUsbdCtxt, epNum, CY_USB_ENDP_DIR_OUT) != CY_USB_ENDP_TYPE_ISO) {
         /* Set transfer size for the endpoint and clear NAK status to allow data to be received. */
@@ -366,13 +386,17 @@ Cy_HBDma_DW_CompleteShortRead (
         return CY_HBDMA_MGR_BAD_PARAM;
     }
 
-    /* A read operation should already have been queued. */
-    if (pHandle->ingressDWRqtQueued[prodIndex] == false) {
-        return CY_HBDMA_MGR_SEQUENCE_ERROR;
-    }
-
     pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t *)(pHandle->pContext->pUsbStackCtx);
     epNum = pHandle->prodSckId[prodIndex] - CY_HBDMA_USBHS_OUT_EP_00;
+
+    /* A read operation should already have been queued. */
+    if (
+            (pHandle->ingressDWRqtQueued[prodIndex] == false) ||
+            (Cy_DMA_Channel_IsEnabled(DW0, epNum) == false)
+       ) {
+        pHandle->pendIngrSlpSize[prodIndex] = shortPktSize;
+        return CY_HBDMA_MGR_SEQUENCE_ERROR;
+    }
 
     if (Cy_USBD_GetEndpointType(pUsbdCtxt, epNum, CY_USB_ENDP_DIR_OUT) != CY_USB_ENDP_TYPE_ISO) {
         /* NAK the endpoint until the next DMA request is queued. */
@@ -385,7 +409,8 @@ Cy_HBDma_DW_CompleteShortRead (
             (activeDscr != Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][0])) &&
             (activeDscr != Cy_HBDMA_GetDWDesc(pHandle->pProdDwDscr[prodIndex][1]))
        ) {
-        DBG_HBDMA_ERR("DW0 channel %d pointing to unexpected DMA descriptor %x\r\n", epNum, activeDscr);
+        DBG_HBDMA_ERR("DW0 channel %d pointing to unexpected DMA descriptor %x (%d %d)\r\n", epNum, activeDscr,
+                pHandle->pendIngrSlpSize[prodIndex], pHandle->curIngressXferSize[prodIndex]);
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
@@ -419,6 +444,7 @@ Cy_HBDma_DW_CompleteShortRead (
 
     /* Save the updated data transfer size in the channel structure. */
     pHandle->curIngressXferSize[prodIndex] = dataSize;
+    pHandle->pendIngrSlpSize[prodIndex] = 0;
 
     if (shortPktSize != 0) {
         /* Clear the transfer pending flag at this point as QueueRead will set the flag again. */

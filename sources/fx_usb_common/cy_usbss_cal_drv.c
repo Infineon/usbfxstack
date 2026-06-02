@@ -39,6 +39,18 @@
 extern "C" {
 #endif
 
+/* If CAPGAIN adaptation is not enabled or disabled from build settings, keep it disabled. */
+#ifndef USBFX_CAPGAIN_ADAPT_ENABLE
+#define USBFX_CAPGAIN_ADAPT_ENABLE      (0)
+#endif /* USBFX_CAPGAIN_ADAPT_ENABLE */
+
+/* If adaptation scheme preference is not specified from build settings, enable prioritization
+ * of lower DFE tap selection over "best measured" eye height.
+ */
+#ifndef USBFX_RX_ADAP_LOWDFE_ENABLE
+#define USBFX_RX_ADAP_LOWDFE_ENABLE     (1)
+#endif /* USBFX_RX_ADAP_LOWDFE_ENABLE */
+
 /* Set this to one to enable the use of Pipe Override setting to delay valid TS1 transmission
  * during USB Gen2 U2 and U3 exit.
  */
@@ -1813,7 +1825,20 @@ void Cy_USBSS_Phy_RxOffsetCalibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     /* Verify that offset calibration is completed. */
     if ((USB_PHY_RX->RX_OSA_STAT5 & 0x07UL) != 0x07UL) {
         DBG_SSCAL_INFO("Phy:%d RX offset calibration timed out: %x\r\n", laneId, USB_PHY_RX->RX_OSA_STAT5);
+
+        /* Reset OSA FSM and force default values. */
+        USB_PHY_RX->RX_OSA_CFG5 = 0x0000UL;
+        Cy_SysLib_DelayUs(10);
+
+        USB_PHY_RX->RX_OSA_CFG0 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG1 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG2 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG3 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG4 = 0x00C0UL;
+        USB_PHY_RX->RX_OSA_CFG5 = 0x000CUL;
+        return;
     }
+
     Cy_SysLib_DelayUs(1UL);
 
     /* Initiate AFE offset calibration. */
@@ -1824,7 +1849,20 @@ void Cy_USBSS_Phy_RxOffsetCalibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     /* Verify that offset calibration is completed. */
     if ((USB_PHY_RX->RX_OSA_STAT5 & 0x02UL) != 0x02UL) {
         DBG_SSCAL_INFO("Phy:%d RX AFE offset calibration timed out: %x\r\n",laneId, USB_PHY_RX->RX_OSA_STAT5);
+
+        /* Reset OSA FSM and force default values. */
+        USB_PHY_RX->RX_OSA_CFG5 = 0x0000UL;
+        Cy_SysLib_DelayUs(10);
+
+        USB_PHY_RX->RX_OSA_CFG0 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG1 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG2 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG3 = 0xC0C0UL;
+        USB_PHY_RX->RX_OSA_CFG4 = 0x00C0UL;
+        USB_PHY_RX->RX_OSA_CFG5 = 0x000CUL;
+        return;
     }
+
     Cy_SysLib_DelayUs(1UL);
 
     /* Print the results for analysis. */
@@ -2053,6 +2091,11 @@ Cy_USBSS_Phy_RxInit (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
                      uint8_t laneId,
                      bool isPowerOn)
 {
+    if((NULL == pCalCtxt) || (NULL == pCalCtxt->regBase))
+    {
+        return CY_USB_CAL_STATUS_CAL_CTXT_NULL;
+    }
+
     USB32DEV_Type *base = pCalCtxt->regBase;
     USB32DEV_PHYSS_USB40PHY_RX_Type *USB_PHY_RX   = &base->USB32DEV_PHYSS.USB40PHY[laneId].USB40PHY_RX;
     USB32DEV_PHYSS_USB40PHY_TOP_Type *USB_PHY_TOP = &base->USB32DEV_PHYSS.USB40PHY[laneId].USB40PHY_TOP;
@@ -2073,9 +2116,18 @@ Cy_USBSS_Phy_RxInit (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     /* High Speed Divider configuration */
     USB_PHY_RX->RX_DIVH_CFG = 0;
 
-    /* Signal detect / LFPS configuration. */
-    USB_PHY_RX->RX_SD_CFG = (USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPS_VTH_Msk |
-        USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPSDET_PDB_Msk);
+    /* Enable LFPS signal detect block only for the active phy instance */
+    if(pCalCtxt->activePhyIdx == laneId)
+    {
+        /* Signal detect / LFPS configuration. */
+        USB_PHY_RX->RX_SD_CFG = (USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPS_VTH_Msk |
+                USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPSDET_PDB_Msk);
+    }
+    else {
+        /* Disable LFPS detect to save power */
+        USB_PHY_RX->RX_SD_CFG &= ~(USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPS_VTH_Msk |
+            USB32DEV_PHYSS_USB40PHY_RX_SD_CFG_LFPSDET_PDB_Msk);
+    }
 
     /* For Gen1. */
     USB_PHY_RX->RX_GNRL_CFG = (
@@ -2739,7 +2791,8 @@ Cy_USBSS_Cal_SendMsg (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 
 #define LOCKIN_SETTING  (5u)    /* Optimal RX_LD_CFG.lockin setting needs to be determined. Relaxed to 5. */
 #define MIN_SLICEPOINT  20      /* Minimum DFE Slice Point */
-#define MAX_SLICEPOINT  44      /* Maximum DFE Slice Point */
+#define MAX_SLICEPOINT_G1  56   /* Maximum DFE Slice Point for Gen1 */
+#define MAX_SLICEPOINT_G2  56   /* Maximum DFE Slice Point for Gen2 */
 #define MIN_VGA         1       /* Minimum VGA value */
 #define MAX_VGA         14      /* Maximum VGA value */
 
@@ -2871,6 +2924,13 @@ static void rx_offset_calibration (cy_stc_usbss_cal_ctxt_t *pCalCtxt,
     uint32_t dfe_stat0, dfe_stat1;
     uint32_t afeosdac1 = 0;
     uint32_t afeosdac2 = 0;
+
+    DPI_csr_rd( MXS40USB40PHY_RX_OSA_CFG0_OFFS, &csr_rd_rtn_data, 1);
+    if ((csr_rd_rtn_data & 0x8080) != 0) {
+        /* Offset values have been forced. Skip attempt to calibrate AFE offset. */
+        DBG_SSCAL_INFO("Skip AFE offset cal\r\n");
+        onlyLock = true;
+    }
 
     DPI_csr_rd( MXS40USB40PHY_RX_OSA_STAT4_OFFS, &csr_rd_rtn_data, 1);
     afeosdac1 = csr_rd_rtn_data;
@@ -3041,7 +3101,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
     int32_t cur_err_cnt;                                /* Reading of eye height error count after loop completes */
     int32_t lcl_adapt_done;                             /* Local adapt_done signal */
     int32_t sm_state;                                   /* Current State Machine state */
-    int32_t cur_dfe_slicepoint = MAX_SLICEPOINT;        /* Current DFE Slice Point */
+    int32_t cur_dfe_slicepoint = MAX_SLICEPOINT_G2;     /* Current DFE Slice Point */
     int32_t lock_achieved;                              /* Lock State */
     int32_t min_abs_dfe_tap;                            /* Minimum abs Sum of all DFE taps */
     int32_t new_abs_dfe_tap;                            /* Minimum abs Sum of all DFE taps */
@@ -3056,6 +3116,10 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
         } else {
             lut_check_mask = (data_rate == DATARATE_GEN1) ? pCalCtxt->gen1x1LutMask : pCalCtxt->gen2x1LutMask;
         }
+    }
+
+    if (data_rate == DATARATE_GEN1) {
+        cur_dfe_slicepoint = MAX_SLICEPOINT_G1;
     }
 
     (void)final_vga;
@@ -3122,9 +3186,10 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                 break;
 
             case 2:
-                while(lut_index < (LUT_WIDTH - 1))
+                /* Skip LUT settings which are not enabled. */
+                while (lut_index < LUT_WIDTH)
                 {
-                    if((1 << lut_index) & lut_check_mask)
+                    if ((1 << lut_index) & lut_check_mask)
                     {
                         break;
                     }
@@ -3132,6 +3197,12 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                     {
                         lut_index++;
                     }
+                }
+
+                if (lut_index >= LUT_WIDTH)
+                {
+                    sm_state = 21;      /* Sweep complete, go to next state. */
+                    break;
                 }
 
                 /* State - 2 - Set up for next LUT entry */
@@ -3168,7 +3239,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
 
                 /* Set dfe_slicepoint */
                 /* <5:0> dfe_slicepoint */
-                cur_dfe_slicepoint = MAX_SLICEPOINT;
+                cur_dfe_slicepoint = (data_rate == DATARATE_GEN1) ? MAX_SLICEPOINT_G1 : MAX_SLICEPOINT_G2;
                 DPI_csr_rd_mod_wr( MXS40USB40PHY_RX_DFE_CFG2_OFFS, 0x0000003F, cur_dfe_slicepoint, &csr_rd_rtn_data, 1);
 
                 /* Enable DFE Hardware */
@@ -3347,10 +3418,12 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
 
                 /* Read lock status in case we lose lock */
                 DPI_csr_rd( MXS40USB40PHY_RX_LD_STAT_OFFS, &csr_rd_rtn_data, 1);
-                /* If we're locked, move on, otherwise wait */
                 if( (csr_rd_rtn_data & 0x01) == 0) {
-                    /* If we haven't looked at the cap_gain_adj = 0, try that, otherwise skip measurement */
-                    if( cur_cap_gain == 0x00001000) {
+#if USBFX_CAPGAIN_ADAPT_ENABLE
+                    /* RX lock is lost. If CAPGAIN is enabled, try to reduce slicepoint or turn off CAPGAIN.
+                     * Otherwise, update error status and move to next setting from the LUT.
+                     */
+                    if ( cur_cap_gain == 0x00001000) {
                         if (cur_dfe_slicepoint > MIN_SLICEPOINT) {
                             if ( data_rate == DATARATE_GEN1 )
                                 cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G1;
@@ -3365,12 +3438,13 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                             sm_state = 3020;
                         } else {
                             DBG_SSCAL_TRACE("S401: PLL lock lost: set cap_gain=0\r\n");
-                            cur_dfe_slicepoint = MAX_SLICEPOINT;
+                            cur_dfe_slicepoint = (data_rate == DATARATE_GEN1) ? MAX_SLICEPOINT_G1 : MAX_SLICEPOINT_G2;
                             cur_cap_gain = 0x00000000;
                             lock_achieved = 0;
                             sm_state = 2;
                         }
                     } else {
+#endif /* USBFX_CAPGAIN_ADAPT_ENABLE */
                         DBG_SSCAL_TRACE("S401: PLL lock lost: record zero eye\r\n");
                         for( tmp_index=0; tmp_index <= N_EYE_LEVELS-1; tmp_index=tmp_index+1) {
                             RxEyeErrCnt[lut_index][tmp_index]=FAIL_LIMIT*10;
@@ -3383,7 +3457,9 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                         final_dfe3[ lut_index] = cur_dfe3;
                         pCalCtxt->phyResult[phyIndex][lut_index] = AFE_CAL_RESULT_PLL_LOCK_LOST;
                         sm_state = 20; /* Skip eye height measurement */
+#if USBFX_CAPGAIN_ADAPT_ENABLE
                     }
+#endif /* USBFX_CAPGAIN_ADAPT_ENABLE */
                     /* If the VGA setting has changed, reset the timer and try again */
                 } else if( (vga_toggle_cnt > 3)|| (dfe1_toggle_cnt > 5)|| (dfe2_toggle_cnt > 5) || (dfe3_toggle_cnt > 5) ) {
                     /* The VGA/DFE code is dithering, jump out */
@@ -3403,15 +3479,19 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                     sm_state = 4;
                 } else {
                     /* We should only reach this point once everything is stable */
+#if USBFX_CAPGAIN_ADAPT_ENABLE
                     if( (cur_vga <= MIN_VGA) && (cur_cap_gain == 0x00001000) ) {
                         /* If VGA setting is too low (input signal is too big) and cap_gain=1, try cap_gain=0 */
                         DBG_SSCAL_TRACE("S401: Reducing cap_gain\r\n");
-                        cur_dfe_slicepoint = MAX_SLICEPOINT;
+                        cur_dfe_slicepoint = (data_rate == DATARATE_GEN1) ? MAX_SLICEPOINT_G1 : MAX_SLICEPOINT_G2;
                         /* <12> ctle_cap_gain_adj */
                         cur_cap_gain = 0x00000000;
                         DPI_csr_rd_mod_wr( MXS40USB40PHY_RX_CTLE_CFG0_OFFS, 0x00001000, cur_cap_gain, &csr_rd_rtn_data, 1);
                         sm_state = 2;
                     } else if( (cur_vga >= MAX_VGA) && (cur_dfe_slicepoint > MIN_SLICEPOINT) ) {
+#else
+                    if( (cur_vga >= MAX_VGA) && (cur_dfe_slicepoint > MIN_SLICEPOINT) ) {
+#endif /* USBFX_CAPGAIN_ADAPT_ENABLE */
                         /* If VGA setting is too high (input signal is too small) reduce slice point */
                         if ( data_rate == DATARATE_GEN1 )
                             cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G1;
@@ -3442,7 +3522,11 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                         final_dfe3[ lut_index] = cur_dfe3;
                         pCalCtxt->phyResult[phyIndex][lut_index] = AFE_CAL_RESULT_SIGNAL_LOW;
                         sm_state = 20; /* Skip eye height measurement */
+#if USBFX_CAPGAIN_ADAPT_ENABLE
                     } else if( (cur_vga <= MIN_VGA) && (cur_cap_gain == 0x00000000) ) {
+#else
+                    } else if( cur_vga <= MIN_VGA ) {
+#endif /* USBFX_CAPGAIN_ADAPT_ENABLE */
                         /* If VGA setting is too low (input signal is too big) and we can't reduce cap_gain, abort measurement */
                         DBG_SSCAL_TRACE("S401: Signal too big, record zero eye\r\n");
                         for( tmp_index=0; tmp_index <= N_EYE_LEVELS-1; tmp_index=tmp_index+1) {
@@ -3614,6 +3698,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
 
                 bcs_eye = 0;
                 min_abs_dfe_tap = 64;
+#if (!USBFX_RX_ADAP_LOWDFE_ENABLE)
                 for( tmp_index = bcs_index; tmp_index >= 0; tmp_index = tmp_index - 1 ) {
                     /* Don't consider masked out settings in the table. */
                     if (((1U << tmp_index) & lut_check_mask) == 0) {
@@ -3640,6 +3725,40 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                         new_abs_dfe_tap = ftn_max_dfe_tap( final_dfe1[ tmp_index], final_dfe2[ tmp_index], final_dfe3[ tmp_index]);
                     }
                 }
+#else /* (USBFX_RX_ADAP_LOWDFE_ENABLE) */
+                /* First scan through all LUT entries and find the best eye height discovered. */
+                for (tmp_index = bcs_index; tmp_index >= 0; tmp_index = tmp_index - 1) {
+                    /* Don't consider masked out settings in the table. */
+                    if (((1U << tmp_index) & lut_check_mask) == 0) {
+                        continue;
+                    }
+
+                    if (eye_height[tmp_index] > bcs_eye) {
+                        bcs_eye = eye_height[tmp_index];
+                    }
+                }
+
+                /* Now check all LUT entries which are giving a satisfactory eye height and pick the
+                 * setting which gives the minimum DFE tap value among them.
+                 */
+                for (tmp_index = bcs_index; tmp_index >= 0; tmp_index = tmp_index - 1) {
+                    /* Don't consider masked out settings in the table. */
+                    if (((1U << tmp_index) & lut_check_mask) == 0) {
+                        continue;
+                    }
+
+                    if (
+                            ((bcs_eye <= 5) && (eye_height[tmp_index] == bcs_eye)) ||
+                            ((bcs_eye > 5) && (eye_height[tmp_index] >= (bcs_eye - 2)))
+                       ) {
+                        new_abs_dfe_tap = ftn_max_dfe_tap(final_dfe1[tmp_index], final_dfe2[tmp_index], final_dfe3[tmp_index]);
+                        if (new_abs_dfe_tap < min_abs_dfe_tap) {
+                            bcs_index = tmp_index;
+                            min_abs_dfe_tap = new_abs_dfe_tap;
+                        }
+                    }
+                }
+#endif /* (USBFX_RX_ADAP_LOWDFE_ENABLE) */
 
                 if ( data_rate == DATARATE_GEN1 ) {
                     /* If eye height is zero, always select LUT-8 for Gen1 operation. */
@@ -3745,7 +3864,7 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                 if( (csr_rd_rtn_data & 0x01) == 1) {
                     DBG_SSCAL_TRACE("L2D lock achieved\r\n");
                     /* Reset DFE Slice Point */
-                    cur_dfe_slicepoint = MAX_SLICEPOINT;
+                    cur_dfe_slicepoint = (data_rate == DATARATE_GEN1) ? MAX_SLICEPOINT_G1 : MAX_SLICEPOINT_G2;
                     /* dfe_slicepoint = cur_dfe_slicepoint */
                     DPI_csr_rd_mod_wr( MXS40USB40PHY_RX_DFE_CFG2_OFFS, 0x0000003F, cur_dfe_slicepoint, &csr_rd_rtn_data, 1);
                     /* Enable VGA/DFE Loops */
@@ -3844,23 +3963,27 @@ int32_t z_dfe_ctle_adaptation (cy_stc_usbss_cal_ctxt_t *pCalCtxt, uint8_t data_r
                     sm_state = 2206;
                 } else {
                     /* We should only reach here once the VGA/DFE are stable */
-                    if( (cur_vga >= MAX_VGA) && (cur_dfe_slicepoint > MIN_SLICEPOINT) ) {
-                        /* If VGA setting is too high (input signal is too small) reduce slice point */
-                        if (data_rate == DATARATE_GEN1)
-                            cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G1;
-                        else
-                            cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G2;
-                        sm_state = 2205;
-                    } else if( (cur_vga >= MAX_VGA) && (cur_dfe_slicepoint <= MIN_SLICEPOINT) ) {
-                        /* If VGA setting is too high (input signal is too small) there is nothing more we can do, abort measurement */
-                        DBG_SSCAL_TRACE("Failed VGA, signal too small\r\n");
-                        sm_state = 9999; /* Abort  */
-                    } else if( (cur_vga <= MIN_VGA) && (cur_dfe_slicepoint >= MAX_SLICEPOINT) ) {
-                        /* If VGA setting is too low (input signal is too big) and we can't reduce cap_gain, abort measurement */
-                        DBG_SSCAL_TRACE("Failed VGA, signal too big\r\n");
-                        sm_state = 9999; /* Abort  */
+                    if (cur_vga >= MAX_VGA) {
+                        /*
+                         * VGA setting is too high: If we have room to reduce DFE slicepoint, do so. Otherwise, abort.
+                         *
+                         * Note: There is no need to check cur_dfe_slicepoint against maximum slicepoint as it can never
+                         * be higher than the maximum slicepoint.
+                         */
+                        if (cur_dfe_slicepoint > MIN_SLICEPOINT) {
+                            /* If VGA setting is too high (input signal is too small) reduce slice point */
+                            if (data_rate == DATARATE_GEN1)
+                                cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G1;
+                            else
+                                cur_dfe_slicepoint = cur_dfe_slicepoint - SLICEPOINT_DEC_G2;
+                            sm_state = 2205;
+                        } else {
+                            /* Input signal is too small. There is nothing more we can do, abort measurement */
+                            DBG_SSCAL_TRACE("Failed VGA, signal too small\r\n");
+                            sm_state = 9999; /* Abort  */
+                        }
                     } else {
-                        /* We're good */
+                        /* We're good if cur_vga is less than MAX_VGA */
                         DBG_SSCAL_TRACE("Opt DFE_slicept=%x vga_val=%x\r\n", cur_dfe_slicepoint, cur_vga);
                         sm_state = 2208;
                     }
@@ -9200,14 +9323,21 @@ Cy_USBSS_Cal_DeepSleepExit (cy_stc_usbss_cal_ctxt_t *pCalCtxt)
             SSPhy_Update_TxSettings(pPhyTop, pCalCtxt->txAfeSettings[pCalCtxt->activePhyIdx]);
         }
 
+        /* Reduce LPM exit delay by a small amount to account for the delay due to deep sleep exit. */
         if (pCalCtxt->gen2Enabled) {
             if (pCalCtxt->dualLaneEnabled) {
-                pCalCtxt->lpmExitLfpsDelay -= 250U;
+                if (pCalCtxt->lpmExitLfpsDelay > 250U) {
+                    pCalCtxt->lpmExitLfpsDelay -= 250U;
+                }
             } else {
-                pCalCtxt->lpmExitLfpsDelay -= 150U;
+                if (pCalCtxt->lpmExitLfpsDelay > 150U) {
+                    pCalCtxt->lpmExitLfpsDelay -= 150U;
+                }
             }
         } else {
-            pCalCtxt->lpmExitLfpsDelay -= 50U;
+            if (pCalCtxt->lpmExitLfpsDelay > 50U) {
+                pCalCtxt->lpmExitLfpsDelay -= 50U;
+            }
         }
 
         Cy_USBD_AddEvtToLog(pCalCtxt->pUsbdCtxt, CY_SSCAL_EVT_U3_WAKE_PHY_ENABLE);
@@ -9504,4 +9634,3 @@ void Cy_USBSS_UpdateGen2CtleLutConfig(cy_stc_usbss_cal_ctxt_t *pCalCtxt,
 #endif /* FX2G3_EN */
 
 /* End of file */
-

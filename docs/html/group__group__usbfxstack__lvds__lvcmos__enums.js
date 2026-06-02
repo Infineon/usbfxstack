@@ -348,5 +348,11 @@ var group__group__usbfxstack__lvds__lvcmos__enums =
       [ "CY_LVDS_SLAVE_FIFO_2BIT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa7d014d9c5911d8421e84822a57a7e95", null ],
       [ "CY_LVDS_SLAVE_FIFO_5BIT", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628aa4aa1cac74357d95e69a4a262deb1680", null ],
       [ "CY_LVDS_ENHANCED_MODE", "group__group__usbfxstack__lvds__lvcmos__enums.html#ggab9a4e0437ac39f6fb89225c6a621d628a18b8c19b684b5c068c5146f3c64b51dd", null ]
+    ] ],
+    [ "cy_en_lvds_link_state_t", "group__group__usbfxstack__lvds__lvcmos__enums.html#ga916515235573de86f9f3e6ac8ee21dd5", [
+      [ "CY_LVDS_UNKNOWN_STATE", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga916515235573de86f9f3e6ac8ee21dd5aed0d4264d658629bbd0aa6b2e5ff2526", null ],
+      [ "CY_LVDS_LVCMOS_L0_STATE", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga916515235573de86f9f3e6ac8ee21dd5a6e03b33f0408f858df4653f71cf772a4", null ],
+      [ "CY_LVDS_L1_STATE", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga916515235573de86f9f3e6ac8ee21dd5a45e7970331a8cfe18a77174b239ee7ad", null ],
+      [ "CY_LVDS_LVCMOS_L3_STATE", "group__group__usbfxstack__lvds__lvcmos__enums.html#gga916515235573de86f9f3e6ac8ee21dd5a8ac97633b4033087e7aee087e412adbb", null ]
     ] ]
 ];

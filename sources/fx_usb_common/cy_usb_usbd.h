@@ -249,57 +249,6 @@ extern "C" {
 #define CY_USBD_TASK_PRIORITY                   (10)
 
 #ifndef DOXYGEN
-#if (!EP0_DATAWIRE_EN)
-
-/* Map USBD DMA types and function names to DMAC types and functions. */
-typedef cy_stc_dmac_descriptor_t cy_stc_usbd_dma_descr_t;
-typedef cy_stc_dmac_descriptor_config_t cy_stc_usbd_dma_descr_conf_t;
-typedef cy_stc_dmac_channel_config_t cy_stc_usbd_dma_chn_conf_t;
-
-#define CY_USBD_DMA_CHN_DISABLED CY_DMAC_CHANNEL_DISABLED
-#define CY_USBD_DMA_CHN_ENABLED CY_DMAC_CHANNEL_ENABLED
-#define CY_USBD_DMA_RETRIG_IM CY_DMAC_RETRIG_IM
-#define CY_USBD_DMA_WAIT_FOR_REACT CY_DMAC_WAIT_FOR_REACT
-#define CY_USBD_DMA_DESCR_CHAIN CY_DMAC_DESCR_CHAIN
-#define CY_USBD_DMA_X_LOOP CY_DMAC_X_LOOP
-#define CY_USBD_DMA_BYTE CY_DMAC_BYTE
-#define CY_USBD_DMA_WORD CY_DMAC_WORD
-#define CY_USBD_DMA_XFER_SIZE_DATA CY_DMAC_TRANSFER_SIZE_DATA
-#define CY_USBD_DMA_1D_XFER CY_DMAC_1D_TRANSFER
-#define CY_USBD_DMA_2D_XFER CY_DMAC_2D_TRANSFER
-
-#define Cy_USBD_DMADesc_SetSrcAddress Cy_DMAC_Descriptor_SetSrcAddress
-#define Cy_USBD_DMADesc_SetDstAddress Cy_DMAC_Descriptor_SetDstAddress
-#define Cy_USBD_DMADesc_SetXloopDataCount Cy_DMAC_Descriptor_SetXloopDataCount
-#define Cy_USBD_DMADesc_SetYloopDataCount Cy_DMAC_Descriptor_SetYloopDataCount
-#define Cy_USBD_DMADesc_SetYloopSrcIncrement Cy_DMAC_Descriptor_SetYloopSrcIncrement
-#define Cy_USBD_DMADesc_SetYloopDstIncrement Cy_DMAC_Descriptor_SetYloopDstIncrement
-#define Cy_USBD_DMADesc_SetNextDescriptor Cy_DMAC_Descriptor_SetNextDescriptor
-#define Cy_USBD_DMADesc_SetChannelState Cy_DMAC_Descriptor_SetChannelState
-#define Cy_USBD_DMADesc_Init Cy_DMAC_Descriptor_Init
-#define Cy_USBD_DMAChn_Init Cy_DMAC_Channel_Init
-#define Cy_USBD_DMAChn_SetDesc Cy_DMAC_Channel_SetDescriptor
-#define Cy_USBD_DMAChn_Enable Cy_DMAC_Channel_Enable
-#define Cy_USBD_DMAChn_Disable Cy_DMAC_Channel_Disable
-#define Cy_USBD_DMAChn_IsEnabled Cy_DMAC_Channel_IsEnabled
-#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), CY_DMAC_INTR_MASK)
-#define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMAC_Channel_SetInterruptMask((dmabase), (channel), 0)
-#define Cy_USBD_DMAChn_GetIntrStatus Cy_DMAC_Channel_GetInterruptStatus
-#define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMAC_Channel_ClearInterrupt((dmabase), (channel), (value))
-
-#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDmacBase
-#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDmacBase
-
-#define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT16
-#define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
-#define CY_USBD_EGREP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
-#define CY_USBD_EGREP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
-#define CY_USBD_INGEP_OUT_TRIG          TRIG_IN_MUX_5_USBHSDEV_TR_OUT0
-#define CY_USBD_INGEP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN0
-#define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_5_MDMA_TR_IN0
-#define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_MDMA_TR_OUT0
-
-#else
 
 /* Map USBD DMA types and function names to DW types and functions. */
 typedef cy_stc_dma_descriptor_t cy_stc_usbd_dma_descr_t;
@@ -317,6 +266,9 @@ typedef cy_stc_dma_channel_config_t cy_stc_usbd_dma_chn_conf_t;
 #define CY_USBD_DMA_XFER_SIZE_DATA CY_DMA_TRANSFER_SIZE_DATA
 #define CY_USBD_DMA_1D_XFER CY_DMA_1D_TRANSFER
 #define CY_USBD_DMA_2D_XFER CY_DMA_2D_TRANSFER
+#define CY_USBD_DMA_INTR_MASK CY_DMA_INTR_MASK
+#define CY_USBD_DMA_EP0_OUT_CHN_NUM 0x00                /* Channel DW0.0 */
+#define CY_USBD_DMA_EP0_IN_CHN_NUM 0x00                 /* Channel DW1.0 */
 
 #define Cy_USBD_DMADesc_SetSrcAddress Cy_DMA_Descriptor_SetSrcAddress
 #define Cy_USBD_DMADesc_SetDstAddress Cy_DMA_Descriptor_SetDstAddress
@@ -332,13 +284,17 @@ typedef cy_stc_dma_channel_config_t cy_stc_usbd_dma_chn_conf_t;
 #define Cy_USBD_DMAChn_Enable Cy_DMA_Channel_Enable
 #define Cy_USBD_DMAChn_Disable Cy_DMA_Channel_Disable
 #define Cy_USBD_DMAChn_IsEnabled Cy_DMA_Channel_IsEnabled
-#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), CY_DMA_INTR_MASK)
+#define Cy_USBD_DMAChn_EnableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), CY_USBD_DMA_INTR_MASK)
 #define Cy_USBD_DMAChn_DisableIntr(dmabase, channel) Cy_DMA_Channel_SetInterruptMask((dmabase), (channel), 0)
 #define Cy_USBD_DMAChn_GetIntrStatus Cy_DMA_Channel_GetInterruptStatus
 #define Cy_USBD_DMAChn_ClearIntr(dmabase, channel, value) Cy_DMA_Channel_ClearInterrupt((dmabase), (channel))
 
-#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        pUsbdCtxt->pCpuDw1Base
-#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       pUsbdCtxt->pCpuDw0Base
+#ifdef CY_DEVICE_FX3G2
+#define Cy_USBD_EP0In_DmaBase(pUsbdCtxt)        DW1
+#define Cy_USBD_EP0Out_DmaBase(pUsbdCtxt)       DW0
+#else
+#error "Unsupported target device"
+#endif
 
 #define CY_USBD_EGREP_OUT_TRIG          TRIG_IN_MUX_1_USBHSDEV_TR_OUT16
 #define CY_USBD_EGREP_IN_TRIG           TRIG_OUT_MUX_8_USBHSDEV_TR_IN16
@@ -349,7 +305,10 @@ typedef cy_stc_dma_channel_config_t cy_stc_usbd_dma_chn_conf_t;
 #define CY_USBD_INGEP_DMA_TRIG_BASE     TRIG_OUT_MUX_0_PDMA0_TR_IN0
 #define CY_USBD_INGEP_DMAOUT_TRIG_BASE  TRIG_IN_MUX_8_PDMA0_TR_OUT0
 
-#endif /* EP0_DATAWIRE_EN */
+/* Get the nth datawire descriptor for USB HS Egress (IN) endpoints */
+#define CY_USBHS_INEP_GET_DW_DESC(pChannel,n)     \
+    (cy_stc_dma_descriptor_t *)(&((pChannel->pConsDwDscr[0])[n].dwDscr))
+
 #endif /* DOXYGEN */
 
 /** \} group_usbfxstack_usb_common_macros */
@@ -552,6 +511,21 @@ typedef enum {
     CY_USBD_NOTIF_SBLNK_SPEED           /**< Sublink Speed notification. */
 }cy_en_usbd_notification_type_t;
 
+
+
+typedef enum {
+    CY_USBD_STATE_UNKNOWN = 0,          /**< 0: Unknown state. */
+    CY_USBD_USBHS_LINK_ACTIVE,          /**< 1: USBHS link is active. */
+    CY_USBD_USBHS_LINK_L1,              /**< 2: USBHS link is in L1 sleep state. */
+    CY_USBD_USBHS_LINK_SUSPEND,         /**< 3: USBHS link is in suspend state. */
+    CY_USBD_USBSS_LINK_U0,              /**< 4: USBSS link is in U0 state. */
+    CY_USBD_USBSS_LINK_U1,              /**< 5: USBSS link is in U1 state. */
+    CY_USBD_USBSS_LINK_U2,              /**< 6: USBSS link is in U2 state. */
+    CY_USBD_USBSS_LINK_U3,              /**< 7: USBSS link is in U3 state. */
+    CY_USBD_USBSS_COMPLIANCE,           /**< 8: USBSS link is in compliance mode. */
+}cy_en_usbd_usb_powerstate_t;
+
+
 /** \} group_usbfxstack_usb_common_enums */
 
 #ifndef DOXYGEN
@@ -735,6 +709,7 @@ struct cy_stc_usb_usbd_ctxt_t
     bool underrunWarningDone;                           /**< Whether underrun warning has been issued. */
     bool usb2FallbackDisable;                           /**< Whether fallback to USB 2.x is disabled. */
     bool isCtrlEpStalled;                               /**< Whether the USB-SS control endpoint has been stalled. */
+    cy_en_hs_ctle_sel_t hsCtleSel;                      /**< HS CTLE selection for USB 2.0 connection. */
 };
 
 typedef struct cy_stc_usbd_devstats_t
@@ -903,6 +878,24 @@ cy_en_usbd_ret_code_t Cy_USBD_SetDscr(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 *
 *******************************************************************************/
 cy_en_usb_speed_t Cy_USBD_GetDeviceSpeed(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
+
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetDeviceSpeedStr
+****************************************************************************//**
+*
+* This API returns the device's operating speed as a human-readable string
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \return
+* "Unknown Speed" if device speed is out of range or context is NULL.
+* String representing the device speed otherwise.
+*******************************************************************************/
+const char *
+Cy_USBD_GetDeviceSpeedStr(const cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
+
 
 /*******************************************************************************
 * Function name: Cy_USBD_SetDeviceSpeed
@@ -3650,6 +3643,61 @@ void Cy_USBD_GetDeviceStats(
 bool Cy_USBD_ControlUsb2Support(
         cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         bool enable);
+
+
+/*******************************************************************************
+* Function name: Cy_USBD_GetUSBPowerState
+****************************************************************************//**
+*
+* This function returns the current USB power state (U0/U1/U2 for USB3 and
+* L0/SUSPEND for USB2) of the device.
+*
+* \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \return
+* Current USB power state of the device.
+*******************************************************************************/
+
+cy_en_usbd_usb_powerstate_t
+Cy_USBD_GetUSBPowerState(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
+
+
+/********************************************************************************
+* Function name: Cy_USBD_EnterDeepsleep
+****************************************************************************//**
+*
+* This function prepares and puts the device into deepsleep.
+ \param pUsbdCtxt
+* USBD layer context pointer.
+*
+* \return
+* CY_USBD_STATUS_SUCCESS if sleep entry and exit is successful,
+* CY_USBD_STATUS_FAILURE otherwise.
+*
+*******************************************************************************/
+
+cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, DW_Type *pCpuDw1Base);
+
+
+/*******************************************************************************
+* Function name: Cy_USBD_SelectHSCtleConfig
+****************************************************************************//**
+*
+* Selects the HS CTLE configuration for USB 2.x operation. Call this API
+* before enabling the USB connection to override the stack default
+* (CY_USBHS_CTLE_SEL_5). Refer to cy_en_hs_ctle_sel_t for available options.
+*
+* \param pUsbdCtxt USB Stack context structure.
+* \param ctleSel Desired HS CTLE configuration selection.
+*
+* \return
+* CY_USBD_STATUS_SUCCESS: CTLE configuration selection registered successfully.
+* CY_USBD_STATUS_CTXT_NULL: Invalid NULL pointer parameter.
+* CY_USBD_STATUS_FAILURE: ctleSel out of range or lower-layer error.
+*******************************************************************************/
+cy_en_usbd_ret_code_t Cy_USBD_SelectHSCtleConfig(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        cy_en_hs_ctle_sel_t ctleSel);
 
 /** \} group_usbfxstack_usb_common_functions */
 

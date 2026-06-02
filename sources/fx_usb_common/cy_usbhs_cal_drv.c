@@ -1429,6 +1429,11 @@ Cy_USBHS_Cal_IntrHandler (cy_stc_usb_cal_ctxt_t *pCalCtxt)
         /* Check if SLP interrupt is asserted for any OUT endpoint. */
         if ((epIngrActIntr & (1 << (endpNum + USBHSDEV_DEV_EP_INGRS_INTR_EP_INGRS_SLP_RCVD_Pos))) != 0) {
 
+            /* If allow NAK bit is set for this OUT endpoint, set the NAK bit immediately. */
+            if ((pCalBase->IEPM_ENDPOINT[endpNum] & USBHSDEV_IEPM_ENDPOINT_ALLOW_NAK_TILL_DMA_RDY_Msk) != 0) {
+                pCalBase->DEV_EPO_CS[endpNum] |= USBHSDEV_DEV_EPO_CS_NAK;
+            }
+
             /* Notify USBD for handling. */
             /*
              *  0-9 bit in the register gives size of slp.
@@ -3237,6 +3242,37 @@ Cy_USBHS_Cal_IsLinkActive (cy_stc_usb_cal_ctxt_t *pCalCtxt)
     }
 
     return (linkActive);
+}
+
+
+/*******************************************************************************
+* Function name: Cy_USBHS_Cal_SetCtleSelValue
+****************************************************************************//**
+*
+* Sets the HS_CTLE_SEL field in the AFE_CONTROL_1 register of the USBHS PHY.
+*
+* \param pCalCtxt CAL layer context pointer.
+* \param ctleSel CTLE level selection (CY_USBHS_CTLE_SEL_0 .. CY_USBHS_CTLE_SEL_7).
+*
+* \return
+* CY_USB_CAL_STATUS_SUCCESS if successful.
+* CY_USB_CAL_STATUS_CAL_CTXT_NULL if pCalCtxt or pCalCtxt->pPhyBase is NULL.
+*******************************************************************************/
+
+cy_en_usb_cal_ret_code_t
+Cy_USBHS_Cal_SetCtleSelValue(cy_stc_usb_cal_ctxt_t *pCalCtxt,
+        cy_en_hs_ctle_sel_t ctleSel)
+{
+    if ((NULL == pCalCtxt) || (pCalCtxt->pPhyBase == NULL)) {
+        return CY_USB_CAL_STATUS_CAL_CTXT_NULL;
+    }
+
+    USBHSPHY_Type  *pPhyBase = pCalCtxt->pPhyBase;
+
+    pPhyBase->AFE_CONTROL_1 = (pPhyBase->AFE_CONTROL_1 & ~USBHSPHY_AFE_CONTROL_1_HS_CTLE_SEL_Msk)
+        | ((uint32_t)ctleSel << USBHSPHY_AFE_CONTROL_1_HS_CTLE_SEL_Pos);
+
+    return CY_USB_CAL_STATUS_SUCCESS;
 }
 
 #if defined(__cplusplus)

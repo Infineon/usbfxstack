@@ -62,6 +62,13 @@ static uint8_t  LvdsSlaveDllPhase[18][LVDS_PHY_TRAIN_MAX_COUNT] = {{0}};
 static uint8_t  LvdsPort0Phase = 0;                             /* Static DLL phase selection for LVDS lanes in SIP0 */
 static uint8_t  LvdsPort1Phase = 0;                             /* Static DLL phase selection for LVDS lanes in SIP1 */
 
+static volatile uint8_t glLinkPowerStateTable[CY_LVDS_MAX_PHY_INSTANCE] = 
+{
+    CY_LVDS_LVCMOS_L0_STATE,
+    CY_LVDS_LVCMOS_L0_STATE
+};
+
+
 /**
  * @brief Lookup Table for pll_n_in_div, pll_n_serial_div, pll_n_fb_div and pll_n_frame_div
 */
@@ -211,6 +218,13 @@ void Cy_LVDS_PllBypassControl (bool pllBypassEnable)
     gPllBypassEnabled = pllBypassEnable;
 }
 
+#else
+
+static volatile uint8_t glLinkPowerStateTable[CY_LVDS_MAX_PHY_INSTANCE] = 
+{
+    CY_LVDS_LVCMOS_L0_STATE
+};
+
 #endif /* (!LVCMOS_16BIT_SDR) */
 
 static void HandlePhyInterrupts        (uint32_t phyIntr, cy_stc_lvds_context_t *lvdsContext);
@@ -334,6 +348,11 @@ cy_en_lvds_status_t Cy_LVDS_Init(LVDSSS_LVDS_Type * base, uint8_t sipNo,
         return status;
     }
     DBG_LVDS_INFO("LVDS_GpifInit done for Port: %d\r\n", sipNo);
+    
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
+#if (!LVCMOS_16BIT_SDR)
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
+#endif /* (!LVCMOS_16BIT_SDR) */
     return status;
 }
 
@@ -414,6 +433,12 @@ cy_en_lvds_status_t Cy_LVDS_Deinit (LVDSSS_LVDS_Type *base, uint8_t sipNo, cy_st
             }
         }
     }
+
+    /* Clear link status variables */
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
+#if (!LVCMOS_16BIT_SDR)
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
+#endif /* (!LVCMOS_16BIT_SDR) */
 
     Cy_SysLib_ExitCriticalSection(intMask);
 
@@ -497,6 +522,12 @@ cy_en_lvds_status_t Cy_LVDS_Init_Ext (LVDSSS_LVDS_Type * base, uint8_t sipNo,
         return status;
     }
     DBG_LVDS_INFO("LVDS_GpifInit done for Port: %d\r\n", sipNo);
+
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
+#if (!LVCMOS_16BIT_SDR)
+    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
+#endif /* (!LVCMOS_16BIT_SDR) */
+
     return status;
 }
 
@@ -746,7 +777,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         if ((gear_ratio == 2) && (gPllBypassEnabled)) {
             pll_bypass = true;
         }
-        DBG_LVDS_INFO("LVDS_PHY_DESKEW:DDR_FAST pll_bypass:%d \r\n",pll_bypass);
+        DBG_LVDS_TRACE("LVDS_PHY_DESKEW:DDR_FAST pll_bypass:%d \r\n",pll_bypass);
     }
     else if (lane_data_bit_rate > 200000)
     {
@@ -756,7 +787,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         if ((gear_ratio == 1) && (gPllBypassEnabled)) {
             pll_bypass = true;
         }
-        DBG_LVDS_INFO("LVDS_PHY_DESKEW:SDR_FAST pll_bypass:%d \r\n",pll_bypass);
+        DBG_LVDS_TRACE("LVDS_PHY_DESKEW:SDR_FAST pll_bypass:%d \r\n",pll_bypass);
     }
     else
     {
@@ -768,7 +799,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         if ((gear_ratio == 1) && (gPllBypassEnabled)) {
             pll_bypass = true;
         }
-        DBG_LVDS_INFO("LVDS_PHY_DESKEW:BYPASS pll_bypass:%d \r\n",pll_bypass);
+        DBG_LVDS_TRACE("LVDS_PHY_DESKEW:BYPASS pll_bypass:%d \r\n",pll_bypass);
     }
 
     if (pll_serial_clk < 295000)  /* In kHz */
@@ -827,7 +858,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
                         pll_serial_clk,vco_clk,pll_input_freq,pll_frame_clk);
     DBG_LVDS_TRACE("cnt_10us24_val:%d \r\n",cnt_10us24_val);
 
-    DBG_LVDS_INFO("interface_freq:%d kHz ,lane_data_bit_rate:%d kHz, gear_ratio:%d \r\n",interface_freq,lane_data_bit_rate,gear_ratio);
+    DBG_LVDS_TRACE("interface_freq:%d kHz ,lane_data_bit_rate:%d kHz, gear_ratio:%d \r\n",interface_freq,lane_data_bit_rate,gear_ratio);
 
     base->AFE[portNo].PHY_GENERAL_CONFIG_2  &= ~LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_2_CNT_10US24_VAL_Msk;
     base->AFE[portNo].PHY_GENERAL_CONFIG_2  |=  _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_2_CNT_10US24_VAL, cnt_10us24_val);
@@ -837,7 +868,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     /* For PHY_DESKEW  SDR_FAST/DDR_FAST  */
     if ((phy_deskew_algo == CY_LVDS_PHY_DESKEW_DDR_FAST) || (phy_deskew_algo == CY_LVDS_PHY_DESKEW_SDR_FAST))
     {
-        DBG_LVDS_INFO("PHY_DESKEW is SDR or DDR FAST Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is SDR or DDR FAST Mode \r\n");
         /* DESKEW_ERR_THRESH2 value set set to 10 when the monitor is off and to 6 when the monitor is on */
         base->AFE[portNo].PHY_GENERAL_CONFIG &= ~(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH1_Msk |
                                                   LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ERR_THRESH2_Msk);
@@ -879,7 +910,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     /* For PHY_DESKEW SDR_FAST/DDR_FAST  */
     if ((phy_deskew_algo == CY_LVDS_PHY_DESKEW_DDR_FAST) || (phy_deskew_algo == CY_LVDS_PHY_DESKEW_SDR_FAST))
     {
-        DBG_LVDS_INFO("PHY_DESKEW is SDR or DDR FAST Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is SDR or DDR FAST Mode \r\n");
         /* Switch on REG_1P25 Regulator */
         base->AFE[portNo].REG_1P25      |=   _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_ENABLE, 1u) |
                                              _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_USE_REG, 1u);
@@ -893,7 +924,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     else if (phy_deskew_algo == CY_LVDS_PHY_DESKEW_BYPASS) /* Deskew Algorithm Bypass */
     {
 
-        DBG_LVDS_INFO("PHY_DESKEW is Bypass Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is Bypass Mode \r\n");
         /* Switch on all needed LVDS RX */
         for(i = 0; i < 10; i++)
         {
@@ -925,7 +956,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
 
     if(config->wideLink == true)
     {
-        DBG_LVDS_INFO("LVDS WL Mode\r\n");
+        DBG_LVDS_TRACE("LVDS WL Mode\r\n");
         for(i = 0; i < 7; i++)
         {
             if(((config->ctrlBusBitMap >> (i+(7*portNo)))) & 0x0001)
@@ -934,7 +965,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     }
     else
     {
-        DBG_LVDS_INFO("LVDS NL Mode\r\n");
+        DBG_LVDS_TRACE("LVDS NL Mode\r\n");
         for(i = 0; i < 7; i++)
         {
             if((config->ctrlBusBitMap >> i) & 0x0001)
@@ -958,19 +989,19 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
     /* Find the Bypass Mode */
     if (phy_deskew_algo == CY_LVDS_PHY_DESKEW_BYPASS)
     {
-        DBG_LVDS_INFO("PHY_DESKEW is Bypass Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is Bypass Mode \r\n");
         /* Take LVDS pads as data source */
         base->AFE[portNo].GENERAL_RX            |=   _BOOL2FLD(LVDSSS_LVDS_AFE_GENERAL_RX_DLL_BYPASS_EN, 1u);
         base->AFE[portNo].GENERAL_RX            |=   _BOOL2FLD(LVDSSS_LVDS_AFE_GENERAL_RX_DR_MODE, 1u);
     }
     else if (phy_deskew_algo == CY_LVDS_PHY_DESKEW_SDR_FAST)
     {
-        DBG_LVDS_INFO("PHY_DESKEW is SDR FAST Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is SDR FAST Mode \r\n");
         base->AFE[portNo].GENERAL_RX            |=   _BOOL2FLD(LVDSSS_LVDS_AFE_GENERAL_RX_DR_MODE, 1u);
     }
     else if (phy_deskew_algo == CY_LVDS_PHY_DESKEW_DDR_FAST)
     {
-        DBG_LVDS_INFO("PHY_DESKEW is DDR FAST Mode \r\n");
+        DBG_LVDS_TRACE("PHY_DESKEW is DDR FAST Mode \r\n");
         base->AFE[portNo].GENERAL_RX            &=   ~LVDSSS_LVDS_AFE_GENERAL_RX_DR_MODE_Msk;
         base->AFE[portNo].GENERAL_RX            |=   _BOOL2FLD(LVDSSS_LVDS_AFE_GENERAL_RX_DR_MODE, 0u);
     }
@@ -1015,7 +1046,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
 
     /* Take care of PLL BYPASS Case */
     if (pll_bypass) {
-        DBG_LVDS_INFO("PLL BYPASS\r\n");
+        DBG_LVDS_INFO("PLL bypass selected\r\n");
         Cy_SysLib_DelayUs(1);
         base->AFE[portNo].PLL_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_BYPASS, 0x1u);
         Cy_SysLib_DelayUs(10);
@@ -1028,11 +1059,11 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         Cy_SysLib_DelayUs(10);
         base->AFE[portNo].PLL_CONFIG |=  _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_EN, 0x1u);
 
-        DBG_LVDS_INFO("Wait till PLL Lock\r\n");
+        DBG_LVDS_TRACE("Wait till PLL Lock\r\n");
         timeoutCount = 0;
         while(!(base->AFE[portNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_PLL_LOCK_ACQUIRED_Msk))
         {
-            Cy_SysLib_Delay(1);
+            Cy_SysLib_DelayUs(10);
             timeoutCount++;
             if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
             {
@@ -1042,7 +1073,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
             }
         }
 
-        DBG_LVDS_INFO("PLL lock done for Port: %d\r\n", portNo);
+        DBG_LVDS_TRACE("PLL lock done for Port: %d\r\n", portNo);
     }
 
     /* Clear the interrupt status. */
@@ -1070,11 +1101,11 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         }
 
         /* Wait until DLL_M_Status.DLL_LOCK goes to 1 */
-        DBG_LVDS_INFO("Wait till DLL Lock\r\n");
+        DBG_LVDS_TRACE("Wait till DLL Lock\r\n");
         timeoutCount = 0;
         while(!(base->AFE[portNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk))
         {
-            Cy_SysLib_Delay(1);
+            Cy_SysLib_DelayUs(10);
             timeoutCount++;
             if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
             {
@@ -1085,7 +1116,7 @@ cy_en_lvds_status_t Cy_LVDS_Phy_Lvds_Init (LVDSSS_LVDS_Type * base,
         }
 
         base->AFE[portNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk;
-        DBG_LVDS_INFO("LVDS DLL Lock done for Port: %d\r\n", portNo);
+        DBG_LVDS_TRACE("LVDS DLL Lock done for Port: %d\r\n", portNo);
     }
 
     base->AFE[portNo].PHY_TRAIN_CONFIG &= ~(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk |
@@ -1185,6 +1216,86 @@ void Cy_LVDS_Phy_Lvds_Deinit(LVDSSS_LVDS_Type *base, uint8_t portNo)
 }
 
 #endif /* (!LVCMOS_16BIT_SDR) */
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_Phy_EnableAddressInputs
+****************************************************************************//**
+*
+* Enable the LVCMOS input buffer of any incoming address pins.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param portNo
+* Port number on the LVDS Sensor Interface port (SIP)
+*
+* \param isWl
+* Whether the port is configured in WideLink mode
+*
+* \param fifoAddrMode
+* Desired FIFO addressing mode
+*
+*******************************************************************************/
+static void
+Cy_LVDS_Phy_EnableAddressInputs (LVDSSS_LVDS_Type *base,
+                                 uint8_t portNo,
+                                 bool isWl,
+                                 cy_en_lvds_slave_fifo_mode_t fifoAddrMode)
+{
+    /*
+     * Identify the address pins and enable LVCMOS input function:
+     * WideLink with 5-bit addressing: pins CTL[9:5] of port 1 are used for thread and socket addressing.
+     * WideLink with 2-bit addressing: pins CTL[9:8] of port 1 are used for thread addressing.
+     * NarrowLink with 2-bit addressing: pins CTL[9:8] of the selected port are used for thread addressing.
+     * NarrowLink with 5-bit addressing: CTL pins are not used for addressing.
+     */
+    if ((base != NULL) && (portNo < CY_LVDS_MAX_PHY_INSTANCE)) {
+#if (!LVCMOS_16BIT_SDR)
+        if (isWl) {
+            switch (fifoAddrMode) {
+                case CY_LVDS_SLAVE_FIFO_5BIT:
+                    /* WideLink: Pins CTL[5] through CTL[9] of Port-1 are used for thread and socket addressing. */
+                    base->AFE[1].RX_LVCMOS[21] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    base->AFE[1].RX_LVCMOS[22] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    base->AFE[1].RX_LVCMOS[23] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+
+                    /* Intentional fall-through. */
+                case CY_LVDS_SLAVE_FIFO_2BIT:
+                    /* WideLink: Pins CTL[8] through CTL[9] of Port-1 are used for thread addressing. */
+                    base->AFE[1].RX_LVCMOS[24] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    base->AFE[1].RX_LVCMOS[25] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    break;
+
+                case CY_LVDS_NORMAL_MODE:
+                case CY_LVDS_ENHANCED_MODE:
+                default:
+                    /* No address pins used in these cases. */
+                    break;
+            }
+        } else {
+#endif /* (!LVCMOS_16BIT_SDR) */
+            switch (fifoAddrMode) {
+                case CY_LVDS_SLAVE_FIFO_2BIT:
+                    /* NarrowLink: Pins CTL[8] and CTL[9] of the current port are used for thread addressing. */
+                    base->AFE[portNo].RX_LVCMOS[24] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    base->AFE[portNo].RX_LVCMOS[25] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
+                    break;
+
+                case CY_LVDS_SLAVE_FIFO_5BIT:
+                    /* No PxCTL pins used as address in this case. */
+                    break;
+
+                case CY_LVDS_NORMAL_MODE:
+                case CY_LVDS_ENHANCED_MODE:
+                default:
+                    /* No address pins used in these cases. */
+                    break;
+            }
+#if (!LVCMOS_16BIT_SDR)
+        }
+#endif /* (!LVCMOS_16BIT_SDR) */
+    }
+}
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_PhyInit
@@ -1422,9 +1533,9 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
 #endif /* (!LVCMOS_16BIT_SDR) */
            )
         {
-            DBG_LVDS_INFO("LVCMOS SDR Mode\r\n");
+            DBG_LVDS_TRACE("LVCMOS SDR Mode\r\n");
             if ((config->lvcmosClkMode == CY_LVDS_LVCMOS_CLK_MASTER)) {
-                DBG_LVDS_INFO("LVCMOS SDR RX/TX OR DDR TX MASTER Mode\r\n");
+                DBG_LVDS_TRACE("LVCMOS SDR RX/TX OR DDR TX MASTER Mode\r\n");
                 base->AFE[portNo].LICIO_VCCD_V1P1       |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN, 1u);
             }
 
@@ -1465,7 +1576,6 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             {
                 if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
                 {
-
                     base->AFE[0].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
                     base->AFE[1].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
                 }
@@ -1482,26 +1592,29 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
                 {
                     if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
                     {
-
-                        base->AFE[portNo].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                        base->AFE[portNo].LICIO_CIO[9] |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
                     }
                     else
                     {
-                        base->AFE[portNo].LICIO_CIO[9]   |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                        base->AFE[portNo].LICIO_CIO[9] |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
                     }
                 }
                 else /* PORT0 */
                 {
                     if (config->lvcmosClkMode != CY_LVDS_LVCMOS_CLK_MASTER)
                     {
-
-                        base->AFE[portNo].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
+                        base->AFE[portNo].LICIO_CIO[24] |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_RX_EN, 0x1u);
                     }
                     else
                     {
-                        base->AFE[portNo].LICIO_CIO[24]  |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
+                        base->AFE[portNo].LICIO_CIO[24] |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_CIO_LVCMOS_TX_EN, 0x1u);
                     }
                 }
+            }
+
+            /* Make sure LVCMOS input sampling is enabled for any address pins. */
+            if ((config->wideLink == false) || (portNo != 0)) {
+                Cy_LVDS_Phy_EnableAddressInputs(base, portNo, config->wideLink, config->slaveFifoMode);
             }
 
             /* Note: Direction (input or output) of data and control lines can be programmed by GPIF or from AFE Register.
@@ -1523,13 +1636,22 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
         if((config->modeSelect == CY_LVDS_PHY_MODE_LVCMOS) && (config->gearingRatio == CY_LVDS_PHY_GEAR_RATIO_2_1) &&
                 (config->lvcmosClkMode == CY_LVDS_LVCMOS_CLK_SLAVE))
         {
-            if (config->dataBusDirection != CY_LVDS_PHY_AD_BUS_DIR_INPUT)
+            if (config->dataBusDirection == CY_LVDS_PHY_AD_BUS_DIR_OUTPUT)
             {
                 DBG_LVDS_ERR("DDR RX Slave Clk Mode Invalid Data Bus Direction\r\n");
                 return CY_LVDS_CONFIG_ERROR;
             }
 
-            DBG_LVDS_INFO("DDR RX Init started for Port: %d \r\n", portNo);
+            /*
+             * Note: We need to allow dataBusDirection value of CY_LVDS_PHY_AD_BUS_ALPHA_CONTROL for compatibility
+             * with GPIF III Designer generated header files.
+             */
+            if (config->dataBusDirection == CY_LVDS_PHY_AD_BUS_ALPHA_CONTROL)
+            {
+                DBG_LVDS_INFO("LVCMOS DDR slave clocked mode only supports data receive\r\n");
+            }
+
+            DBG_LVDS_TRACE("LVCMOS DDR Init started for Port: %d \r\n", portNo);
 
             if ((interface_freq > LVCMOS_DDR_SLAVE_MAX_INTERFACE_FREQ_RX_KHZ) ||
                 (interface_freq < LVCMOS_DDR_SLAVE_MIN_INTERFACE_FREQ_RX_KHZ))
@@ -1538,7 +1660,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
                 return CY_LVDS_CONFIG_ERROR;
             }
 
-            DBG_LVDS_INFO("LVCMOS DDR Interface CLK:%d kHz \r\n", interface_freq);
+            DBG_LVDS_TRACE("LVCMOS DDR Interface CLK:%d kHz \r\n", interface_freq);
             base->AFE[portNo].LICIO_VCCD_V1P1       |=   _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN, 1u);
             base->AFE[portNo].PHY_ADC_CONFIG        |=   _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_ADC_CONFIG_ISO_N, 1u);
 
@@ -1570,7 +1692,8 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
                 base->AFE[portNo].RX_LVCMOS[i]      |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
             }
 
-            /* Depending on control bus bit map, pins which are input needs to be configured - For widelink there can be 20 pins*/
+            /* Depending on control bus bit map, pins which are input needs to be configured -
+             * For widelink, there can be 20 pins */
             if(config->wideLink == true)
             {
                 for(i = 0; i < 10; i++)
@@ -1586,6 +1709,11 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
                     if((config->ctrlBusBitMap >> i) & 0x0001)
                         base->AFE[portNo].RX_LVCMOS[i+16] |= _BOOL2FLD(LVDSSS_LVDS_AFE_RX_LVCMOS_EN_LVCMOS, 1u);
                 }
+            }
+
+            /* Make sure LVCMOS input sampling is enabled for any address pins. */
+            if ((config->wideLink == false) || (portNo != 0)) {
+                Cy_LVDS_Phy_EnableAddressInputs(base, portNo, config->wideLink, config->slaveFifoMode);
             }
 
             /* Frame clock */
@@ -1607,7 +1735,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             timeoutCount = 0;
             while(!(base->AFE[portNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk))
             {
-                Cy_SysLib_Delay(1);
+                Cy_SysLib_DelayUs(10);
                 timeoutCount++;
                 if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
                 {
@@ -1618,7 +1746,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             }
             base->AFE[portNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk;
             status = CY_LVDS_SUCCESS;
-            DBG_LVDS_INFO("DDR DLL_M lock done for Port: %d\r\n", portNo);
+            DBG_LVDS_TRACE("DDR DLL_M lock done for Port: %d\r\n", portNo);
 
             /* Clear DESKEW_COMPLETED bit in PHY_INTR */
             base->AFE[portNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk;
@@ -1630,7 +1758,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             timeoutCount = 0;
             while(!(base->AFE[portNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk))
             {
-                Cy_SysLib_Delay(1);
+                Cy_SysLib_DelayUs(10);
                 timeoutCount++;
                 if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
                 {
@@ -1641,7 +1769,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyInit(LVDSSS_LVDS_Type * base, uint8_t portNo, con
             }
             base->AFE[portNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk;
             status = CY_LVDS_SUCCESS;
-            DBG_LVDS_INFO("DDR Deskew complete for Port: %d\r\n", portNo);
+            DBG_LVDS_TRACE("DDR Deskew complete for Port: %d\r\n", portNo);
         }
 #endif /* (!LVCMOS_16BIT_SDR) */
 
@@ -3185,8 +3313,9 @@ cy_en_lvds_status_t Cy_LVDS_GpifInit(LVDSSS_LVDS_Type * base, uint8_t smNo, cons
     uint32_t addr = (uint32_t)&(base->GPIF[smNo]);
     uint8_t entry = 0;
     uint32_t index = 0;
+    uint32_t threadMask = 0;
 
-    DBG_LVDS_INFO("Cy_LVDS_GpifInit Start\r\n");
+    DBG_LVDS_TRACE("Cy_LVDS_GpifInit Start\r\n");
     if ((base == NULL) || (lvdsContext == NULL) || (smNo >= CY_LVDS_MAX_GPIF_INSTANCE))
     {
         return CY_LVDS_BAD_PARAMETER;
@@ -3204,16 +3333,21 @@ cy_en_lvds_status_t Cy_LVDS_GpifInit(LVDSSS_LVDS_Type * base, uint8_t smNo, cons
         *(uint32_t *)(addr + (uint32_t)gpifConfig->regData[index].regAddr) = (uint32_t)gpifConfig->regData[index].regValue;
     }
 
+    /* If port-1 is using Normal addressing mode, make sure that correct thread index is selected. */
+    if ((smNo != 0) && ((base->GPIF[smNo].GPIF_CONFIG & LVDSSS_LVDS_GPIF_GPIF_CONFIG_THREAD_IN_STATE_Msk) != 0)) {
+        threadMask = (2UL << (LVDSSS_LVDS_GPIF_LEFT_WAVEFORM_WAVEFORM1_BETA_L_Pos + 4U));
+    }
+
     for (index = 0; index < gpifConfig->stateCount; index++)
     {
         entry = gpifConfig->statePosition[index];
         base->GPIF[smNo].LEFT.WAVEFORM[index].WAVEFORM0  = gpifConfig->stateData[entry].leftData[0];
-        base->GPIF[smNo].LEFT.WAVEFORM[index].WAVEFORM1  = gpifConfig->stateData[entry].leftData[1];
+        base->GPIF[smNo].LEFT.WAVEFORM[index].WAVEFORM1  = gpifConfig->stateData[entry].leftData[1] | threadMask;
         base->GPIF[smNo].LEFT.WAVEFORM[index].WAVEFORM2  = gpifConfig->stateData[entry].leftData[2];
         base->GPIF[smNo].LEFT.WAVEFORM[index].WAVEFORM3  = gpifConfig->stateData[entry].leftData[3];
 
         base->GPIF[smNo].RIGHT.WAVEFORM[index].WAVEFORM0 = gpifConfig->stateData[entry].rightData[0];
-        base->GPIF[smNo].RIGHT.WAVEFORM[index].WAVEFORM1 = gpifConfig->stateData[entry].rightData[1];
+        base->GPIF[smNo].RIGHT.WAVEFORM[index].WAVEFORM1 = gpifConfig->stateData[entry].rightData[1] | threadMask;
         base->GPIF[smNo].RIGHT.WAVEFORM[index].WAVEFORM2 = gpifConfig->stateData[entry].rightData[2];
         base->GPIF[smNo].RIGHT.WAVEFORM[index].WAVEFORM3 = gpifConfig->stateData[entry].rightData[3];
     }
@@ -3687,28 +3821,40 @@ void Cy_LVDS_IrqHandler(LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsConte
                     }
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK0_L1_ENTRY_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_L1_STATE;
                         lvdsContext->intrCallback->phy_events(0, CY_LVDS_PHY_L1_ENTRY, lvdsContext->userContext);
                     }
+#if (!LVCMOS_16BIT_SDR)
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK1_L1_ENTRY_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_L1_STATE;
                         lvdsContext->intrCallback->phy_events(1, CY_LVDS_PHY_L1_ENTRY, lvdsContext->userContext);
                     }
+#endif /* (!LVCMOS_16BIT_SDR) */
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK0_L1_EXIT_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
                         lvdsContext->intrCallback->phy_events(0, CY_LVDS_PHY_L1_EXIT, lvdsContext->userContext);
                     }
+#if (!LVCMOS_16BIT_SDR)
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK1_L1_EXIT_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
                         lvdsContext->intrCallback->phy_events(1, CY_LVDS_PHY_L1_EXIT, lvdsContext->userContext);
                     }
+#endif /* (!LVCMOS_16BIT_SDR) */
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK0_L3_ENTRY_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L3_STATE;
                         lvdsContext->intrCallback->phy_events(0, CY_LVDS_PHY_L3_ENTRY, lvdsContext->userContext);
                     }
+#if (!LVCMOS_16BIT_SDR)
                     if(activeIntr & LVDSSS_LVDS_LVDS_INTR_WD0_LNK1_L3_ENTRY_Msk)
                     {
+                        glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L3_STATE;
                         lvdsContext->intrCallback->phy_events(1, CY_LVDS_PHY_L3_ENTRY, lvdsContext->userContext);
                     }
+#endif /* (!LVCMOS_16BIT_SDR) */
                 }
             }
         }
@@ -3782,6 +3928,14 @@ void Cy_LVDS_IrqHandler(LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsConte
 void Cy_LVDS_LowPowerIrqHandler(LVDSSS_LVDS_Type * base, cy_stc_lvds_context_t *lvdsContext)
 {
     uint32_t activeIntr;
+
+    if ((base == NULL) || (lvdsContext == NULL) ||
+            (lvdsContext->phyConfigP0 == NULL) || (lvdsContext->intrCallback == NULL))
+    {
+        DBG_LVDS_ERR("LVDS LowPwrISR: Bad context\r\n");
+        return;
+    }
+
     if (base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_MASKED)
     {
         activeIntr = base->LVDS_LOW_PWR_INTR.LVDS_WAKEUP_INTR_MASKED;
@@ -3791,12 +3945,27 @@ void Cy_LVDS_LowPowerIrqHandler(LVDSSS_LVDS_Type * base, cy_stc_lvds_context_t *
         {
             if(activeIntr & LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LVDS_WAKEUP_INTR_LNK0_L3_EXIT_Msk)
             {
+#if (!LVCMOS_16BIT_SDR)
+                /* For Widelink mode, only Link-0 l3 exit interrupt is received */
+                if(lvdsContext->phyConfigP0->wideLink)
+                {
+                    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
+                    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
+                }
+                else
+#endif /* (!LVCMOS_16BIT_SDR) */
+                {
+                    glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
+                }
                 lvdsContext->intrCallback->low_power_events(CY_LVDS_LOW_POWER_LNK0_L3_EXIT, lvdsContext->userContext);
             }
+#if (!LVCMOS_16BIT_SDR)
             if(activeIntr & LVDSSS_LVDS_LVDS_LOW_PWR_INTR_LVDS_WAKEUP_INTR_LNK1_L3_EXIT_Msk)
             {
+                glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
                 lvdsContext->intrCallback->low_power_events(CY_LVDS_LOW_POWER_LNK1_L3_EXIT, lvdsContext->userContext);
             }
+#endif /* (!LVCMOS_16BIT_SDR) */
         }
     }
 }
@@ -3904,7 +4073,7 @@ void Cy_LVDS_L3_Entry (LVDSSS_LVDS_Type *base,
         base->CTL &= ~(LVDSSS_LVDS_CTL_LINK_ENABLED_Msk | LVDSSS_LVDS_CTL_PHY_ENABLED_Msk);
     }
 
-    DBG_LVDS_INFO("L3_Entry Done\r\n");
+    DBG_LVDS_INFO("L3_Entry Done for port :%d\r\n",sipNo);
 }
 
 /*******************************************************************************
@@ -4190,6 +4359,63 @@ cy_en_lvds_status_t Cy_LVDS_ClkOutEnable(LVDSSS_LVDS_Type * base,  cy_en_lvds_ph
     return status;
 }
 #endif /* LVCMOS_16BIT_SDR */
+
+
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_IsWidelinkModeActive
+****************************************************************************//**
+*
+* Returns true if the link is configured in wide link mode, false otherwise.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param lvdsContext
+* Pointer to the LVDS driver context structure
+*
+* \return
+* true if the device is in Widelink mode,
+* false if device is in Narrowlink mode
+*******************************************************************************/
+
+bool Cy_LVDS_IsWidelinkModeActive(LVDSSS_LVDS_Type *base,
+        cy_stc_lvds_context_t *lvdsContext)
+{
+    if ((base != NULL) && (lvdsContext != NULL))
+    {
+        return (lvdsContext->phyConfigP0->wideLink);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*******************************************************************************
+ * Function Name: Cy_LVDS_GetLinkState
+ * ****************************************************************************//**
+*
+* Returns the current link state of the specified Sensor Interface Port.
+*
+* \param base
+* Pointer to the LVDS register base address
+*
+* \param sipNo
+* Sensor Interface Port number
+* \return
+* Current link state of the specified Sensor Interface Port.
+*******************************************************************************/
+
+cy_en_lvds_link_state_t Cy_LVDS_GetLinkState(LVDSSS_LVDS_Type *base, uint8_t sipNo)
+{
+    cy_en_lvds_link_state_t linkState = CY_LVDS_UNKNOWN_STATE;
+    if ((base != NULL) && (sipNo < CY_LVDS_MAX_PHY_INSTANCE))
+    {
+        linkState = glLinkPowerStateTable[sipNo];
+    }
+    return linkState;
+}
 
 #if defined(__cplusplus)
 }

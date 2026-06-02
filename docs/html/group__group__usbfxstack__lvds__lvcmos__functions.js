@@ -74,8 +74,22 @@ var group__group__usbfxstack__lvds__lvcmos__functions =
     [ "Cy_LVDS_PhyGpioClr", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga1310289f4fd69afc0348643cdd090b02", null ],
     [ "Cy_LVDS_PhyGpioRead", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga5c6790f6dfbe6badb959abd2c5a01bfd", null ],
     [ "Cy_LVDS_ThreadDisable", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga5b79af95768ea0662caab9e773f3bc41", null ],
+    [ "Cy_LVDS_ConfigureCtrlOutPin", "group__group__usbfxstack__lvds__lvcmos__functions.html#gafc835c40a1435cc71e56fc1d6fa7f650", null ],
     [ "Cy_LVDS_PllBypassControl", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga9fdd7552f8e3e7a714befbe5793d7adc", null ],
     [ "Cy_LVDS_CustomTraining_Select", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaaf95a7b5be5ef2ab39eb5522e5b24b62", null ],
     [ "Cy_LVDS_CustomTraining_ApplyResults", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga229ae4ea703c24b9bfb1e33f7b89b734", null ],
-    [ "Cy_LVDS_CustomTraining_Task", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4", null ]
+    [ "Cy_LVDS_CustomTraining_Task", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga96eabf104faacf38cb2d47b85c4dd5f4", null ],
+    [ "Cy_LVDS_CustomTraining_QueryResults", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga13aeb235b91d730ea8898b7e6fb3ed39", null ],
+    [ "Cy_LVDS_SetWakeupInterruptMask", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga6ccfcd370b5c7d6beb810ec94860fad9", null ],
+    [ "Cy_LVDS_GetWakeupInterruptMask", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaa6e68c63d621917a36c119bd13cadd5d", null ],
+    [ "Cy_LVDS_GetWakeupInterruptStatusMasked", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga00c82eb9c27b3fd35b5c5f848d5abf03", null ],
+    [ "Cy_LVDS_GetWakeupInterruptStatus", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga15dd972fc8bcba2bea6ba433b4d9fbb3", null ],
+    [ "Cy_LVDS_ClearWakeupInterrupt", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga09f82de55cb48d38aef3954261ebc460", null ],
+    [ "Cy_LVDS_SetWakeupInterrupt", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga779405c1c1a17e685066855c0fabd10b", null ],
+    [ "Cy_LVDS_AllowL1Entry", "group__group__usbfxstack__lvds__lvcmos__functions.html#ga0bbcd49c0444b1dd289644f97c58a215", null ],
+    [ "Cy_LVDS_DisableL1Entry", "group__group__usbfxstack__lvds__lvcmos__functions.html#gab1c30d4ac9459b415483a39b2d4a31df", null ],
+    [ "Cy_LVDS_AllowL3Entry", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaa81077ea5e1e724de6ebf73cd8ed347b", null ],
+    [ "Cy_LVDS_DisableL3Entry", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaf6c10667fc6caa0318bc97e884952fac", null ],
+    [ "Cy_LVDS_IsWidelinkModeActive", "group__group__usbfxstack__lvds__lvcmos__functions.html#gaa33ec9fe2b5e24c4848a22dd450db182", null ],
+    [ "Cy_LVDS_GetLinkState", "group__group__usbfxstack__lvds__lvcmos__functions.html#gabff1a0849501099ee17ca7c87cb4688e", null ]
 ];

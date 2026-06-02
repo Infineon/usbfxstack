@@ -312,6 +312,7 @@ typedef struct cy_stc_hbdma_channel
     uint32_t curIngressXferSize[2];                /**< Current ingress DataWire transfer size in bytes. */
     uint8_t *pCurEgressDataBuf[2];                 /**< Current buffer from which egress DataWire channel is reading. */
     uint32_t curEgressXferSize[2];                 /**< Size of data in buffer from which egress channel is reading. */
+    uint32_t pendIngrSlpSize[2];                   /**< Pending ingress SLP size for the channel. */
 } cy_stc_hbdma_channel_t;
 
 /**

@@ -59,6 +59,7 @@ typedef struct cy_stc_lvds_train_info_ {
     uint8_t                    *patCount;       /**< Number of times each shifted pattern is received. */
     uint8_t                     patterns[LVDS_TRAIN_PAT_COUNT];     /**< Shifted versions of the training pattern. */
     uint8_t                     optimalPhase[LVDS_MAX_CHN_CNT];     /**< Optimal sampling phase for the lane. */
+    uint8_t                     windowSize[LVDS_MAX_CHN_CNT];       /**< Passing window size per lane. */
     bool                        lnk0Enable;     /**< Whether custom link training is enabled for Link-0 */
     bool                        lnk1Enable;     /**< Whether custom link training is enabled for Link-1 */
     bool                        lnk0Pending;    /**< Whether custom link training on Link-0 is pending. */
@@ -221,18 +222,24 @@ Cy_LVDS_ForcePhaseSelection (
             /* Data lanes of link-0 */
             for (lane = 0; ((lane < gLvdsTrain.lnk0LaneCnt) && (lane < 8)); lane++) {
                 pRegs->AFE[0].DLL_S_CONFIG[lane] &= ~(0x1F0UL);
-                pRegs->AFE[0].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane] << 4u) | 0x100UL);
+                if (gLvdsTrain.optimalPhase[lane] != 0) {
+                    pRegs->AFE[0].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane] << 4u) | 0x100UL);
+                }
             }
 
             /* CTRL lane of link-0 */
             pRegs->AFE[0].DLL_S_CONFIG[8] &= ~(0x1F0UL);
-            pRegs->AFE[0].DLL_S_CONFIG[8] |= ((gLvdsTrain.optimalPhase[16u] << 4u) | 0x100UL);
+            if (gLvdsTrain.optimalPhase[16u] != 0) {
+                pRegs->AFE[0].DLL_S_CONFIG[8] |= ((gLvdsTrain.optimalPhase[16u] << 4u) | 0x100UL);
+            }
 
             if (gLvdsTrain.isWideLink) {
                 /* Data lanes of link-1 */
                 for (lane = 0; lane < (gLvdsTrain.lnk0LaneCnt - 8); lane++) {
                     pRegs->AFE[1].DLL_S_CONFIG[lane] &= ~(0x1F0UL);
-                    pRegs->AFE[1].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane + 8] << 4u) | 0x100UL);
+                    if (gLvdsTrain.optimalPhase[lane + 8] != 0) {
+                        pRegs->AFE[1].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane + 8] << 4u) | 0x100UL);
+                    }
                 }
             }
         }
@@ -241,12 +248,16 @@ Cy_LVDS_ForcePhaseSelection (
             /* Data lanes of link-1 */
             for (lane = 0; lane < gLvdsTrain.lnk1LaneCnt; lane++) {
                 pRegs->AFE[1].DLL_S_CONFIG[lane] &= ~(0x1F0UL);
-                pRegs->AFE[1].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane + 8] << 4u) | 0x100UL);
+                if (gLvdsTrain.optimalPhase[lane + 8] != 0) {
+                    pRegs->AFE[1].DLL_S_CONFIG[lane] |= ((gLvdsTrain.optimalPhase[lane + 8] << 4u) | 0x100UL);
+                }
             }
 
             /* CTRL lane of link-1 */
             pRegs->AFE[1].DLL_S_CONFIG[8] &= ~(0x1F0UL);
-            pRegs->AFE[1].DLL_S_CONFIG[8] |= ((gLvdsTrain.optimalPhase[17u] << 4u) | 0x100UL);
+            if (gLvdsTrain.optimalPhase[17u] != 0) {
+                pRegs->AFE[1].DLL_S_CONFIG[8] |= ((gLvdsTrain.optimalPhase[17u] << 4u) | 0x100UL);
+            }
         }
     } else {
         if (gLvdsTrain.currentLink == 0) {
@@ -369,6 +380,10 @@ Cy_LVDS_IdentifyOptimalPhase (
             if ((eyeVector[i - 1] == 0) && (eyeVector[i] == 1))     /* 0 -> 1 transition */
             {
                 a1 = i;
+                if ((b1 < i) && (eyeVector[LVDS_DLL_PHASE_CNT] == 1))
+                {
+                    b1 = LVDS_DLL_PHASE_CNT;
+                }
             }
 
             if ((eyeVector[i - 1] == 2) && (eyeVector[i] == 0))     /* 2 -> 0 transition */
@@ -379,17 +394,31 @@ Cy_LVDS_IdentifyOptimalPhase (
             if ((eyeVector[i - 1] == 0) && (eyeVector[i] == 2))     /* 0 -> 2 transition */
             {
                 a2 = i;
+                if ((b2 < i) && (eyeVector[LVDS_DLL_PHASE_CNT] == 2))
+                {
+                    b2 = LVDS_DLL_PHASE_CNT;
+                }
             }
 
             if ((eyeVector[i - 1] == 1) && (eyeVector[i] == 2))     /* 1 -> 2 transition */
             {
                 a2 = i;
+                if ((b2 < i) && (eyeVector[LVDS_DLL_PHASE_CNT] == 2))
+                {
+                    b2 = LVDS_DLL_PHASE_CNT;
+                }
+
                 b1 = i - 1;
             }
 
             if ((eyeVector[i - 1] == 2) && (eyeVector[i] == 1))     /* 2 -> 1 transition */
             {
                 a1 = i;
+                if ((b1 < i) && (eyeVector[LVDS_DLL_PHASE_CNT] == 1))
+                {
+                    b1 = LVDS_DLL_PHASE_CNT;
+                }
+
                 b2 = i - 1;
             }
         }
@@ -408,18 +437,23 @@ Cy_LVDS_IdentifyOptimalPhase (
 
         if ((a == 1) && (d == LVDS_DLL_PHASE_CNT)) {
             sel_ph = c + (((d - c) + (b - a)) / 2) + 1;
+            gLvdsTrain.windowSize[lane] = (d + 1 - c) + (b + 1 - a);
         } else {
             if ((b - a) > (d - c)) {
                 if (b < a) {
                     sel_ph = ((LVDS_DLL_PHASE_CNT + b - a) / 2) + 1 + a;
+                    gLvdsTrain.windowSize[lane] = (LVDS_DLL_PHASE_CNT + 1 + a - b);
                 } else {
                     sel_ph = ((b - a) / 2) + a;
+                    gLvdsTrain.windowSize[lane] = (b + 1 - a);
                 }
             } else {
                 if (d < c) {
                     sel_ph = ((LVDS_DLL_PHASE_CNT + d - c) / 2) + 1 + c;
+                    gLvdsTrain.windowSize[lane] = (LVDS_DLL_PHASE_CNT + 1 + c - d);
                 } else {
                     sel_ph = ((d - c) / 2) + c;
+                    gLvdsTrain.windowSize[lane] = (d + 1 - c);
                 }
             }
         }
@@ -697,7 +731,7 @@ Cy_LVDS_CustomTraining_Enable (
     dmaConf.bufferMode          = true;
     dmaConf.eventEnable         = false;
     dmaConf.prodSckCount        = 1;
-    dmaConf.prodSck[0]          = (portNo != 0) ? CY_HBDMA_LVDS_SOCKET_16 : CY_HBDMA_LVDS_SOCKET_00;
+    dmaConf.prodSck[0]          = (portNo != 0) ? CY_HBDMA_LVDS_SOCKET_30 : CY_HBDMA_LVDS_SOCKET_14;
     dmaConf.prodSck[1]          = CY_HBDMA_VIRT_SOCKET_WR;
     dmaConf.consSckCount        = 1;
     dmaConf.consSck[0]          = CY_HBDMA_VIRT_SOCKET_RD;
@@ -736,6 +770,13 @@ Cy_LVDS_CustomTraining_Enable (
         return CY_LVDS_LINK_TRAINING_ERROR;
     }
 
+    /* Make sure that thread error related interrupts are disabled. */
+    base->LVDS_INTR_MASK_WD0 &= ~(
+            LVDSSS_LVDS_LVDS_INTR_WD0_THREAD0_ERR_Msk |
+            LVDSSS_LVDS_LVDS_INTR_WD0_THREAD1_ERR_Msk |
+            LVDSSS_LVDS_LVDS_INTR_WD0_THREAD2_ERR_Msk |
+            LVDSSS_LVDS_LVDS_INTR_WD0_THREAD3_ERR_Msk);
+
     /* Override GPIF configuration with custom state machine and start it. */
     Cy_LVDS_GpifSMStop(base, portNo);
     Cy_LVDS_GpifInit(base, portNo, &_CyGpifLvdsTrainConfig, pDrvCtxt);
@@ -746,9 +787,45 @@ Cy_LVDS_CustomTraining_Enable (
     }
 
     /* Enable the thread to receive data. */
-    Cy_LVDS_GpifThreadConfig(base, (portNo == 0) ? 0 : 2, 0, false, 1, 4);
+    Cy_LVDS_GpifThreadConfig(base, (portNo == 0) ? 0 : 2, 14, false, 1, 4);
 
     return CY_LVDS_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function name: Cy_LVDS_CustomTraining_QueryResults
+ ***************************************************************************//**
+ *
+ * Function to query the results of the LVDS custom training where available.
+ *
+ * \param pDrvCtxt
+ * Pointer to LVDS driver context structure.
+ * \param portNo
+ * LVDS port number
+ * \param pOptimalPhase
+ * Return parameter to be filled with array of optimal phase information
+ * \param pWindowSize
+ * Return parameter to be filled with array of passing delay windows.
+ *
+ * \return
+ * true if the training results are being returned, false otherwise.
+ ******************************************************************************/
+bool Cy_LVDS_CustomTraining_QueryResults (
+        cy_stc_lvds_context_t *pDrvCtxt,
+        uint8_t                portNo,
+        uint8_t              **pOptimalPhase,
+        uint8_t              **pWindowSize)
+{
+    bool retval = false;
+    if ((pDrvCtxt != NULL) && (portNo < 2) && (pOptimalPhase != NULL) && (pWindowSize != NULL)) {
+        if (((portNo == 0) && (gLvdsTrain.lnk0TrainDone)) || ((portNo == 1) && (gLvdsTrain.lnk1TrainDone))) {
+            *pOptimalPhase = (portNo != 0) ? (&(gLvdsTrain.optimalPhase[8])) : (gLvdsTrain.optimalPhase);
+            *pWindowSize   = (portNo != 0) ? (&(gLvdsTrain.windowSize[8])) : (gLvdsTrain.windowSize);
+            retval = true;
+        }
+    }
+
+    return retval;
 }
 
 /*******************************************************************************

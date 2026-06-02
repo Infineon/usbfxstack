@@ -113,6 +113,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga3612f6d61611a49d62c68bb9f1c52de0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0355d30a754a1ef18fec29f288f59880">cy_en_usb_speed_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga3612f6d61611a49d62c68bb9f1c52de0">Cy_USBD_GetDeviceSpeed</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt)</td></tr>
 <tr class="memdesc:ga3612f6d61611a49d62c68bb9f1c52de0"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API returns device's operating speed.  <a href="group__group__usbfxstack__usb__common__functions.html#ga3612f6d61611a49d62c68bb9f1c52de0">More...</a><br /></td></tr>
 <tr class="separator:ga3612f6d61611a49d62c68bb9f1c52de0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3550bc0e67fc0ddc65b0326a8f788fe6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga3550bc0e67fc0ddc65b0326a8f788fe6">Cy_USBD_GetDeviceSpeedStr</a> (const <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt)</td></tr>
+<tr class="memdesc:ga3550bc0e67fc0ddc65b0326a8f788fe6"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API returns the device's operating speed as a human-readable string.  <a href="group__group__usbfxstack__usb__common__functions.html#ga3550bc0e67fc0ddc65b0326a8f788fe6">More...</a><br /></td></tr>
+<tr class="separator:ga3550bc0e67fc0ddc65b0326a8f788fe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac02ea1c6c587c0d885652a276fa59797"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gac02ea1c6c587c0d885652a276fa59797">Cy_USBD_SetDeviceSpeed</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0355d30a754a1ef18fec29f288f59880">cy_en_usb_speed_t</a> speed)</td></tr>
 <tr class="memdesc:gac02ea1c6c587c0d885652a276fa59797"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API force operating speed of dvice.  <a href="group__group__usbfxstack__usb__common__functions.html#gac02ea1c6c587c0d885652a276fa59797">More...</a><br /></td></tr>
 <tr class="separator:gac02ea1c6c587c0d885652a276fa59797"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -525,6 +528,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:gab500760005bcebe8af7be7ab914575ad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gab500760005bcebe8af7be7ab914575ad">Cy_USBD_ControlUsb2Support</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, bool enable)</td></tr>
 <tr class="memdesc:gab500760005bcebe8af7be7ab914575ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable/Disable USB 2.x device operation on the device.  <a href="group__group__usbfxstack__usb__common__functions.html#gab500760005bcebe8af7be7ab914575ad">More...</a><br /></td></tr>
 <tr class="separator:gab500760005bcebe8af7be7ab914575ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa69e42239bc883b3e3b6b36954db5d3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga9e46321898d6d263080d0c0fafb699f3">cy_en_usbd_usb_powerstate_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gaa69e42239bc883b3e3b6b36954db5d3a">Cy_USBD_GetUSBPowerState</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt)</td></tr>
+<tr class="memdesc:gaa69e42239bc883b3e3b6b36954db5d3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function returns the current USB power state (U0/U1/U2 for USB3 and L0/SUSPEND for USB2) of the device.  <a href="group__group__usbfxstack__usb__common__functions.html#gaa69e42239bc883b3e3b6b36954db5d3a">More...</a><br /></td></tr>
+<tr class="separator:gaa69e42239bc883b3e3b6b36954db5d3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga21354914ecfa3a851ec2e795717eb578"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga21354914ecfa3a851ec2e795717eb578">Cy_USBD_EnterDeepsleep</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, DW_Type *pCpuDw1Base)</td></tr>
+<tr class="memdesc:ga21354914ecfa3a851ec2e795717eb578"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function prepares and puts the device into deepsleep.  <a href="group__group__usbfxstack__usb__common__functions.html#ga21354914ecfa3a851ec2e795717eb578">More...</a><br /></td></tr>
+<tr class="separator:ga21354914ecfa3a851ec2e795717eb578"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9b1aeff84ade01b074aa3d5a7847b6d7">Cy_USBD_SelectHSCtleConfig</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, cy_en_hs_ctle_sel_t ctleSel)</td></tr>
+<tr class="memdesc:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects the HS CTLE configuration for USB 2.x operation.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9b1aeff84ade01b074aa3d5a7847b6d7">More...</a><br /></td></tr>
+<tr class="separator:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9bc22556f358fd830746ff3305be8226"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">Cy_USBHS_Cal_Init</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, void *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a> callBackFunc)</td></tr>
 <tr class="memdesc:ga9bc22556f358fd830746ff3305be8226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the HS controller ie CAL layer and PHY.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">More...</a><br /></td></tr>
 <tr class="separator:ga9bc22556f358fd830746ff3305be8226"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -681,6 +693,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:gaab2438bbb920df71bf4f46223700faa7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gaab2438bbb920df71bf4f46223700faa7">Cy_USBHS_Cal_SOFIntrUpdate</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, bool sofIntrEnable)</td></tr>
 <tr class="memdesc:gaab2438bbb920df71bf4f46223700faa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to enable or disable the SOF interrupt based on user requirement.  <a href="group__group__usbfxstack__usb__common__functions.html#gaab2438bbb920df71bf4f46223700faa7">More...</a><br /></td></tr>
 <tr class="separator:gaab2438bbb920df71bf4f46223700faa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0524889bcca7608213d39ad488cc4b24"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga0524889bcca7608213d39ad488cc4b24">Cy_USBHS_Cal_SetCtleSelValue</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, cy_en_hs_ctle_sel_t ctleSel)</td></tr>
+<tr class="memdesc:ga0524889bcca7608213d39ad488cc4b24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the HS_CTLE_SEL field in the AFE_CONTROL_1 register of the USBHS PHY.  <a href="group__group__usbfxstack__usb__common__functions.html#ga0524889bcca7608213d39ad488cc4b24">More...</a><br /></td></tr>
+<tr class="separator:ga0524889bcca7608213d39ad488cc4b24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga237a999056772a1d593dd9789d9395af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga237a999056772a1d593dd9789d9395af">Cy_USBSS_Cal_Init</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbss__cal__ctxt__t">cy_stc_usbss_cal_ctxt_t</a> *pCalCtxt, void *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a> cb)</td></tr>
 <tr class="memdesc:ga237a999056772a1d593dd9789d9395af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the USBSS IP and relevant variables.  <a href="group__group__usbfxstack__usb__common__functions.html#ga237a999056772a1d593dd9789d9395af">More...</a><br /></td></tr>
 <tr class="separator:ga237a999056772a1d593dd9789d9395af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1194,6 +1209,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_USBD_USB_DEV_NOT_CONNECTED if device is not connected. cy_en_usb_speed_t speed of device. </dd></dl>
+
+</div>
+</div>
+<a id="ga3550bc0e67fc0ddc65b0326a8f788fe6" name="ga3550bc0e67fc0ddc65b0326a8f788fe6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3550bc0e67fc0ddc65b0326a8f788fe6">&#9670;&nbsp;</a></span>Cy_USBD_GetDeviceSpeedStr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * Cy_USBD_GetDeviceSpeedStr </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This API returns the device's operating speed as a human-readable string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USBD layer context pointer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>"Unknown Speed" if device speed is out of range or context is NULL. String representing the device speed otherwise. </dd></dl>
 
 </div>
 </div>
@@ -6301,6 +6343,109 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 
 </div>
 </div>
+<a id="gaa69e42239bc883b3e3b6b36954db5d3a" name="gaa69e42239bc883b3e3b6b36954db5d3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa69e42239bc883b3e3b6b36954db5d3a">&#9670;&nbsp;</a></span>Cy_USBD_GetUSBPowerState()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga9e46321898d6d263080d0c0fafb699f3">cy_en_usbd_usb_powerstate_t</a> Cy_USBD_GetUSBPowerState </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function returns the current USB power state (U0/U1/U2 for USB3 and L0/SUSPEND for USB2) of the device. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USBD layer context pointer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Current USB power state of the device. </dd></dl>
+
+</div>
+</div>
+<a id="ga21354914ecfa3a851ec2e795717eb578" name="ga21354914ecfa3a851ec2e795717eb578"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga21354914ecfa3a851ec2e795717eb578">&#9670;&nbsp;</a></span>Cy_USBD_EnterDeepsleep()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a> Cy_USBD_EnterDeepsleep </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DW_Type *&#160;</td>
+          <td class="paramname"><em>pCpuDw1Base</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function prepares and puts the device into deepsleep. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USBD layer context pointer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_USBD_STATUS_SUCCESS if sleep entry and exit is successful, CY_USBD_STATUS_FAILURE otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga9b1aeff84ade01b074aa3d5a7847b6d7" name="ga9b1aeff84ade01b074aa3d5a7847b6d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9b1aeff84ade01b074aa3d5a7847b6d7">&#9670;&nbsp;</a></span>Cy_USBD_SelectHSCtleConfig()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a> Cy_USBD_SelectHSCtleConfig </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">cy_en_hs_ctle_sel_t&#160;</td>
+          <td class="paramname"><em>ctleSel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Selects the HS CTLE configuration for USB 2.x operation. </p>
+<p >Call this API before enabling the USB connection to override the stack default (CY_USBHS_CTLE_SEL_5). Refer to cy_en_hs_ctle_sel_t for available options.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB Stack context structure. </td></tr>
+    <tr><td class="paramname">ctleSel</td><td>Desired HS CTLE configuration selection.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_USBD_STATUS_SUCCESS: CTLE configuration selection registered successfully. CY_USBD_STATUS_CTXT_NULL: Invalid NULL pointer parameter. CY_USBD_STATUS_FAILURE: ctleSel out of range or lower-layer error. </dd></dl>
+
+</div>
+</div>
 <a id="ga9bc22556f358fd830746ff3305be8226" name="ga9bc22556f358fd830746ff3305be8226"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9bc22556f358fd830746ff3305be8226">&#9670;&nbsp;</a></span>Cy_USBHS_Cal_Init()</h2>
 
@@ -8135,6 +8280,44 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga0524889bcca7608213d39ad488cc4b24" name="ga0524889bcca7608213d39ad488cc4b24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0524889bcca7608213d39ad488cc4b24">&#9670;&nbsp;</a></span>Cy_USBHS_Cal_SetCtleSelValue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0d79c3063de7043b78fe79bae1e9278a">cy_en_usb_cal_ret_code_t</a> Cy_USBHS_Cal_SetCtleSelValue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCalCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">cy_en_hs_ctle_sel_t&#160;</td>
+          <td class="paramname"><em>ctleSel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the HS_CTLE_SEL field in the AFE_CONTROL_1 register of the USBHS PHY. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCalCtxt</td><td>CAL layer context pointer. </td></tr>
+    <tr><td class="paramname">ctleSel</td><td>CTLE level selection (CY_USBHS_CTLE_SEL_0 .. CY_USBHS_CTLE_SEL_7).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_USB_CAL_STATUS_SUCCESS if successful. CY_USB_CAL_STATUS_CAL_CTXT_NULL if pCalCtxt or pCalCtxt-&gt;pPhyBase is NULL. </dd></dl>
 
 </div>
 </div>

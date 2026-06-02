@@ -127,6 +127,8 @@ extern "C" {
 /** Socket active status value. */
 #define CY_HBDMA_SOCK_STATE_ACTIVE      (2u)
 
+/* Index of virtual adapter corresponding to USBHS IN endpoints. */
+#define CY_HBDMA_MGR_USBHS_IN_ADAPTER_ID   (5u)
 #ifndef DOXYGEN
 
 /** Compute Producer Socket encoding in the DSCR_SYNC field. */
@@ -611,6 +613,32 @@ Cy_HBDma_Init(
 void
 Cy_HBDma_DeInit(
         cy_stc_hbdma_context_t *pContext
+        );
+
+/*******************************************************************************
+ * Function name: Cy_HBDma_Reset
+ ****************************************************************************//**
+ *
+ * Reset all High BandWidth DMA adapters by de-initializing and re-initializing
+ * them. This step is required when the application is disabling and re-enabling
+ * any of the core blocks (USBSS or LVDS).
+ *
+ * \param pContext
+ * Pointer to the HBDma driver context structure.
+ * \param usbReset
+ * Whether to reset the USB DMA adapters.
+ * \param lvds0Reset
+ * Whether to reset the LVDS Port-0 DMA adapter.
+ * \param lvds1Reset
+ * Whether to reset the LVDS Port-1 DMA adapter.
+ *
+ *******************************************************************************/
+void
+Cy_HBDma_Reset(
+        cy_stc_hbdma_context_t *pContext,
+        bool usbReset,
+        bool lvds0Reset,
+        bool lvds1Reset
         );
 
 /*******************************************************************************
