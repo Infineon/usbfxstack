@@ -548,6 +548,16 @@ typedef void (* cy_usb_usbd_callback_t) (
         cy_stc_usb_cal_msg_t *pMsg              /**< Message pointer. */
         );
 
+/**
+ * USB stack callback to debug logger module to enable/disable logging function
+ * through CDC function implemented through the active USB link.
+ */
+typedef void (* cy_usbd_lnkstate_update_cb_t) (
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,      /**< USBD stack context pointer. */
+        bool                   isLinkUp,        /**< Whether USB link is up and logging function can be enabled. */
+        void                   *pAppCtxt        /**< Opaque variable providing the caller context. */
+        );
+
 /** \} group_usbfxstack_usb_common_typedefs */
 
 /**
@@ -710,6 +720,9 @@ struct cy_stc_usb_usbd_ctxt_t
     bool usb2FallbackDisable;                           /**< Whether fallback to USB 2.x is disabled. */
     bool isCtrlEpStalled;                               /**< Whether the USB-SS control endpoint has been stalled. */
     cy_en_hs_ctle_sel_t hsCtleSel;                      /**< HS CTLE selection for USB 2.0 connection. */
+
+    cy_usbd_lnkstate_update_cb_t debugUpdateCb;         /**< Callback registered for USB debug link state updates. */
+    void *pDebugCbContext;                              /**< User context variable registered for debug callback. */
 };
 
 typedef struct cy_stc_usbd_devstats_t
@@ -3697,7 +3710,52 @@ cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt, 
 * CY_USBD_STATUS_FAILURE: ctleSel out of range or lower-layer error.
 *******************************************************************************/
 cy_en_usbd_ret_code_t Cy_USBD_SelectHSCtleConfig(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
-        cy_en_hs_ctle_sel_t ctleSel);
+                                                 cy_en_hs_ctle_sel_t ctleSel);
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_OutEp_IsAllowNakSet
+ ****************************************************************************//**
+ *
+ * Function to check whether the specified USB-HS OUT endpoint has been configured
+ * to NAK incoming transfers when the corresponding DMA channel is not ready.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param endpNumber
+ * Endpoint index.
+ *
+ * \return
+ * true if endpoint NAKs transfers when DMA is not ready, false otherwise.
+ *******************************************************************************/
+bool Cy_USBD_OutEp_IsAllowNakSet(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+                                 uint8_t endpNumber);
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_RegisterUsbDebugCallback
+ ****************************************************************************//**
+ *
+ * Function used by debug module to register a callback which provides state
+ * information about the active USB link. This can be used by the debug module
+ * to enable/disable the logging function in cases where a CDC function on the
+ * primary USB link is being used for logging.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param debugCb
+ * USB link state update callback function pointer. Can be set to NULL if callback
+ * not required.
+ * \param pAppCtxt
+ * Opaque data type used to get caller context information in the callback. Can
+ * be set to NULL if no context information is required in the callback.
+ *
+ * \return
+ * Status of callback registration.
+ *******************************************************************************/
+cy_en_usbd_ret_code_t
+Cy_USBD_RegisterUsbDebugCallback(
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        cy_usbd_lnkstate_update_cb_t debugCb,
+        void *pAppCtxt);
 
 /** \} group_usbfxstack_usb_common_functions */
 

@@ -1,30 +1,30 @@
-# USBFXStack Middleware Library v1.3.3
+# USBFXStack Middleware Library v1.3.4
 
 See the [README.md](./README.md) and the [USBFXStack API Reference Manual](https://infineon.github.io/usbfxstack/api_reference_manual.html) for a complete description of the USBFXStack.
 
 
 ## Feature updates
 
-- USB API changes
-  - Added a new API `Cy_USBD_GetDeviceSpeedStr()` to return the device's current operating speed as a human-readable string
-  - Added a new API `Cy_USBD_GetUSBPowerState()` to return the current USB link power state (U0/U1/U2 for USB 3.x; L0/SUSPEND for USB 2.x)
-  - Added a new API `Cy_USBD_EnterDeepsleep()` to prepare the USB stack and associated DMA channels for entry into device deep sleep, and to restore state after wake-up
-  - Added a new API `Cy_USBD_SelectHSCtleConfig()` to select the USB 2.x High-Speed Continuous Time Linear Equalizer (CTLE) level before enabling the USB connection; also added the underlying `Cy_USBHS_Cal_SetCtleSelValue()` API and the `cy_en_hs_ctle_sel_t` enumeration (levels 0–7, stack default is `CY_USBHS_CTLE_SEL_5`)
+- USB Stack and API changes
+  - Added additional candidate coefficients for use in the USB 3.2 Gen1 (5 Gbps) receiver equalizer adaptation process
+  - Updated stack to deliver the `suspendCb` callback when USB 3.x link enters the `U3` state in addition to the USB 2.x suspend state
+  - Updated the output format used by the `Cy_USBSS_Cal_PrintCtleResults()` debug function to print all values in a single line
+  - Added a callback interface that automatically enables or disables the debug logging interface when the main USB link is used for logging
 
 - LVDS API changes
-  - Added a new API `Cy_LVDS_IsWidelinkModeActive()` to check whether the LVDS link is operating in WideLink mode
-  - Added a new API `Cy_LVDS_GetLinkState()` to retrieve the current link state (L0/L1/L3) of a specified Sensor Interface Port, along with the new `cy_en_lvds_link_state_t` enumeration
-  - Added a new API `Cy_LVDS_CustomTraining_QueryResults()` to retrieve the per-lane optimal phase and passing-window-size data from a completed custom training run
-  - Added new inline APIs `Cy_LVDS_SetWakeupInterruptMask()` and `Cy_LVDS_GetWakeupInterruptMask()` to manage the LVDS global wakeup interrupt mask
+  - Added `Cy_LVDS_WriteEgressRegister()` and `Cy_LVDS_ReadIngressRegister()` functions to enable single-word data transfers across the LVCMOS interface using data registers instead of DMA sockets
+  - Reduced timeouts used during LVDS/LVCMOS initialization to approximately 10 ms
+  - Updated L3 entry and exit functions to support the LVDS link loopback use case
+
+- Utility function changes
+  - Updated the infrastructure to simplify the use of CDC interface added to the device USB function for logging. Functions are provided to update the configuration descriptors with the CDC interface descriptors, handle the CDC class-specific requests, and automatically enable or disable the logging interface as the state of the USB link changes
 
 ## Defect fixes
 
-- Updated LVDS custom training sequence to use socket 14 instead of socket 0 (Port 0) and socket 30 instead of socket 16 (Port 1), to avoid conflicts with other DMA usage
-- Fixed LVDS custom training to disable thread error interrupts before the training sequence begins, preventing spurious error callbacks during the process
-- Fixed EP0 HBDma channel creation to properly release the OUT channel when IN channel allocation fails, preventing a resource leak on initialization error
-- Fixed USB 2.x EP0 error recovery logic to avoid incorrectly aborting an in-flight transfer when a new control request arrives concurrently
-- Fixed DMA interrupt mask usage in EP0 handlers to use `CY_USBD_DMA_INTR_MASK` consistently
-- Added missing `Cy_DMA_Enable()` calls for the EP0 IN and OUT DMA controllers during USB 2.x initialization
+- Corrected the `Cy_LVDS_GpifSMSwitch` API to support repeated state machine switch operations
+- Corrected LVDS driver to allow custom link training on LVDS Port-1 when Port-0 is not in use
+- Corrected the `Cy_Debug_QueueDataRead()` API to work properly when USBFS interface is being used for logging
+
 
 ## Known issues and limitations
 
@@ -37,9 +37,9 @@ This version of the USBFXStack Middleware Library is validated for the compatibi
 
 Software and tools                                      | Version
 :---                                                    | :----
-ModusToolbox&trade; software environment                | 3.5.0
-CAT1A Peripheral Driver Library (PDL)                   | 3.19.0
-FreeRTOS for Infineon MCUs                              | 10.5.004
+ModusToolbox&trade; software environment                | 3.8.0
+CAT1A Peripheral Driver Library (PDL)                   | 3.23.0
+FreeRTOS for Infineon MCUs                              | 10.6.202
 GCC Compiler                                            | 14.2.1
 Arm&reg; Compiler                                       | 6.22
 

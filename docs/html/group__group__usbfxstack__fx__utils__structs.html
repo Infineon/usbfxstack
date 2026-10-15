@@ -277,12 +277,6 @@ debugInit</td>
 <td class="fielddoc">
 Debug Initialized. </td></tr>
 <tr><td class="fieldtype">
-<a id="a57e1026d35a43d28c5685139db315f8c" name="a57e1026d35a43d28c5685139db315f8c"></a>uint8_t</td>
-<td class="fieldname">
-startCdcPrint</td>
-<td class="fielddoc">
-Start CDC Print. </td></tr>
-<tr><td class="fieldtype">
 <a id="a00a95abd96e4e3dcb401918b543ab934" name="a00a95abd96e4e3dcb401918b543ab934"></a>uint8_t</td>
 <td class="fieldname">
 curMsg[<a class="el" href="group__group__usbfxstack__fx__utils__macros.html#ga8988cd9c599e34cebc3a9fa1eef53798">MAX_DBG_MSG_SIZE</a>]</td>
@@ -409,35 +403,17 @@ recvEnabled</td>
 <td class="fielddoc">
 Whether data receive through OUT endpoint is enabled. </td></tr>
 <tr><td class="fieldtype">
-<a id="a3f95c54c0cbe249f5312d340933d4f3f" name="a3f95c54c0cbe249f5312d340933d4f3f"></a>uint8_t</td>
+<a id="aace43181e5184a1feda15459144f8324" name="aace43181e5184a1feda15459144f8324"></a><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a></td>
 <td class="fieldname">
-rxFreeBufferCount</td>
+endpInChannel</td>
 <td class="fielddoc">
-Count of free data receive buffers available. </td></tr>
+DMA channel for CDC Bulk-IN endpoint. </td></tr>
 <tr><td class="fieldtype">
-<a id="ad6f51a4c5e613767a76dcc53a1d9c203" name="ad6f51a4c5e613767a76dcc53a1d9c203"></a>DW_Type *</td>
+<a id="ac535ab1c52c7439a3ec62d65e8cc90fc" name="ac535ab1c52c7439a3ec62d65e8cc90fc"></a><a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__channel__t">cy_stc_hbdma_channel_t</a></td>
 <td class="fieldname">
-pCpuDw0Base</td>
+endpOutChannel</td>
 <td class="fielddoc">
-Pointer to DataWire-0 IP registers. </td></tr>
-<tr><td class="fieldtype">
-<a id="a7c3e877226ffb49d57b2cc7d55c1641a" name="a7c3e877226ffb49d57b2cc7d55c1641a"></a>DW_Type *</td>
-<td class="fieldname">
-pCpuDw1Base</td>
-<td class="fielddoc">
-Pointer to DataWire-1 IP registers. </td></tr>
-<tr><td class="fieldtype">
-<a id="a8f72ee73872c783040a79ea0c539009a" name="a8f72ee73872c783040a79ea0c539009a"></a><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a></td>
-<td class="fieldname">
-endpInDma</td>
-<td class="fielddoc">
-DMA status information for IN endpoints. </td></tr>
-<tr><td class="fieldtype">
-<a id="a09b4efa4a5b399e19639ce931e8f9fc2" name="a09b4efa4a5b399e19639ce931e8f9fc2"></a><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__app__endp__dma__set__t">cy_stc_app_endp_dma_set_t</a></td>
-<td class="fieldname">
-endpOutDma</td>
-<td class="fielddoc">
-DMA status information for OUT endpoints. </td></tr>
+DMA channel for CDC Bulk-OUT endpoint. </td></tr>
 <tr><td class="fieldtype">
 <a id="a0941f157df4146c4bb08e512b61a1b50" name="a0941f157df4146c4bb08e512b61a1b50"></a>void *</td>
 <td class="fieldname">
@@ -456,6 +432,31 @@ Pointer to DMA channel used for data logging. </td></tr>
 cdcRecvHandle</td>
 <td class="fielddoc">
 Pointer to DMA channel used to receive CDC data. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5e09528d8e5e51325bd0b6b356174e4f" name="a5e09528d8e5e51325bd0b6b356174e4f"></a>uint8_t</td>
+<td class="fieldname">
+ssCtrlIntf</td>
+<td class="fielddoc">
+Control interface index for USB-SS. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa168cc1f6bd5ae33bb8371f4f2bfe4a9" name="aa168cc1f6bd5ae33bb8371f4f2bfe4a9"></a>uint8_t</td>
+<td class="fieldname">
+hsCtrlIntf</td>
+<td class="fielddoc">
+Control interface index for USB-HS. </td></tr>
+<tr><td class="fieldtype">
+<a id="adf3d41d527c9fc150065d732fb394593" name="adf3d41d527c9fc150065d732fb394593"></a>uint8_t</td>
+<td class="fieldname">
+fsCtrlIntf</td>
+<td class="fielddoc">
+Control interface index for USB-FS. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa6d0cbffdd6e331541dbefcaa8702747" name="aa6d0cbffdd6e331541dbefcaa8702747"></a>uint8_t *</td>
+<td class="fieldname">
+pCfgBuffer</td>
+<td class="fielddoc">
+Buffer used to handle CDC control requests. <p >64 byte buffer is allocated internally when the CDC interface is enabled and freed when it is disabled. </p>
+</td></tr>
 </table>
 
 </div>

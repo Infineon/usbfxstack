@@ -41,114 +41,60 @@ extern "C" {
 #define LOGGER_DMAC_ENABLE      (0u)
 
 static cy_stc_debug_context_t glDbgCtx = {0};
-static cy_stc_usb_cdc_ctxt_t glUsbCdcCtx = {0};
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcSlpCallback
- ****************************************************************************//**
- *
- * The Function will be called by USBD layer when SLP message comes.
- * 
- * \param pAppCtxt
- * User context
- *
- * \param pUsbdCtxt
- * USBD context
- *
- * \param pMsg 
- * Message
- *
- *******************************************************************************/
-void Cy_USB_CdcSlpCallback(void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
-                           cy_stc_usb_cal_msg_t *pMsg)
-{
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
-
-    if(pMsg->data[0] == usbCdcInfo->cdcEpOut)
-    {
-        glDbgCtx.dbgRcvInfo.readCount +=  pMsg->data[1];
-        Cy_USB_CdcQueueRead (&glDbgCtx, usbCdcInfo->cdcEpOut,
-                    glDbgCtx.dbgRcvInfo.pReadBuffer, glDbgCtx.dbgRcvInfo.readCount);
-
-        /* Manually assert the trigger to the DMA channel. */
-        Cy_TrigMux_SwTrigger(TRIG_IN_MUX_0_USBHSDEV_TR_OUT0 + usbCdcInfo->cdcEpOut,
-                        CY_TRIGGER_TWO_CYCLES); 
-    }
-
-#if FREERTOS_ENABLE
-    portYIELD_FROM_ISR(true);
-#endif /* FREERTOS_ENABLE */
-}
+static cy_stc_usb_cdc_ctxt_t  glUsbCdcCtx = {0};
 
 /*******************************************************************************
  * Function name: Cy_USB_CdcDmaCallback
  ****************************************************************************//**
  *
- * DMA channel Callback.
- * 
+ * USB CDC DMA channel callback function.
+ *
  * \param pHandle
- * CDC Channel Hanle.
+ * DMA channel handle
  *
  * \param type
- * DMA Channel Type
+ * Event type
  *
- * \param pbufStat 
+ * \param pbufStat
  * DMA buffer pointer
  *
  * \param userCtx
- * User conext
- *
+ * User context
  *
  *******************************************************************************/
 void
 Cy_USB_CdcDmaCallback (struct cy_stc_hbdma_channel *pHandle,
-                         cy_en_hbdma_cb_type_t type,
-                         cy_stc_hbdma_buff_status_t* pbufStat, void *userCtx)
+                       cy_en_hbdma_cb_type_t type,
+                       cy_stc_hbdma_buff_status_t* pbufStat, void *userCtx)
 {
     cy_stc_debug_recv_context_t rcvContext;
-    cy_stc_hbdma_buff_status_t buffStat;
-    cy_en_hbdma_mgr_status_t   dmaStat;
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
+    cy_stc_hbdma_buff_status_t  buffStat;
+    cy_en_hbdma_mgr_status_t    dmaStat;
     uint32_t intMask;
+    uint32_t rcvSize = 0;
 
-    if(type == CY_HBDMA_CB_PROD_EVENT)
-    {
-        if(pHandle == usbCdcInfo->cdcRecvHandle)
-        {
-            glDbgCtx.dbgRcvInfo.readCount +=  pbufStat->count;
-            if ((glDbgCtx.dbgRcvInfo.readCount == glDbgCtx.dbgRcvInfo.requestSize) || ( pbufStat->count < 1024)) 
-            {
-                rcvContext = glDbgCtx.dbgRcvInfo;
-                glDbgCtx.dbgRcvInfo.pReadBuffer = NULL;
-                glDbgCtx.dbgRcvInfo.readDoneCb  = NULL;
-                glDbgCtx.dbgRcvInfo.readCount   = 0;
+    /* Callback for data receive operation on OUT endpoint. */
+    if (type == CY_HBDMA_CB_XFER_CPLT) {
+        dmaStat = Cy_HBDma_Channel_WaitForReceiveCplt(pHandle, 0, &rcvSize);
+        if (dmaStat == CY_HBDMA_MGR_SUCCESS) {
+            rcvContext = glDbgCtx.dbgRcvInfo;
+            glDbgCtx.dbgRcvInfo.pReadBuffer = NULL;
+            glDbgCtx.dbgRcvInfo.readDoneCb  = NULL;
+            glDbgCtx.dbgRcvInfo.readCount   = 0;
 
+            if (rcvSize != 0) {
                 /* Read is done. Send the callback. */
-                rcvContext.readDoneCb(rcvContext.pReadBuffer, rcvContext.readCount, rcvContext.pUserCtxt);
+                rcvContext.readDoneCb(rcvContext.pReadBuffer, (uint16_t)rcvSize, rcvContext.pUserCtxt);
             }
-
-            if(usbCdcInfo->rxFreeBufferCount > 1)
-            {
-                dmaStat = Cy_HBDma_Channel_DiscardBuffer(pHandle, &buffStat);
-                if (dmaStat != CY_HBDMA_MGR_SUCCESS)
-                {
-                    usbCdcInfo->rxFreeBufferCount = 0;
-                    return;
-                }
-                else
-                {
-                    usbCdcInfo->rxFreeBufferCount--;
-                }
-            }
-            usbCdcInfo->rxFreeBufferCount++;
         }
     }
-    
+
+    /* Callback for data send complete on IN endpoint. */
     if (type == CY_HBDMA_CB_CONS_EVENT)
     {
         intMask = Cy_SysLib_EnterCriticalSection();
         if (glDbgCtx.pMsg == 0) {
-            dmaStat = Cy_HBDma_Channel_GetBuffer(usbCdcInfo->cdcSendHandle, &buffStat);
+            dmaStat = Cy_HBDma_Channel_GetBuffer(pHandle, &buffStat);
             if (dmaStat == CY_HBDMA_MGR_SUCCESS) {
                 glDbgCtx.pMsg = buffStat.pBuffer;
             }
@@ -156,53 +102,6 @@ Cy_USB_CdcDmaCallback (struct cy_stc_hbdma_channel *pHandle,
         Cy_SysLib_ExitCriticalSection(intMask);
     }
 }
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcEpOutDmaISR
- ****************************************************************************//**
- *
- * DMA ISR for CDC OUT Endpoint
- * 
- *******************************************************************************/
-void Cy_USB_CdcEpOutDmaISR (void)
-{
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
-    cy_stc_debug_recv_context_t rcvContext;
-    Cy_USB_CdcClearDmaInterrupt(&glDbgCtx, CY_USB_ENDP_DIR_OUT,usbCdcInfo->cdcEpOut);
-
-    if ((glDbgCtx.dbgRcvInfo.readCount == glDbgCtx.dbgRcvInfo.requestSize) || ( glDbgCtx.dbgRcvInfo.requestSize < 512)) 
-    {
-        rcvContext = glDbgCtx.dbgRcvInfo;
-        glDbgCtx.dbgRcvInfo.pReadBuffer = NULL;
-        glDbgCtx.dbgRcvInfo.readDoneCb  = NULL;
-        glDbgCtx.dbgRcvInfo.readCount   = 0;
-
-        /* Read is done. Send the callback. */
-        rcvContext.readDoneCb(rcvContext.pReadBuffer, rcvContext.readCount, rcvContext.pUserCtxt);
-    }
-
-#if FREERTOS_ENABLE
-    portYIELD_FROM_ISR(true);
-#endif /* FREERTOS_ENABLE */
-}  /* end of function. */
-
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcEpInDmaISR
- ****************************************************************************//**
- *
- * DMA ISR for CDC IN Endpoint
- * 
- *******************************************************************************/
-void Cy_USB_CdcEpInDmaISR (void)
-{
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
-
-    Cy_USB_CdcClearDmaInterrupt(&glDbgCtx, CY_USB_ENDP_DIR_IN,usbCdcInfo->cdcEpIn);
-#if FREERTOS_ENABLE
-    portYIELD_FROM_ISR(true);
-#endif /* FREERTOS_ENABLE */
-}  /* end of function. */
 
 /*******************************************************************************
  * Function name: Cy_Debug_LogInit
@@ -231,14 +130,14 @@ void Cy_Debug_LogInit (cy_stc_debug_config_t *pDbgCfg)
     glDbgCtx.pDbgScb    = NULL;
     glDbgCtx.maxDmaSize = 64u;
 
-    glUsbCdcCtx.cdcEpIn = pDbgCfg->cdcEpIn;
-    glUsbCdcCtx.cdcEpOut = pDbgCfg->cdcEpOut;
-    glUsbCdcCtx.pCpuDw0Base = (DW_Type*)pDbgCfg->pCpuDw0Base;
-    glUsbCdcCtx.pCpuDw1Base = (DW_Type*)pDbgCfg->pCpuDw1Base;
-    glUsbCdcCtx.bufCount = pDbgCfg->bufCount;
-    glUsbCdcCtx.pUsbdCtxt = pDbgCfg->pUsbCtxt;
-    glUsbCdcCtx.recvEnabled = pDbgCfg->recvEnabled;
-    glUsbCdcCtx.rxFreeBufferCount = 0;
+    glUsbCdcCtx.cdcEpIn           = pDbgCfg->cdcEpIn;
+    glUsbCdcCtx.cdcEpOut          = pDbgCfg->cdcEpOut;
+    glUsbCdcCtx.bufCount          = pDbgCfg->bufCount;
+    glUsbCdcCtx.pUsbdCtxt         = pDbgCfg->pUsbCtxt;
+    glUsbCdcCtx.recvEnabled       = pDbgCfg->recvEnabled;
+    glUsbCdcCtx.cdcSendHandle     = NULL;
+    glUsbCdcCtx.cdcRecvHandle     = NULL;
+    glUsbCdcCtx.pCfgBuffer        = NULL;
 
     glDbgCtx.usbCdcInfo = &glUsbCdcCtx;
 
@@ -247,8 +146,7 @@ void Cy_Debug_LogInit (cy_stc_debug_config_t *pDbgCfg)
     glDbgCtx.dbgRcvInfo.pUserCtxt   = NULL;
     glDbgCtx.dbgRcvInfo.requestSize = 0;
     glDbgCtx.dbgRcvInfo.readCount   = 0;
-    glDbgCtx.startCdcPrint  = 0;
-    glDbgCtx.debugInit =0;
+    glDbgCtx.debugInit              = 0;
 
     (void)dmaTrigSrc;
 
@@ -343,6 +241,7 @@ void Cy_Debug_LogInit (cy_stc_debug_config_t *pDbgCfg)
 
         case CY_DEBUG_INTFCE_USBFS_CDC:
             glDbgCtx.maxDmaSize = 64u;
+            CyUsbFsCdc_ControlDataReceive(pDbgCfg->recvEnabled);
 
             /* Enable the USBFS interface for CDC enumeration. */
             CyUsbFsCdc_Init();
@@ -351,13 +250,15 @@ void Cy_Debug_LogInit (cy_stc_debug_config_t *pDbgCfg)
             break;
 
         case CY_DEBUG_INTFCE_USB_CDC:
+            /* In the case of USB CDC based logging, the actual interface initialization can only be
+             * done when the USB link is up. If the API is being called too soon, we just do parameter
+             * validation to ensure that the interface can function. The actual initialization is
+             * performed when we receive a callback from USBD indicating that the USB link is up.
+             */
             glDbgCtx.maxDmaSize = glDbgCtx.bufSize;
-            glDbgCtx.debugInit = Cy_USB_CdcInit(&glDbgCtx);
-            if(glDbgCtx.debugInit == 1u)
-            {
-                Cy_USB_CdcChannelEnable(&glDbgCtx);
-            }
+            glDbgCtx.debugInit = Cy_USB_CdcValidateParameters(&glDbgCtx);
             break;
+
         case CY_DEBUG_INTFCE_RAM:
         default:
             break;
@@ -384,26 +285,25 @@ void Cy_Debug_LogInit (cy_stc_debug_config_t *pDbgCfg)
  *******************************************************************************/
 cy_en_debug_status_t Cy_Debug_LogDeInit (void)
 {
-    if(glDbgCtx.debugInit != 1)
-    {
+    if (glDbgCtx.debugInit != 1) {
         return CY_DEBUG_STATUS_FAILURE;
     }
-    
-    if(glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC)
-    {
-       if(!Cy_USB_CdcDeInit (&glDbgCtx)) 
-       {
+
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) {
+       if (!Cy_USB_CdcDeInit (&glDbgCtx)) {
             return CY_DEBUG_STATUS_FAILURE;
+       } else {
+           /* Clear the USBD link status change callback. */
+           Cy_USBD_RegisterUsbDebugCallback((cy_stc_usb_usbd_ctxt_t *)glUsbCdcCtx.pUsbdCtxt, NULL, NULL);
        }
     }
 
-    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USBFS_CDC)
-    {
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USBFS_CDC) {
         CyUsbFsCdc_Disable();
     }
 
     /* Clear the debug context data structure. */
-    memset(&glDbgCtx,0,sizeof(glDbgCtx));
+    memset(&glDbgCtx, 0, sizeof(glDbgCtx));
 
     return CY_DEBUG_STATUS_SUCCESS;
 }
@@ -421,12 +321,10 @@ cy_en_debug_status_t Cy_Debug_LogDeInit (void)
  * \return
  * void
  *******************************************************************************/
-void Cy_Debug_CdcPrintNow(bool startPrint)
+void Cy_Debug_CdcPrintNow (bool startPrint)
 {
-    if(glDbgCtx.debugInit)
-    {
-        glDbgCtx.startCdcPrint = startPrint;
-    }
+    /* Stale function. Not used any more. */
+    (void)startPrint;
 }
 
 /*******************************************************************************
@@ -450,8 +348,8 @@ void Cy_Debug_SetPrintNow(bool immed_print_en)
 /* Internal function used to convert integers to decimal or hexadecimal
  * string format. Only 32 bit numbers are supported.
  */
-static uint8_t * Cy_Debug_IntToStr(uint8_t *convertedString, 
-                             uint32_t num, 
+static uint8_t *Cy_Debug_IntToStr(uint8_t *convertedString,
+                             uint32_t num,
                              uint8_t base)
 {
     uint8_t *str_p, i = 10;
@@ -468,7 +366,7 @@ static uint8_t * Cy_Debug_IntToStr(uint8_t *convertedString,
 /* Internal function used to add a formatted message to the circular log buffer. */
 static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
 {
-    uint8_t  *string_p; 
+    uint8_t  *string_p;
     uint8_t  *argStr = NULL;
     bool      copyReqd = false;
     uint16_t  i, j;
@@ -496,13 +394,13 @@ static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
             }
             break;
 
-        case 'c' : 
+        case 'c' :
             {
                 glDbgCtx.curMsg[i++] = (uint8_t)va_arg (argp, int32_t);
             }
             break;
 
-        case 'd' : 
+        case 'd' :
             {
                 intArg = va_arg (argp, int32_t);
                 if (intArg < 0) {
@@ -515,25 +413,25 @@ static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
             }
             break;
 
-        case 's': 
+        case 's':
             {
-                argStr = va_arg (argp, uint8_t *); 
+                argStr = va_arg (argp, uint8_t *);
                 copyReqd = true;
             }
             break;
 
-        case 'u': 
+        case 'u':
             {
-                uintArg = va_arg (argp, uint32_t); 
+                uintArg = va_arg (argp, uint32_t);
                 argStr = Cy_Debug_IntToStr (convertedString, uintArg, 10);
                 copyReqd = true;
             }
             break;
 
         case 'X':
-        case 'x': 
+        case 'x':
             {
-                uintArg = va_arg (argp, uint32_t); 
+                uintArg = va_arg (argp, uint32_t);
                 argStr = Cy_Debug_IntToStr (convertedString, uintArg, 16);
                 copyReqd = true;
             }
@@ -610,16 +508,21 @@ cy_en_debug_status_t Cy_Debug_AddToLog (uint8_t dbgLevel,
     cy_en_debug_status_t status;
     va_list   argp;
 
-    if(glDbgCtx.pMsg == NULL) {
+    if ((glDbgCtx.pMsg == NULL) || (glDbgCtx.debugInit == 0)) {
+        /* Debug module status check. */
         return CY_DEBUG_STATUS_FAILURE;
     }
 
-    if(dbgLevel > glDbgCtx.dbgLevel) {
+    if (dbgLevel > glDbgCtx.dbgLevel) {
+        /* Return success if this message is irrelevant. */
         return CY_DEBUG_STATUS_SUCCESS;
     }
 
-    if((glDbgCtx.startCdcPrint  == 0) && (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC))
-    {
+    if (
+            (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) &&
+            (glUsbCdcCtx.cdcSendHandle == NULL)
+       ) {
+        /* Check if the logging interface has been setup properly. */
         return CY_DEBUG_STATUS_FAILURE;
     }
 
@@ -918,6 +821,8 @@ void Cy_Debug_ChangeLogLevel(uint8_t level)
 bool Cy_Debug_QueueDataRead (uint8_t *pReadBuffer, uint16_t dataLength,
                              cy_cb_debug_data_recv_cb_t doneCbk, void *pUserCtxt)
 {
+    cy_stc_usb_cdc_ctxt_t  *usbCdcInfo = NULL;
+
     /* Operation only supported when USBFS CDC & USBHS CDC is used for debug and connection
      * is present.
      */
@@ -932,13 +837,15 @@ bool Cy_Debug_QueueDataRead (uint8_t *pReadBuffer, uint16_t dataLength,
         return false;
     }
 
-    if((glDbgCtx.usbCdcInfo == NULL) || (((cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo)->pUsbdCtxt == NULL))
-    {
-        return false;
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) {
+        if (
+                (glDbgCtx.usbCdcInfo == NULL) ||
+                (((cy_stc_usb_cdc_ctxt_t *)glDbgCtx.usbCdcInfo)->pUsbdCtxt == NULL) ||
+                (((cy_stc_usb_cdc_ctxt_t *)glDbgCtx.usbCdcInfo)->cdcRecvHandle == NULL)
+           ) {
+            return false;
+        }
     }
-
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
-    cy_stc_usb_usbd_ctxt_t *pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
 
     /* Store the request parameters. */
     glDbgCtx.dbgRcvInfo.pReadBuffer = pReadBuffer;
@@ -947,16 +854,24 @@ bool Cy_Debug_QueueDataRead (uint8_t *pReadBuffer, uint16_t dataLength,
     glDbgCtx.dbgRcvInfo.readCount   = 0;
     glDbgCtx.dbgRcvInfo.pUserCtxt   = pUserCtxt;
 
-    if((pUsbdCtxt->devSpeed < CY_USBD_USB_DEV_HS) &&  (glDbgCtx.intfc == CY_DEBUG_INTFCE_USBFS_CDC))
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USBFS_CDC)
     {
         /* Queue data read on OUT endpoint. */
         CyUsbFsCdc_QueueEpRead(2);
     }
-    else if ((glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) && (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS))
-    {
-        Cy_USB_CdcQueueRead (&glDbgCtx, usbCdcInfo->cdcEpOut,
-                        glDbgCtx.dbgRcvInfo.pReadBuffer, 512);
-    }  
+
+    if (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) {
+        usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)glDbgCtx.usbCdcInfo;
+
+        if (Cy_HBDma_Channel_ReceiveData(usbCdcInfo->cdcRecvHandle, 0,
+                    glDbgCtx.dbgRcvInfo.pReadBuffer, glDbgCtx.dbgRcvInfo.requestSize, NULL) != CY_HBDMA_MGR_SUCCESS) {
+            glDbgCtx.dbgRcvInfo.pReadBuffer = NULL;
+            glDbgCtx.dbgRcvInfo.readDoneCb  = NULL;
+            glDbgCtx.dbgRcvInfo.readCount   = 0;
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -989,6 +904,69 @@ void Cy_Debug_HandleReadIntr (void)
         /* Queue further read. */
         CyUsbFsCdc_QueueEpRead(2);
     }
+}
+
+/*******************************************************************************
+ * Function name: Cy_Debug_SetCdcCtrlIntfNumber
+ ****************************************************************************//**
+ *
+ * Store the USB CDC control interface number in the context structure for use
+ * while handling USB control requests.
+ *
+ * \param usbSpeed
+ * USB device connection speed
+ *
+ * \param cdcStartIntf
+ * Interface number for the CDC control interface
+ *
+ *******************************************************************************/
+void Cy_Debug_SetCdcCtrlIntfNumber (cy_en_usb_speed_t usbSpeed, uint8_t cdcStartIntf)
+{
+    switch (usbSpeed) {
+        case CY_USBD_USB_DEV_SS_GEN1:
+        case CY_USBD_USB_DEV_SS_GEN2:
+        case CY_USBD_USB_DEV_SS_GEN1X2:
+        case CY_USBD_USB_DEV_SS_GEN2X2:
+            glUsbCdcCtx.ssCtrlIntf = cdcStartIntf;
+            break;
+
+        case CY_USBD_USB_DEV_HS:
+            glUsbCdcCtx.hsCtrlIntf = cdcStartIntf;
+            break;
+
+        case CY_USBD_USB_DEV_FS:
+            glUsbCdcCtx.fsCtrlIntf = cdcStartIntf;
+            break;
+
+        default:
+            /* Nothing to do */
+            break;
+    }
+}
+
+/*******************************************************************************
+ * Function name: Cy_Debug_HandleControlRequests
+ ****************************************************************************//**
+ *
+ * Function to be called from the setup callback to handle class specific control
+ * requests addressed to the USB CDC interface.
+ *
+ * \return
+ * true if a valid control request was handled locally, false otherwise. A false
+ * return would indicate that the request needs to be handled at the application
+ * level including STALL of unknown requests.
+ *
+ *******************************************************************************/
+bool Cy_Debug_HandleControlRequests (void)
+{
+    if (
+            (glDbgCtx.debugInit) && (glDbgCtx.intfc == CY_DEBUG_INTFCE_USB_CDC) &&
+            (glUsbCdcCtx.pCfgBuffer != NULL) && (glUsbCdcCtx.pUsbdCtxt != NULL)
+       ) {
+        return Cy_USB_CdcHandleControlRequests(&glUsbCdcCtx, (cy_stc_usb_usbd_ctxt_t *)(glUsbCdcCtx.pUsbdCtxt));
+    }
+
+    return false;
 }
 
 #if defined(__cplusplus)

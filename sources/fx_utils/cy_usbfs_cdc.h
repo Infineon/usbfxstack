@@ -40,8 +40,8 @@
 /** Indicates the use of cy_usbfs_cdc */
 #define CY_USBFS_CDC_H
 
-#include "stdint.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "cy_device.h"
 #include "cy_device_headers.h"
 #include "cy_pdl.h"

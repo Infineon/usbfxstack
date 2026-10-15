@@ -47,6 +47,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "cy_usb_common.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -322,7 +323,6 @@ typedef struct cy_stc_debug_recv_context_
 typedef struct cy_stc_debug_context_
 {
     uint8_t                    debugInit;                               /**< Debug Initialized. */
-    uint8_t                    startCdcPrint;                           /**< Start CDC Print. */
     uint8_t                    curMsg[MAX_DBG_MSG_SIZE];                /**< Buffer to hold debug message  */
     uint8_t                    *pMsg;                                   /**< Pointer to the RAM based temporary log buffer. */
     uint16_t                    bufSize;                                /**< Size of the RAM based log buffer. */
@@ -380,7 +380,6 @@ void Cy_Debug_LogInit(cy_stc_debug_config_t *pDbgCfg);
  *
  *******************************************************************************/
 cy_en_debug_status_t Cy_Debug_LogDeInit(void);
-
 
 /*******************************************************************************
  * Function name: Cy_Debug_AddToLog
@@ -477,24 +476,6 @@ bool Cy_Debug_QueueDataRead(uint8_t *pReadBuffer, uint16_t dataLength,
 void Cy_Debug_HandleReadIntr(void);
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcEpInDmaISR
- ****************************************************************************//**
- *
- * CDC IN Endpoint DMA ISR
- *
- *******************************************************************************/
-void Cy_USB_CdcEpInDmaISR (void);
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcEpOutDmaISR
- ****************************************************************************//**
- *
- * CDC OUT Endpoint DMA ISR
- *
- *******************************************************************************/
-void Cy_USB_CdcEpOutDmaISR (void);
-
-/*******************************************************************************
  * Function name: Cy_Debug_CdcPrintNow
  ****************************************************************************//**
  *
@@ -504,6 +485,37 @@ void Cy_USB_CdcEpOutDmaISR (void);
  *
  *******************************************************************************/
 void Cy_Debug_CdcPrintNow(bool startPrint);
+
+/*******************************************************************************
+ * Function name: Cy_Debug_SetCdcCtrlIntfNumber
+ ****************************************************************************//**
+ *
+ * Store the USB CDC control interface number in the context structure for use
+ * while handling USB control requests.
+ *
+ * \param usbSpeed
+ * USB device connection speed
+ *
+ * \param cdcStartIntf
+ * Interface number for the CDC control interface
+ *
+ *******************************************************************************/
+void Cy_Debug_SetCdcCtrlIntfNumber(cy_en_usb_speed_t usbSpeed, uint8_t cdcStartIntf);
+
+/*******************************************************************************
+ * Function name: Cy_Debug_HandleControlRequests
+ ****************************************************************************//**
+ *
+ * Function to be called from the setup callback to handle class specific control
+ * requests addressed to the USB CDC interface.
+ *
+ * \return
+ * true if a valid control request was handled locally, false otherwise. A false
+ * return would indicate that the request needs to be handled at the application
+ * level including STALL of unknown requests.
+ *
+ *******************************************************************************/
+bool Cy_Debug_HandleControlRequests(void);
 
 /** \} group_usbfxstack_fx_utils_functions */
 

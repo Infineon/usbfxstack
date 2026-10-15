@@ -41,129 +41,10 @@ extern "C" {
 #endif
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcQueueRead
- ****************************************************************************//**
- *
- * The function queue read on OUT endpoint.
- *
- * \param pDbgCtxt
- * Debug Context.
- *
- * \param endpNumber
- * Out Endpoint number to queue the read
- *
- * \param pBuffer
- * Buffer pointer to store the read data.
- *
- * \param dataSize
- * Bytes to read on OUT endpoint
- *
- *
- *******************************************************************************/
-void
-Cy_USB_CdcQueueRead (cy_stc_debug_context_t *pDbgCtxt, uint8_t endpNumber,
-                    uint8_t *pBuffer, uint16_t dataSize)
-{
-    cy_stc_app_endp_dma_set_t *dmaset_p;
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
-    cy_stc_usb_usbd_ctxt_t *pUsbdCtxt;
-
-    /* Null pointer checks. */
-    if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL) || (pBuffer == NULL)) {
-        return;
-    }
-
-    usbCdcInfo = (cy_stc_usb_cdc_ctxt_t *)pDbgCtxt->usbCdcInfo;
-    pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t *)usbCdcInfo->pUsbdCtxt;
-
-    if ((pUsbdCtxt == NULL) || (usbCdcInfo->pCpuDw0Base == NULL)) {
-        return;
-    }
-
-    if (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS)
-    {
-        /*
-        * Verify that the selected endpoint is valid and
-        * dataSize is non-zero.
-        */
-        dmaset_p = &(usbCdcInfo->endpOutDma);
-        if ((dmaset_p->valid == 0) || (dataSize == 0))
-        {
-            return;
-        }
-
-        if (Cy_USBHS_App_QueueRead(dmaset_p, pBuffer, dataSize))
-        {
-            /* Set transfer size for the endpoint and clear NAK status to allow data to be received. */
-            if (dataSize < dmaset_p->maxPktSize) {
-                /* We are trying to read out data that has already been received. Force EP NAK. */
-                Cy_USB_USBD_EndpSetClearNakNrdy(pUsbdCtxt, endpNumber, CY_USB_ENDP_DIR_OUT, true);
-            } else {
-                /* Set the NAK bit so that the IP can see the bit transition from 1->0 after XFER_CNT is set. */
-                Cy_USB_USBD_EndpSetClearNakNrdy(pUsbdCtxt, endpNumber, CY_USB_ENDP_DIR_OUT, true);
-                Cy_USBD_UpdateXferCount(pUsbdCtxt, endpNumber, CY_USB_ENDP_DIR_OUT, dataSize);
-                Cy_USB_USBD_EndpSetClearNakNrdy(pUsbdCtxt, endpNumber, CY_USB_ENDP_DIR_OUT, false);
-            }
-        }
-    }
-} /* end of function */
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcQueueWrite
- ****************************************************************************//**
- *
- * The function queue Write on IN endpoint.
- *
- * \param pDbgCtxt
- * Debug Context.
- *
- * \param endpNumber
- * IN Endpoint number to queue the write
- *
- * \param pBuffer
- * Buffer pointer to write the data.
- *
- * \param dataSize
- * Bytes to write on IN endpoint
- *
- *
- *******************************************************************************/
-bool Cy_USB_CdcQueueWrite(cy_stc_debug_context_t *pDbgCtxt, uint8_t endpNumber,
-    uint8_t* pBuffer, uint16_t dataSize)
-{
-    cy_stc_app_endp_dma_set_t* dmaset_p;
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
-    bool stat = 0;
-
-    /* Null pointer checks. */
-    if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL) || (pBuffer == NULL)) {
-        return false;
-    }
-
-    usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
-    if (usbCdcInfo->pCpuDw1Base == NULL) {
-        return false;
-    }
-
-    /*
-     * Verify that the selected endpoint is valid and the dataSize
-     * is non-zero.
-     */
-    dmaset_p = &(usbCdcInfo->endpInDma);
-    if ((dmaset_p->valid == 0) || (dataSize == 0)) {
-        return false;
-    }
-
-    stat = Cy_USBHS_App_QueueWrite(dmaset_p, pBuffer, dataSize);
-    return stat;
-} /* end of function */
-
-
-/*******************************************************************************
  * Function name: Cy_USB_CdcChannelReset
  ****************************************************************************//**
  *
- * Function to de-initialize CDC interface for debug los
+ * Function to de-initialize CDC interface for debug logs
  *
  * \param pDbgCtxt
  * Debug Context
@@ -181,25 +62,13 @@ static bool Cy_USB_CdcChannelReset(cy_stc_debug_context_t *pDbgCtxt)
         usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
         pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
 
-        if (usbCdcInfo->cdcSendHandle != NULL && pUsbdCtxt != NULL)
-        {
-            if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1) {
-                Cy_HBDma_Channel_Reset(usbCdcInfo->cdcSendHandle);
-            } else {
-                Cy_USBHS_App_ResetEpDma(&(usbCdcInfo->endpInDma));
-            }
-
+        if ((usbCdcInfo->cdcSendHandle != NULL) && (pUsbdCtxt != NULL)) {
+            Cy_HBDma_Channel_Reset(usbCdcInfo->cdcSendHandle);
             Cy_USBD_FlushEndp(pUsbdCtxt, usbCdcInfo->cdcEpIn, CY_USB_ENDP_DIR_IN);
             Cy_USBD_ResetEndp(pUsbdCtxt, usbCdcInfo->cdcEpIn, CY_USB_ENDP_DIR_IN, true);
 
-            if((usbCdcInfo->recvEnabled) && (usbCdcInfo->cdcRecvHandle != NULL))
-            {
-                if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1) {
-                    Cy_HBDma_Channel_Reset(usbCdcInfo->cdcRecvHandle);
-                } else {
-                    Cy_USBHS_App_ResetEpDma(&(usbCdcInfo->endpOutDma));
-                }
-
+            if ((usbCdcInfo->recvEnabled) && (usbCdcInfo->cdcRecvHandle != NULL)) {
+                Cy_HBDma_Channel_Reset(usbCdcInfo->cdcRecvHandle);
                 Cy_USBD_FlushEndp(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT);
                 Cy_USBD_ResetEndp(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT, true);
             }
@@ -220,44 +89,30 @@ static bool Cy_USB_CdcChannelReset(cy_stc_debug_context_t *pDbgCtxt)
  * \param pDbgCtxt
  * Debug Context.
  *
- *
  *******************************************************************************/
-bool Cy_USB_CdcChannelEnable(cy_stc_debug_context_t *pDbgCtxt)
+bool Cy_USB_CdcChannelEnable (cy_stc_debug_context_t *pDbgCtxt)
 {
     cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
     cy_stc_hbdma_buff_status_t dmaBufStat;
     cy_en_hbdma_mgr_status_t   hbdma_stat = CY_HBDMA_MGR_SUCCESS;
 
-    if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL))
-    {
+    if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL)) {
         return false;
     }
 
     usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
-
-    if(usbCdcInfo->cdcSendHandle != NULL)
-    {
+    if (usbCdcInfo->cdcSendHandle != NULL) {
         hbdma_stat = Cy_HBDma_Channel_Enable(usbCdcInfo->cdcSendHandle, 0);
-        if(hbdma_stat != CY_HBDMA_MGR_SUCCESS)
-        {
+        if (hbdma_stat != CY_HBDMA_MGR_SUCCESS) {
             return false;
         }
 
         hbdma_stat = Cy_HBDma_Channel_GetBuffer(usbCdcInfo->cdcSendHandle, &dmaBufStat);
-        if (hbdma_stat == CY_HBDMA_MGR_SUCCESS)
-        {
+        if (hbdma_stat == CY_HBDMA_MGR_SUCCESS) {
             pDbgCtxt->pMsg = dmaBufStat.pBuffer;
         }
-
-        if(usbCdcInfo->cdcRecvHandle != NULL)
-        {
-            hbdma_stat = Cy_HBDma_Channel_Enable(usbCdcInfo->cdcRecvHandle, 0);
-            if(hbdma_stat != CY_HBDMA_MGR_SUCCESS)
-            {
-                return false;
-            }
-        }
     }
+
     return true;
 }
 
@@ -285,32 +140,27 @@ uint16_t Cy_Debug_LogtoUsb (cy_stc_debug_context_t *pDbgCtxt, uint16_t rdPtr, ui
     uint16_t size;
     cy_stc_hbdma_buff_status_t dmaBufStat;
     cy_en_hbdma_mgr_status_t   hbdma_stat = CY_HBDMA_MGR_SUCCESS;
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
-    cy_stc_usb_usbd_ctxt_t *pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
+    cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
 
-    if ((pUsbdCtxt == NULL) || (pDbgCtxt->pMsg == NULL) || (usbCdcInfo->cdcSendHandle == NULL))
-    {
+    if ((pDbgCtxt == NULL) || (pDbgCtxt->pMsg == NULL) || (pDbgCtxt->usbCdcInfo == NULL)) {
         return 0;
     }
 
-    while (limit > rdPtr)
-    {
-        size = ((limit - rdPtr) > pDbgCtxt->maxDmaSize) ? pDbgCtxt->maxDmaSize : (limit - rdPtr);
-        if(pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_HS)
-        {
-            dmaBufStat.pBuffer = pDbgCtxt->pMsg+rdPtr;
-            dmaBufStat.size    = pDbgCtxt->bufSize;
-            dmaBufStat.count   = size;
-            dmaBufStat.status  = 0;
-            hbdma_stat = Cy_HBDma_Channel_CommitBuffer(usbCdcInfo->cdcSendHandle, &dmaBufStat);
-        }
-        else
-        {
-           Cy_USB_CdcQueueWrite(pDbgCtxt, usbCdcInfo->cdcEpIn, pDbgCtxt->pMsg + rdPtr, size);
-        }
+    usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
+    if ((usbCdcInfo->pUsbdCtxt == NULL) || (usbCdcInfo->cdcSendHandle == NULL)) {
+        return 0;
+    }
 
-        if(hbdma_stat == CY_HBDMA_MGR_SUCCESS )
-        {
+    while (limit > rdPtr) {
+        size = ((limit - rdPtr) > pDbgCtxt->maxDmaSize) ? pDbgCtxt->maxDmaSize : (limit - rdPtr);
+
+        dmaBufStat.pBuffer = pDbgCtxt->pMsg+rdPtr;
+        dmaBufStat.size    = pDbgCtxt->bufSize;
+        dmaBufStat.count   = size;
+        dmaBufStat.status  = 0;
+        hbdma_stat = Cy_HBDma_Channel_CommitBuffer(usbCdcInfo->cdcSendHandle, &dmaBufStat);
+
+        if (hbdma_stat == CY_HBDMA_MGR_SUCCESS) {
             hbdma_stat = Cy_HBDma_Channel_GetBuffer(usbCdcInfo->cdcSendHandle, &dmaBufStat);
             if (hbdma_stat == CY_HBDMA_MGR_SUCCESS) {
                 pDbgCtxt->pMsg = dmaBufStat.pBuffer;
@@ -320,8 +170,7 @@ uint16_t Cy_Debug_LogtoUsb (cy_stc_debug_context_t *pDbgCtxt, uint16_t rdPtr, ui
             }
         }
 
-        if(hbdma_stat != CY_HBDMA_MGR_SUCCESS)
-        {
+        if (hbdma_stat != CY_HBDMA_MGR_SUCCESS) {
             Cy_USB_CdcChannelReset(pDbgCtxt);
             Cy_USB_CdcChannelEnable(pDbgCtxt);
         }
@@ -334,129 +183,70 @@ uint16_t Cy_Debug_LogtoUsb (cy_stc_debug_context_t *pDbgCtxt, uint16_t rdPtr, ui
     return (rdPtr);
 }
 
-
 /*******************************************************************************
- * Function name: Cy_USB_CdcClearDmaInterrupt
+ * Function name: Cy_USB_CdcLinkStateChangeCbk
  ****************************************************************************//**
  *
- * The function clear the DMA interrrupt associated to the endpoint
+ * USB stack callback to debug logger module to enable/disable logging function
+ * through CDC function implemented through the active USB link.
  *
- * \param pDbgCtxt
- * Debug Context.
- *
- * \param endpDirection
- * IN or OUT endpoint
- *
- * \param endpNumber
- *Endpoint Number
+ * \param pUsbdCtxt
+ * USB stack context pointer.
+ * \param isLinkUp
+ * Whether the USB link is going up or down.
+ * \param pUserCtxt
+ * Application specific context variable.
  *
  *
  *******************************************************************************/
-void Cy_USB_CdcClearDmaInterrupt(cy_stc_debug_context_t* pDbgCtxt, uint8_t endpDirection, uint32_t endpNumber)
+static void
+Cy_USB_CdcLinkStateChangeCbk (
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        bool isLinkUp,
+        void *pUserCtxt)
 {
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
+    cy_stc_debug_context_t *pDbgCtxt = (cy_stc_debug_context_t *)pUserCtxt;
+    cy_stc_usb_cdc_ctxt_t *usbCdcInfo = NULL;
 
-    if ((pDbgCtxt != NULL) && (pDbgCtxt->usbCdcInfo != NULL)) {
+    if ((pUsbdCtxt != NULL) && (pDbgCtxt != NULL) && (pDbgCtxt->usbCdcInfo != NULL)) {
         usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
 
-        if ((usbCdcInfo->cdcEpIn > 0) && (endpNumber < CY_USB_MAX_ENDP_NUMBER)) {
-            if (endpDirection == CY_USB_ENDP_DIR_IN) {
-                Cy_USBHS_App_ClearDmaInterrupt(&(usbCdcInfo->endpInDma));
-            } else {
-                Cy_USBHS_App_ClearDmaInterrupt(&(usbCdcInfo->endpOutDma));
+        if (isLinkUp) {
+            /* Use validity of DMA channel handle to determine whether CDCInit was already called. */
+            if (usbCdcInfo->cdcSendHandle == NULL) {
+                if (Cy_USB_CdcInit(pDbgCtxt)) {
+                    Cy_USB_CdcChannelEnable(pDbgCtxt);
+                }
+            }
+        } else {
+            /* Use validity of DMA channel handle to determine whether CDCInit was already called. */
+            if (usbCdcInfo->cdcSendHandle != NULL) {
+                Cy_USB_CdcDeInit(pDbgCtxt);
             }
         }
     }
-} /* end of function. */
+}
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcInitDmaInterrupt
+ * Function name: Cy_USB_CdcValidateParameters
  ****************************************************************************//**
  *
- * The function clear the DMA interrrupt associated to the endpoint
- *
- * \param endpDirection
- * IN or OUT endpoint
- *
- * \param endpNumber
- *Endpoint Number
- *
- * \param userIsr
- * USer ISR to register for the DMa interrupt.
- *
- *******************************************************************************/
-void Cy_USB_CdcInitDmaInterrupt(uint32_t endpNumber, cy_en_usb_endp_dir_t endpDirection,
-    cy_israddress userIsr)
-{
-    cy_stc_sysint_t intrCfg;
-
-    if ((endpNumber > 0) && (endpNumber < CY_USB_MAX_ENDP_NUMBER))
-    {
-#if (!CY_CPU_CORTEX_M4)
-        intrCfg.intrPriority = 3;
-        if (endpDirection == CY_USB_ENDP_DIR_IN)
-        {
-            /* DW1 channels 0 onwards are used for IN endpoints. */
-            intrCfg.cm0pSrc = (cy_en_intr_t)(cpuss_interrupts_dw1_0_IRQn + endpNumber);
-            intrCfg.intrSrc = NvicMux6_IRQn;
-        }
-        else
-        {
-            /* DW0 channels 0 onwards are used for OUT endpoints. */
-            intrCfg.cm0pSrc = (cy_en_intr_t)(cpuss_interrupts_dw0_0_IRQn + endpNumber);
-            intrCfg.intrSrc = NvicMux7_IRQn;
-        }
-#else
-        intrCfg.intrPriority = 5;
-        if (endpDirection == CY_USB_ENDP_DIR_IN)
-        {
-            /* DW1 channels 0 onwards are used for IN endpoints. */
-            intrCfg.intrSrc =
-                (IRQn_Type)(cpuss_interrupts_dw1_0_IRQn + endpNumber);
-        }
-        else
-        {
-            /* DW0 channels 0 onwards are used for OUT endpoints. */
-            intrCfg.intrSrc =
-                (IRQn_Type)(cpuss_interrupts_dw0_0_IRQn + endpNumber);
-        }
-#endif /* (!CY_CPU_CORTEX_M4) */
-
-        if (userIsr != NULL)
-        {
-            /* If an ISR is provided, register it and enable the interrupt. */
-            Cy_SysInt_Init(&intrCfg, userIsr);
-            NVIC_EnableIRQ(intrCfg.intrSrc);
-        }
-        else
-        {
-            /* ISR is NULL. Disable the interrupt. */
-            NVIC_DisableIRQ(intrCfg.intrSrc);
-        }
-    }
-} /* end of function. */
-
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcInit
- ****************************************************************************//**
- *
- * Function to initialize CDC interface for debug los
+ * Function which checks if the various CDC function parameters received are valid.
+ * If all parameters are valid, a callback is registered with the USB stack which
+ * allows the CDC functionality to be enabled or disabled at appropriate times.
  *
  * \param pDbgCtxt
  * Debug Context
  *
  * \return
- * True if initialization is successful else False
+ * true if the parameters are valid, false in case of missing or bad parameters
+ * passed to Cy_Debug_LogInit.
  *
  *******************************************************************************/
-bool Cy_USB_CdcInit (cy_stc_debug_context_t *pDbgCtxt)
+bool Cy_USB_CdcValidateParameters (cy_stc_debug_context_t *pDbgCtxt)
 {
-    cy_stc_hbdma_chn_config_t dmaConfig;
-    cy_en_hbdma_mgr_status_t   hbdma_stat = CY_HBDMA_MGR_SUCCESS;
-    cy_stc_app_endp_dma_set_t *pEndpDmaSet;
-    cy_stc_usb_cdc_ctxt_t *usbCdcInfo;
-    cy_stc_usb_usbd_ctxt_t *pUsbdCtxt;
+    cy_stc_usb_cdc_ctxt_t    *usbCdcInfo;
+    cy_stc_usb_usbd_ctxt_t   *pUsbdCtxt;
 
     if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL)) {
         return false;
@@ -465,123 +255,216 @@ bool Cy_USB_CdcInit (cy_stc_debug_context_t *pDbgCtxt)
     usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
     pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
 
-    if ((pUsbdCtxt == NULL) || (usbCdcInfo->cdcEpIn <= 0u && usbCdcInfo->cdcEpIn >= CY_USB_MAX_ENDP_NUMBER)
-       || ((usbCdcInfo->recvEnabled == 1) && (usbCdcInfo->cdcEpOut <= 0u && usbCdcInfo->cdcEpOut >= CY_USB_MAX_ENDP_NUMBER)))
-    {
+    /* Parameter validation: Verify that we have a valid USBD context as well as valid IN/OUT endpoints.
+     * Both endpoints need to be valid even if data receive operation is not enabled.
+     */
+    if (
+            (pUsbdCtxt == NULL) ||
+            ((usbCdcInfo->cdcEpIn <= 0u) || (usbCdcInfo->cdcEpIn >= CY_USB_MAX_ENDP_NUMBER)) ||
+            ((usbCdcInfo->cdcEpOut <= 0u) || (usbCdcInfo->cdcEpOut >= CY_USB_MAX_ENDP_NUMBER))
+       ) {
         return false;
     }
 
-    dmaConfig.bufferMode     = false;                               /* DMA buffer mode disabled */
-    dmaConfig.prodHdrSize    = 0;                                   /* No header being added. */
-    dmaConfig.prodSckCount   = 1;                                   /* No. of producer sockets */
-    dmaConfig.consSckCount   = 1;                                   /* No. of consumer Sockets */
-    dmaConfig.prodSck[1]     = (cy_hbdma_socket_id_t)0;             /* Producer Socket ID: None */
-    dmaConfig.consSck[1]     = (cy_hbdma_socket_id_t)0;             /* Consumer Socket ID: None */
-    dmaConfig.eventEnable    = 0;                                   /* TR_ASSIST connects to events from the adapter. */
-    dmaConfig.userCtx        = NULL;                                /* Pass the application context as user context. */
-
-    /* Create channel which will move data from SRAM to USBSS EPM. */
-    dmaConfig.size           = pDbgCtxt->bufSize;
-    dmaConfig.count          = usbCdcInfo->bufCount;                /* DMA Buffer Count */
-    dmaConfig.prodBufSize    = pDbgCtxt->bufSize;
-    dmaConfig.chType         = CY_HBDMA_TYPE_MEM_TO_IP;             /* DMA Channel type: from HB-RAM to USB3-IP */
-    dmaConfig.prodSck[0]     = CY_HBDMA_VIRT_SOCKET_WR;
-    dmaConfig.consSck[0]     = (cy_hbdma_socket_id_t)(CY_HBDMA_USBEG_SOCKET_00 + usbCdcInfo->cdcEpIn);
-    dmaConfig.cb             = Cy_USB_CdcDmaCallback;
-    dmaConfig.intrEnable     = USB32DEV_ADAPTER_DMA_SCK_INTR_CONSUME_EVENT_Msk;
-
-    hbdma_stat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
-                                        &(usbCdcInfo->endpInDma.hbDmaChannel),
-                                        &dmaConfig);
-    if (hbdma_stat != CY_HBDMA_MGR_SUCCESS)
-    {
-        /* Not able to create Channel then return. */
-        return false;
+    /* Register a callback function to be notified about USB link state changes. */
+    if (CY_USBD_STATUS_SUCCESS == Cy_USBD_RegisterUsbDebugCallback(
+                pUsbdCtxt, Cy_USB_CdcLinkStateChangeCbk, (void *)pDbgCtxt)) {
+        return true;
     }
 
-    usbCdcInfo->cdcSendHandle  =  &usbCdcInfo->endpInDma.hbDmaChannel;
-
-    /* CDC Bulk Endpoint Max packet size */
-    usbCdcInfo->endpInDma.maxPktSize = 1024;
-    usbCdcInfo->endpInDma.valid      = 0x01;
-
-    if (pUsbdCtxt->devSpeed <= CY_USBD_USB_DEV_HS)
-    {
-        /* CDC Bulk Endpoint Max packet size */
-        usbCdcInfo->endpInDma.maxPktSize = 512;
-        usbCdcInfo->endpInDma.valid      = 0x01;
-
-        pEndpDmaSet = &(usbCdcInfo->endpInDma);
-        Cy_USBHS_App_EnableEpDmaSet(pEndpDmaSet, usbCdcInfo->pCpuDw1Base, usbCdcInfo->cdcEpIn,
-                                    usbCdcInfo->cdcEpIn, CY_USB_ENDP_DIR_IN, 512);
-
-        /* Enable DMA interrupts for the VCOM OUT and IN endpoints. */
-        Cy_USB_CdcInitDmaInterrupt(usbCdcInfo->cdcEpIn,CY_USB_ENDP_DIR_IN,Cy_USB_CdcEpInDmaISR);
-    }
-
-    if(usbCdcInfo->recvEnabled == 1)
-    {
-        dmaConfig.bufferMode     = false;                               /* DMA buffer mode disabled */
-        dmaConfig.prodHdrSize    = 0;                                   /* No header being added. */
-        dmaConfig.prodSckCount   = 1;                                   /* No. of producer sockets */
-        dmaConfig.consSckCount   = 1;                                   /* No. of consumer Sockets */
-        dmaConfig.prodSck[1]     = (cy_hbdma_socket_id_t)0;             /* Producer Socket ID: None */
-        dmaConfig.consSck[1]     = (cy_hbdma_socket_id_t)0;             /* Consumer Socket ID: None */
-        dmaConfig.eventEnable    = 0;                                   /* TR_ASSIST connects to events from the adapter. */
-        dmaConfig.userCtx        = NULL;                                /* Pass the application context as user context. */
-        /* Create channel which moves data from USB ingress endpoint into HBW SRAM. */
-        dmaConfig.size        = 1024;                                   /* DMA Buffer Size in bytes */
-        dmaConfig.count       = usbCdcInfo->bufCount;                   /* DMA Buffer Count */
-        dmaConfig.prodBufSize = 1024;
-        dmaConfig.chType      = CY_HBDMA_TYPE_IP_TO_MEM;
-        dmaConfig.prodSck[0]  = (cy_hbdma_socket_id_t)(CY_HBDMA_USBIN_SOCKET_00 + usbCdcInfo->cdcEpOut);
-        dmaConfig.consSck[0]  = CY_HBDMA_VIRT_SOCKET_RD;
-        dmaConfig.cb          = Cy_USB_CdcDmaCallback;                  /* HB-DMA callback */
-        dmaConfig.intrEnable  = USB32DEV_ADAPTER_DMA_SCK_INTR_PRODUCE_EVENT_Msk;
-
-        hbdma_stat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
-                                             &(usbCdcInfo->endpOutDma.hbDmaChannel),
-                                             &dmaConfig);
-        if (hbdma_stat != CY_HBDMA_MGR_SUCCESS) {
-            /* Not able to create Channel then return. */
-            return false;
-        }
-
-        usbCdcInfo->cdcRecvHandle  =  &usbCdcInfo->endpOutDma.hbDmaChannel;
-
-        usbCdcInfo->endpOutDma.maxPktSize = 1024;
-        usbCdcInfo->endpOutDma.valid      = 0x01;
-
-        if(pUsbdCtxt->devSpeed <= CY_USBD_USB_DEV_HS)
-        {
-            usbCdcInfo->endpOutDma.maxPktSize = 512;
-            usbCdcInfo->endpOutDma.valid      = 0x01;
-
-            Cy_USBD_DebugRegisterCallback(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_USBD_CB_SLP, Cy_USB_CdcSlpCallback);
-            pEndpDmaSet = &(usbCdcInfo->endpOutDma);
-
-            Cy_USBHS_App_EnableEpDmaSet(pEndpDmaSet, usbCdcInfo->pCpuDw0Base,
-                    usbCdcInfo->cdcEpOut, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT, 512);
-
-            /* Enable DMA interrupts for the OUT endpoint */
-            Cy_USB_CdcInitDmaInterrupt(usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT, Cy_USB_CdcEpOutDmaISR);
-        }
-    }
-    return true;
+    return false;
 }
 
-
 /*******************************************************************************
- * Function name: Cy_USB_CdcDeInit
+ * Function name: Cy_USB_CdcInit
  ****************************************************************************//**
  *
- * Function to de-initialize CDC interface for debug logging.
+ * Function to initialize CDC interface for debug logging. This is triggered
+ * through callback from USBD stack when the USB device has been configured.
  *
  * \param pDbgCtxt
  * Debug Context
  *
  * \return
- * True if deinitialization is successful else False
+ * true if initialization is successful, else false
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcInit (cy_stc_debug_context_t *pDbgCtxt)
+{
+    cy_stc_hbdma_chn_config_t dmaConfig;
+    cy_en_hbdma_mgr_status_t  hbdma_stat = CY_HBDMA_MGR_SUCCESS;
+    cy_stc_usb_cdc_ctxt_t    *usbCdcInfo;
+    cy_stc_usb_usbd_ctxt_t   *pUsbdCtxt;
+    cy_stc_usb_endp_config_t  epConfig;
+    uint16_t epPktSize = CY_CDC_BULK_EP_SIZE_SS;
+
+    if ((pDbgCtxt == NULL) || (pDbgCtxt->usbCdcInfo == NULL)) {
+        return false;
+    }
+
+    usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
+    pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
+
+    /* Parameter validation */
+    if (
+            (pUsbdCtxt == NULL) ||
+            (pUsbdCtxt->pHBDmaMgr == NULL) ||
+            (pUsbdCtxt->devSpeed < CY_USBD_USB_DEV_FS) ||
+            (pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_SS_GEN2X2) ||
+            ((usbCdcInfo->cdcEpIn <= 0u) || (usbCdcInfo->cdcEpIn >= CY_USB_MAX_ENDP_NUMBER)) ||
+            ((usbCdcInfo->cdcEpOut <= 0u) || (usbCdcInfo->cdcEpOut >= CY_USB_MAX_ENDP_NUMBER))
+       ) {
+        return false;
+    }
+
+    /* Make sure we have a valid buffer allocated for control transfer handling. */
+    if (usbCdcInfo->pCfgBuffer == NULL) {
+        usbCdcInfo->pCfgBuffer = (uint8_t *)Cy_HBDma_BufMgr_Alloc(pUsbdCtxt->pHBDmaMgr->pBufMgr, 64u);
+        if (usbCdcInfo->pCfgBuffer == NULL) {
+            return false;
+        }
+    }
+
+    /* Fill the buffer with default CDC configuration data. */
+    usbCdcInfo->pCfgBuffer[0] = 0x00u;
+    usbCdcInfo->pCfgBuffer[1] = 0x10u;
+    usbCdcInfo->pCfgBuffer[2] = 0x0Eu;
+    usbCdcInfo->pCfgBuffer[3] = 0x00u; /* Baud rate = 0x000E1000 = 921600 */
+    usbCdcInfo->pCfgBuffer[4] = 0x00u; /* 1 stop bit */
+    usbCdcInfo->pCfgBuffer[5] = 0x00u; /* No parity */
+    usbCdcInfo->pCfgBuffer[6] = 0x08u; /* 8 data bits */
+    usbCdcInfo->pCfgBuffer[7] = 0x00u;
+
+    /* If the channel is already created, destroy it and start over. */
+    if (usbCdcInfo->cdcSendHandle != NULL) {
+        Cy_HBDma_Channel_Disable(usbCdcInfo->cdcSendHandle);
+        Cy_HBDma_Channel_Destroy(usbCdcInfo->cdcSendHandle);
+        usbCdcInfo->cdcSendHandle = NULL;
+    }
+
+    /* Create channel which will move data from SRAM to EPM. */
+    dmaConfig.bufferMode     = false;                               /* DMA buffer mode disabled */
+    dmaConfig.size           = pDbgCtxt->bufSize;
+    dmaConfig.prodBufSize    = pDbgCtxt->bufSize;
+    dmaConfig.prodHdrSize    = 0;                                   /* No header being added. */
+    dmaConfig.count          = usbCdcInfo->bufCount;                /* DMA Buffer Count */
+    dmaConfig.chType         = CY_HBDMA_TYPE_MEM_TO_IP;             /* DMA Channel type: from HB-RAM to USB-IP */
+    dmaConfig.endpAddr       = 0x80 | usbCdcInfo->cdcEpIn;          /* Endpoint address */
+    dmaConfig.usbMaxPktSize  = CY_CDC_BULK_EP_SIZE_SS;
+    dmaConfig.prodSckCount   = 1;                                   /* No. of producer sockets */
+    dmaConfig.prodSck[0]     = CY_HBDMA_VIRT_SOCKET_WR;
+    dmaConfig.prodSck[1]     = (cy_hbdma_socket_id_t)0;             /* Producer Socket ID: None */
+    dmaConfig.consSckCount   = 1;                                   /* No. of consumer Sockets */
+    dmaConfig.consSck[0]     = (cy_hbdma_socket_id_t)(CY_HBDMA_USBEG_SOCKET_00 + usbCdcInfo->cdcEpIn);
+    dmaConfig.consSck[1]     = (cy_hbdma_socket_id_t)0;             /* Consumer Socket ID: None */
+    dmaConfig.cb             = Cy_USB_CdcDmaCallback;
+    dmaConfig.intrEnable     = USB32DEV_ADAPTER_DMA_SCK_INTR_CONSUME_EVENT_Msk;
+    dmaConfig.eventEnable    = 0;                                   /* Events not supported in MEM to IP channels. */
+    dmaConfig.userCtx        = (void *)pUsbdCtxt;
+
+    /* Parameter adjustment for USB 2.x modes. */
+    if (pUsbdCtxt->devSpeed < CY_USBD_USB_DEV_SS_GEN1) {
+        dmaConfig.consSck[0] = (cy_hbdma_socket_id_t)(CY_HBDMA_USBHS_IN_EP_00 + usbCdcInfo->cdcEpIn);
+        if (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_FS) {
+            dmaConfig.usbMaxPktSize = CY_CDC_BULK_EP_SIZE_FS;
+        } else {
+            dmaConfig.usbMaxPktSize = CY_CDC_BULK_EP_SIZE_HS;
+        }
+    }
+
+    epPktSize = dmaConfig.usbMaxPktSize;
+
+    hbdma_stat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr, &(usbCdcInfo->endpInChannel), &dmaConfig);
+    if (hbdma_stat != CY_HBDMA_MGR_SUCCESS) {
+        /* Not able to create Channel then return. */
+        return false;
+    } else {
+        usbCdcInfo->cdcSendHandle = (void *)(&(usbCdcInfo->endpInChannel));
+    }
+
+    if (usbCdcInfo->recvEnabled == 1) {
+        /* If the channel is already created, destroy it and start over. */
+        if (usbCdcInfo->cdcRecvHandle != NULL) {
+            Cy_HBDma_Channel_Disable(usbCdcInfo->cdcRecvHandle);
+            Cy_HBDma_Channel_Destroy(usbCdcInfo->cdcRecvHandle);
+            usbCdcInfo->cdcRecvHandle = NULL;
+        }
+
+        /* If data receive is enabled, create a channel to read the data from the EPM. */
+        dmaConfig.bufferMode    = false;
+        dmaConfig.size          = 1024;
+        dmaConfig.prodHdrSize   = 0;
+        dmaConfig.prodBufSize   = 1024;
+        dmaConfig.count         = 1;
+        dmaConfig.chType        = CY_HBDMA_TYPE_IP_TO_MEM;
+        dmaConfig.endpAddr      = usbCdcInfo->cdcEpOut;                 /* Endpoint address */
+        dmaConfig.usbMaxPktSize = epPktSize;
+        dmaConfig.prodSckCount  = 1;
+        dmaConfig.prodSck[0]    = (cy_hbdma_socket_id_t)(CY_HBDMA_USBIN_SOCKET_00 + usbCdcInfo->cdcEpOut);
+        dmaConfig.prodSck[1]    = (cy_hbdma_socket_id_t)0;
+        dmaConfig.consSckCount  = 1;
+        dmaConfig.consSck[0]    = CY_HBDMA_VIRT_SOCKET_RD;
+        dmaConfig.consSck[1]    = (cy_hbdma_socket_id_t)0;
+        dmaConfig.cb            = Cy_USB_CdcDmaCallback;
+        dmaConfig.intrEnable    = USB32DEV_ADAPTER_DMA_SCK_INTR_MASK_TRANS_DONE_Msk;
+        dmaConfig.eventEnable   = 0;
+        dmaConfig.userCtx       = (void *)pUsbdCtxt;
+
+        /* Parameter adjustment for USB 2.x modes. */
+        if (pUsbdCtxt->devSpeed < CY_USBD_USB_DEV_SS_GEN1) {
+            dmaConfig.prodSck[0] = (cy_hbdma_socket_id_t)(CY_HBDMA_USBHS_OUT_EP_00 + usbCdcInfo->cdcEpOut);
+        }
+
+        hbdma_stat = Cy_HBDma_Channel_Create(pUsbdCtxt->pHBDmaMgr,
+                                             &(usbCdcInfo->endpOutChannel),
+                                             &dmaConfig);
+        if (hbdma_stat != CY_HBDMA_MGR_SUCCESS) {
+            /* Not able to create Channel then return. */
+            return false;
+        } else {
+            usbCdcInfo->cdcRecvHandle = (void *)(&usbCdcInfo->endpOutChannel);
+        }
+    }
+
+    /* Disable and then configure the CDC bulk endpoints. */
+
+    epConfig.endpType           = CY_USB_ENDP_TYPE_BULK;
+    epConfig.valid              = true;
+    epConfig.isoPkts            = 0;
+    epConfig.interval           = 0;
+    epConfig.allowNakTillDmaRdy = true;
+    epConfig.maxPktSize         = epPktSize;
+    epConfig.burstSize          = 1;
+    epConfig.streamID           = 0;
+
+    if (usbCdcInfo->recvEnabled == 1) {
+        Cy_USBD_EnableEndp(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT, false);
+        epConfig.endpDirection  = CY_USB_ENDP_DIR_OUT;
+        epConfig.endpNumber     = usbCdcInfo->cdcEpOut;
+        Cy_USB_USBD_EndpConfig(pUsbdCtxt, epConfig);
+    }
+
+    Cy_USBD_EnableEndp(pUsbdCtxt, usbCdcInfo->cdcEpIn, CY_USB_ENDP_DIR_IN, false);
+    epConfig.endpDirection      = CY_USB_ENDP_DIR_IN;
+    epConfig.endpNumber         = usbCdcInfo->cdcEpIn;
+    Cy_USB_USBD_EndpConfig(pUsbdCtxt, epConfig);
+
+    return true;
+}
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcDeInit
+ ****************************************************************************//**
+ *
+ * Function to de-initialize CDC interface for debug logging. This is triggered
+ * through callback from USB stack whenever the USB device is de-initialized or
+ * reset.
+ *
+ * \param pDbgCtxt
+ * Debug Context
+ *
+ * \return
+ * true if deinitialization is successful, else false
  *
  *******************************************************************************/
 bool Cy_USB_CdcDeInit (cy_stc_debug_context_t *pDbgCtxt)
@@ -594,24 +477,12 @@ bool Cy_USB_CdcDeInit (cy_stc_debug_context_t *pDbgCtxt)
     }
 
     usbCdcInfo = (cy_stc_usb_cdc_ctxt_t*)pDbgCtxt->usbCdcInfo;
-    pUsbdCtxt = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
-
-    if (pUsbdCtxt->devSpeed <= CY_USBD_USB_DEV_HS)
-    {
-        if (usbCdcInfo->endpInDma.valid)
-        {
-            /* DeInit the DMA channel and disconnect the triggers. */
-            Cy_USBHS_App_DisableEpDmaSet(&(usbCdcInfo->endpInDma));
-        }
-
-        if (usbCdcInfo->endpOutDma.valid) {
-            /* DeInit the DMA channel and disconnect the triggers. */
-            Cy_USBHS_App_DisableEpDmaSet(&(usbCdcInfo->endpOutDma));
-        }
+    pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t*)usbCdcInfo->pUsbdCtxt;
+    if (pUsbdCtxt == NULL) {
+        return false;
     }
 
-    if (usbCdcInfo->cdcSendHandle != NULL)
-    {
+    if (usbCdcInfo->cdcSendHandle != NULL) {
         Cy_HBDma_Channel_Disable(usbCdcInfo->cdcSendHandle);
         Cy_HBDma_Channel_Destroy(usbCdcInfo->cdcSendHandle);
         usbCdcInfo->cdcSendHandle = NULL;
@@ -621,19 +492,522 @@ bool Cy_USB_CdcDeInit (cy_stc_debug_context_t *pDbgCtxt)
         }
     }
 
-    if ((usbCdcInfo->recvEnabled) && (usbCdcInfo->cdcRecvHandle != NULL))
-    {
-        Cy_HBDma_Channel_Disable(usbCdcInfo->cdcSendHandle);
-        Cy_HBDma_Channel_Destroy(usbCdcInfo->cdcSendHandle);
+    if ((usbCdcInfo->recvEnabled) && (usbCdcInfo->cdcRecvHandle != NULL)) {
+        Cy_HBDma_Channel_Disable(usbCdcInfo->cdcRecvHandle);
+        Cy_HBDma_Channel_Destroy(usbCdcInfo->cdcRecvHandle);
         usbCdcInfo->cdcRecvHandle = NULL;
 
-        if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1)
-        {
+        if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1) {
             Cy_USBD_FlushEndp(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT);
         }
     }
 
+    /* Disable the CDC bulk endpoints. */
+    if (usbCdcInfo->recvEnabled) {
+        /* Cancel state related to any ongoing read operation. */
+        pDbgCtxt->dbgRcvInfo.pReadBuffer = NULL;
+        pDbgCtxt->dbgRcvInfo.readDoneCb  = NULL;
+        pDbgCtxt->dbgRcvInfo.readCount   = 0;
+
+        Cy_USBD_EnableEndp(pUsbdCtxt, usbCdcInfo->cdcEpOut, CY_USB_ENDP_DIR_OUT, false);
+    }
+    Cy_USBD_EnableEndp(pUsbdCtxt, usbCdcInfo->cdcEpIn, CY_USB_ENDP_DIR_IN, false);
+
+    if (usbCdcInfo->pCfgBuffer != NULL) {
+        /* Free buffer allocated for control request handling. */
+        Cy_HBDma_BufMgr_Free(pUsbdCtxt->pHBDmaMgr->pBufMgr, usbCdcInfo->pCfgBuffer);
+        usbCdcInfo->pCfgBuffer = NULL;
+    }
+
     return true;
+}
+
+#define CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET        (2u)
+#define CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET        (3u)
+#define CYFX_CDC_CFG_NUMINTF_OFFSET             (4u)
+
+#define CYFX_CDC_SS_CFG_DSCR_LEN                (71u)
+#define CYFX_CDC_SS_IAD_INTFNUM_OFFSET          (2u)
+#define CYFX_CDC_SS_CTRL_INTF_NUM_OFFSET        (10u)
+#define CYFX_CDC_SS_CTRL_INTF_DATAINTF_OFFSET   (35u)
+#define CYFX_CDC_SS_DATA_INTF_NUM_OFFSET        (38u)
+#define CYFX_CDC_SS_OUTEP_NUM_OFFSET            (47u)
+#define CYFX_CDC_SS_INEP_NUM_OFFSET             (60u)
+
+const uint8_t CdcIntfDescriptor_SS[CYFX_CDC_SS_CFG_DSCR_LEN] = {
+    /* Interface association descriptor: Need to update interface number field. */
+    0x08,
+    0x0B,
+    0x01,
+    0x02,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC control interface descriptor: Need to update interface number field. */
+    0x09,
+    0x04,
+    0x01,
+    0x00,
+    0x00,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC class descriptors: No change required */
+    0x05,
+    0x24,
+    0x00,
+    0x10,
+    0x01,
+    0x04,
+    0x24,
+    0x02,
+    0x02,
+    0x05,
+    0x24,
+    0x06,
+    0x00,
+    0x01,
+    0x05,
+    0x24,
+    0x01,
+    0x00,
+    0x01,
+
+    /* CDC data interface descriptor: Interface number to be updated */
+    0x09,
+    0x04,
+    0x02,
+    0x00,
+    0x02,
+    0x0A,
+    0x00,
+    0x00,
+    0x00,
+
+    /* Bulk OUT endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x0F,
+    0x02,
+    0x00,
+    0x04,
+    0x00,
+    0x06,
+    0x30,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+
+    /* Bulk IN endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x8F,
+    0x02,
+    0x00,
+    0x04,
+    0x00,
+    0x06,
+    0x30,
+    0x00,
+    0x00,
+    0x00,
+    0x00
+};
+
+#define CYFX_CDC_HS_CFG_DSCR_LEN                (59u)
+#define CYFX_CDC_HS_IAD_INTFNUM_OFFSET          (2u)
+#define CYFX_CDC_HS_CTRL_INTF_NUM_OFFSET        (10u)
+#define CYFX_CDC_HS_CTRL_INTF_DATAINTF_OFFSET   (35u)
+#define CYFX_CDC_HS_DATA_INTF_NUM_OFFSET        (38u)
+#define CYFX_CDC_HS_OUTEP_NUM_OFFSET            (47u)
+#define CYFX_CDC_HS_INEP_NUM_OFFSET             (54u)
+
+const uint8_t CdcIntfDescriptor_HS[CYFX_CDC_HS_CFG_DSCR_LEN] = {
+    /* Interface association descriptor: Need to update interface number field. */
+    0x08,
+    0x0B,
+    0x01,
+    0x02,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC control interface descriptor: Need to update interface number field. */
+    0x09,
+    0x04,
+    0x01,
+    0x00,
+    0x00,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC class descriptors: No change required */
+    0x05,
+    0x24,
+    0x00,
+    0x10,
+    0x01,
+    0x04,
+    0x24,
+    0x02,
+    0x02,
+    0x05,
+    0x24,
+    0x06,
+    0x00,
+    0x01,
+    0x05,
+    0x24,
+    0x01,
+    0x00,
+    0x01,
+
+    /* CDC data interface descriptor: Interface number to be updated */
+    0x09,
+    0x04,
+    0x02,
+    0x00,
+    0x02,
+    0x0A,
+    0x00,
+    0x00,
+    0x00,
+
+    /* Bulk OUT endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x0F,
+    0x02,
+    0x00,
+    0x02,
+    0x00,
+
+    /* Bulk IN endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x8F,
+    0x02,
+    0x00,
+    0x02,
+    0x00
+};
+
+const uint8_t CdcIntfDescriptor_FS[CYFX_CDC_HS_CFG_DSCR_LEN] = {
+    /* Interface association descriptor: Need to update interface number field. */
+    0x08,
+    0x0B,
+    0x01,
+    0x02,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC control interface descriptor: Need to update interface number field. */
+    0x09,
+    0x04,
+    0x01,
+    0x00,
+    0x00,
+    0x02,
+    0x02,
+    0x01,
+    0x00,
+
+    /* CDC class descriptors: No change required */
+    0x05,
+    0x24,
+    0x00,
+    0x10,
+    0x01,
+    0x04,
+    0x24,
+    0x02,
+    0x02,
+    0x05,
+    0x24,
+    0x06,
+    0x00,
+    0x01,
+    0x05,
+    0x24,
+    0x01,
+    0x00,
+    0x01,
+
+    /* CDC data interface descriptor: Interface number to be updated */
+    0x09,
+    0x04,
+    0x02,
+    0x00,
+    0x02,
+    0x0A,
+    0x00,
+    0x00,
+    0x00,
+
+    /* Bulk OUT endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x0F,
+    0x02,
+    0x40,
+    0x00,
+    0x00,
+
+    /* Bulk IN endpoint descriptor: endpoint number to be updated. */
+    0x07,
+    0x05,
+    0x8F,
+    0x02,
+    0x40,
+    0x00,
+    0x00
+};
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcAddConfigDescriptors
+ ****************************************************************************//**
+ *
+ * Add descriptors for the USB CDC interface into the descriptors registered with the
+ * USB stack. Please note that the descriptor arrays are expected to have the required
+ * space for these descriptors: 84 bytes in case of USB 3.x and 66 bytes in case of
+ * USB 2.x.
+ *
+ * \param pDbgCfg
+ * Debug configuration structure.
+ *
+ * \return
+ * true if descriptors are updated properly, false otherwise.
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcAddConfigDescriptors (cy_stc_debug_config_t *pDbgCfg)
+{
+    cy_stc_usb_usbd_ctxt_t *pUsbdCtxt;
+    uint32_t descLength;
+    uint8_t *pCfgDscr;
+    uint8_t  numIntf;
+    bool retVal = false;
+
+    /* Note: We have no way of knowing the actual size of the descriptor buffer allocated.
+     *       Size expectations are documented. Here, we will assume that there is sufficient space to add
+     *       the CDC descriptors.
+     */
+
+    if ((pDbgCfg == NULL) || (pDbgCfg->pUsbCtxt == NULL) || (pDbgCfg->dbgIntfce != CY_DEBUG_INTFCE_USB_CDC)) {
+        return false;
+    }
+
+    pUsbdCtxt  = (cy_stc_usb_usbd_ctxt_t*)pDbgCfg->pUsbCtxt;
+
+    if (pUsbdCtxt != NULL) {
+        /* SS configuration update */
+        if (pUsbdCtxt->dscrs.pUsbSsCfgDscr != NULL) {
+            pCfgDscr   = (uint8_t *)pUsbdCtxt->dscrs.pUsbSsCfgDscr;
+            numIntf    = pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET];
+            descLength = ((pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] << 8) |
+                         (pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET]));
+
+            memcpy((pCfgDscr + descLength), CdcIntfDescriptor_SS, CYFX_CDC_SS_CFG_DSCR_LEN);
+
+            /* Update required fields in the configuration descriptor. */
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET] = ((descLength + CYFX_CDC_SS_CFG_DSCR_LEN) & 0xFFu);
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] = ((descLength + CYFX_CDC_SS_CFG_DSCR_LEN) >> 8u);
+            pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET]      = numIntf + 2;
+
+            /* Update required fields in the CDC descriptor. */
+            pCfgDscr[descLength + CYFX_CDC_SS_IAD_INTFNUM_OFFSET]        = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_SS_CTRL_INTF_NUM_OFFSET]      = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_SS_CTRL_INTF_DATAINTF_OFFSET] = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_SS_DATA_INTF_NUM_OFFSET]      = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_SS_OUTEP_NUM_OFFSET]          = pDbgCfg->cdcEpOut;
+            pCfgDscr[descLength + CYFX_CDC_SS_INEP_NUM_OFFSET]           = pDbgCfg->cdcEpIn | 0x80u;
+
+            Cy_Debug_SetCdcCtrlIntfNumber(CY_USBD_USB_DEV_SS_GEN1, numIntf);
+            retVal = true;
+        }
+
+        /* HS configuration update */
+        if (pUsbdCtxt->dscrs.pUsbHsCfgDscr != NULL) {
+            pCfgDscr   = (uint8_t *)pUsbdCtxt->dscrs.pUsbHsCfgDscr;
+            numIntf    = pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET];
+            descLength = ((pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] << 8) |
+                         (pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET]));
+
+            memcpy((pCfgDscr + descLength), CdcIntfDescriptor_HS, CYFX_CDC_HS_CFG_DSCR_LEN);
+
+            /* Update required fields in the configuration descriptor. */
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET] = ((descLength + CYFX_CDC_HS_CFG_DSCR_LEN) & 0xFFu);
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] = ((descLength + CYFX_CDC_HS_CFG_DSCR_LEN) >> 8u);
+            pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET]      = numIntf + 2;
+
+            /* Update required fields in the CDC descriptor. */
+            pCfgDscr[descLength + CYFX_CDC_HS_IAD_INTFNUM_OFFSET]        = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_HS_CTRL_INTF_NUM_OFFSET]      = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_HS_CTRL_INTF_DATAINTF_OFFSET] = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_HS_DATA_INTF_NUM_OFFSET]      = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_HS_OUTEP_NUM_OFFSET]          = pDbgCfg->cdcEpOut;
+            pCfgDscr[descLength + CYFX_CDC_HS_INEP_NUM_OFFSET]           = pDbgCfg->cdcEpIn | 0x80u;
+
+            Cy_Debug_SetCdcCtrlIntfNumber(CY_USBD_USB_DEV_HS, numIntf);
+            retVal = true;
+        }
+
+        /* FS configuration update */
+        if (pUsbdCtxt->dscrs.pUsbFsCfgDscr != NULL) {
+            pCfgDscr   = (uint8_t *)pUsbdCtxt->dscrs.pUsbFsCfgDscr;
+            numIntf    = pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET];
+            descLength = ((pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] << 8) |
+                         (pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET]));
+
+            memcpy((pCfgDscr + descLength), CdcIntfDescriptor_FS, CYFX_CDC_HS_CFG_DSCR_LEN);
+
+            /* Update required fields in the configuration descriptor. */
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_LSB_OFFSET] = ((descLength + CYFX_CDC_HS_CFG_DSCR_LEN) & 0xFFu);
+            pCfgDscr[CYFX_CDC_CFG_DSCR_LEN_MSB_OFFSET] = ((descLength + CYFX_CDC_HS_CFG_DSCR_LEN) >> 8u);
+            pCfgDscr[CYFX_CDC_CFG_NUMINTF_OFFSET]      = numIntf + 2;
+
+            /* Update required fields in the CDC descriptor. */
+            pCfgDscr[descLength + CYFX_CDC_HS_IAD_INTFNUM_OFFSET]        = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_HS_CTRL_INTF_NUM_OFFSET]      = numIntf;
+            pCfgDscr[descLength + CYFX_CDC_HS_CTRL_INTF_DATAINTF_OFFSET] = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_HS_DATA_INTF_NUM_OFFSET]      = numIntf + 1;
+            pCfgDscr[descLength + CYFX_CDC_HS_OUTEP_NUM_OFFSET]          = pDbgCfg->cdcEpOut;
+            pCfgDscr[descLength + CYFX_CDC_HS_INEP_NUM_OFFSET]           = pDbgCfg->cdcEpIn | 0x80u;
+
+            Cy_Debug_SetCdcCtrlIntfNumber(CY_USBD_USB_DEV_FS, numIntf);
+            retVal = true;
+        }
+    }
+
+    /* Return true if at least one configuration descriptor was updated. */
+    return retVal;
+}
+
+/* CDC requests which are known and handled at this level. */
+#define CDC_RQT_SET_LINE_CODING         (0x20)
+#define CDC_RQT_GET_LINE_CODING         (0x21)
+#define CDC_RQT_SET_CTRL_LINE_STATE     (0x22)
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcHandleControlRequests
+ ****************************************************************************//**
+ *
+ * Function to be called from the setup callback to handle class specific control
+ * requests addressed to the USB CDC interface.
+ *
+ * \param pCdcCtxt
+ * USB CDC device context structure
+ * \param pUsbdCtxt
+ * USB stack context structure
+ *
+ * \return
+ * true if a valid control request was handled locally, false otherwise.
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcHandleControlRequests (
+        cy_stc_usb_cdc_ctxt_t  *pCdcCtxt,
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
+{
+    cy_en_usbd_ret_code_t retStatus = CY_USBD_STATUS_SUCCESS;
+    uint16_t wLength, wIndex;
+    uint8_t  bRequest, bReqType, bTarget;
+    uint8_t  cdcCtrlIf = 0;
+    bool     isReqHandled = false;
+
+    if ((pUsbdCtxt == NULL) || (pCdcCtxt == NULL) || (pCdcCtxt->pCfgBuffer == NULL)) {
+        return false;
+    }
+
+    /* Identify the CDC control interface number for the active USB connection type. */
+    if (pUsbdCtxt->devSpeed >= CY_USBD_USB_DEV_SS_GEN1) {
+        cdcCtrlIf = pCdcCtxt->ssCtrlIntf;
+    }
+    else {
+        if (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_HS) {
+            cdcCtrlIf = pCdcCtxt->hsCtrlIntf;
+        } else {
+            cdcCtrlIf = pCdcCtxt->fsCtrlIntf;
+        }
+    }
+
+    /* Extract details about control request. */
+    bReqType = pUsbdCtxt->setupReq.bmRequest;
+    bRequest = pUsbdCtxt->setupReq.bRequest;
+    wLength  = pUsbdCtxt->setupReq.wLength;
+    wIndex   = pUsbdCtxt->setupReq.wIndex;
+    bTarget  = (bReqType & CY_USB_CTRL_REQ_RECIPENT_MASK);
+
+    /* We will only handle class specific requests addressed to either of the CDC control or data interfaces. */
+    if (
+            (((bReqType & CY_USB_CTRL_REQ_TYPE_MASK) >> CY_USB_CTRL_REQ_TYPE_POS) == CY_USB_CTRL_REQ_CLASS) &&
+            ((wIndex == cdcCtrlIf) || (wIndex == (cdcCtrlIf + 1))) &&
+            (bTarget == CY_USB_CTRL_REQ_RECIPENT_INTF)
+       ) {
+        switch (bRequest) {
+            case CDC_RQT_GET_LINE_CODING:
+                {
+                    if (wLength <= 8) {
+                        retStatus = Cy_USB_USBD_SendEndp0Data(pUsbdCtxt, pCdcCtxt->pCfgBuffer, wLength);
+                        if (retStatus == CY_USBD_STATUS_SUCCESS) {
+                            isReqHandled = true;
+                        }
+                    } else {
+                        /* Invalid wLength. Stall the request. */
+                        Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, 0, CY_USB_ENDP_DIR_IN, true);
+                        isReqHandled = true;
+                    }
+                }
+                break;
+
+            case CDC_RQT_SET_LINE_CODING:
+                {
+                    if (wLength <= 8) {
+                        /* Since this is a virtual CDC device, there is no actual interface to be configured.
+                         * When new configuration info is received from host, it is just applied in the local
+                         * RAM structure and returned as the current configuration to the host.
+                         */
+                        retStatus = Cy_USB_USBD_RecvEndp0Data(pUsbdCtxt, pCdcCtxt->pCfgBuffer, wLength);
+                        if (retStatus == CY_USBD_STATUS_SUCCESS) {
+                            isReqHandled = true;
+                        }
+                    } else {
+                        /* Invalid wLength. Stall the request. */
+                        Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, 0, CY_USB_ENDP_DIR_OUT, true);
+                        isReqHandled = true;
+                    }
+                }
+                break;
+
+            case CDC_RQT_SET_CTRL_LINE_STATE:
+                {
+                    if (wLength == 0) {
+                        Cy_USBD_SendAckSetupDataStatusStage(pUsbdCtxt);
+                        isReqHandled = true;
+                    } else {
+                        /* Invalid wLength. Stall the request. */
+                        Cy_USB_USBD_EndpSetClearStall(pUsbdCtxt, 0, CY_USB_ENDP_DIR_IN, true);
+                        isReqHandled = true;
+                    }
+                }
+                break;
+
+            default: /* Unknown request: Pass it back to stack level for error handling. */
+                isReqHandled = false;
+                break;
+
+        }
+    }
+
+    return isReqHandled;
 }
 
 #if defined(__cplusplus)

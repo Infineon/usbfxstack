@@ -331,7 +331,7 @@ Cy_HBDma_DW_QueueRead (
         Cy_TrigMux_SwTrigger(TRIG_IN_MUX_0_USBHSDEV_TR_OUT0 + epNum, CY_TRIGGER_TWO_CYCLES);
     }
 
-    if (Cy_USBD_GetEndpointType(pUsbdCtxt, epNum, CY_USB_ENDP_DIR_OUT) != CY_USB_ENDP_TYPE_ISO) {
+    if (Cy_USBD_OutEp_IsAllowNakSet(pUsbdCtxt, epNum)) {
         /* Set transfer size for the endpoint and clear NAK status to allow data to be received. */
         if (dataSize < pHandle->epMaxPktSize) {
             /* We are trying to read out data that has already been received. Force EP NAK. */
@@ -398,7 +398,7 @@ Cy_HBDma_DW_CompleteShortRead (
         return CY_HBDMA_MGR_SEQUENCE_ERROR;
     }
 
-    if (Cy_USBD_GetEndpointType(pUsbdCtxt, epNum, CY_USB_ENDP_DIR_OUT) != CY_USB_ENDP_TYPE_ISO) {
+    if (Cy_USBD_OutEp_IsAllowNakSet(pUsbdCtxt, epNum)) {
         /* NAK the endpoint until the next DMA request is queued. */
         Cy_USB_USBD_EndpSetClearNakNrdy(pUsbdCtxt, epNum, CY_USB_ENDP_DIR_OUT, true);
     }

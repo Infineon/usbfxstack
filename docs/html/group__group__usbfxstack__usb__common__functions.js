@@ -148,6 +148,8 @@ var group__group__usbfxstack__usb__common__functions =
     [ "Cy_USBD_GetUSBPowerState", "group__group__usbfxstack__usb__common__functions.html#gaa69e42239bc883b3e3b6b36954db5d3a", null ],
     [ "Cy_USBD_EnterDeepsleep", "group__group__usbfxstack__usb__common__functions.html#ga21354914ecfa3a851ec2e795717eb578", null ],
     [ "Cy_USBD_SelectHSCtleConfig", "group__group__usbfxstack__usb__common__functions.html#ga9b1aeff84ade01b074aa3d5a7847b6d7", null ],
+    [ "Cy_USBD_OutEp_IsAllowNakSet", "group__group__usbfxstack__usb__common__functions.html#gab5e998bf71342e6be14aaa4096233b1c", null ],
+    [ "Cy_USBD_RegisterUsbDebugCallback", "group__group__usbfxstack__usb__common__functions.html#gac181482ee7bd3679dc8c804e9d095f06", null ],
     [ "Cy_USBHS_Cal_Init", "group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226", null ],
     [ "Cy_USBHS_Cal_FsHsModePhyInit", "group__group__usbfxstack__usb__common__functions.html#ga7c1c86e72768878c411c653324beca1b", null ],
     [ "Cy_USBHS_Cal_PhyCommonInit", "group__group__usbfxstack__usb__common__functions.html#ga1b24e1816f2cd2217932da1146205bd9", null ],

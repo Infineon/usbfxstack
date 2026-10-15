@@ -1,5 +1,11 @@
 var NAVTREEINDEX7 =
 {
+"group__group__usbfxstack__usb__common__enums.html#gga1f67e6b4fb498bf4fdd89cc6e4dbd6ecaf390eda6a8b8828bc7117db5836de092":[3,3,1,12,2],
+"group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa02cbba72e71da4515ea8a86d9667f563":[3,3,1,24,5],
+"group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa20561cf3a444e63c6cea3148820a57c5":[3,3,1,24,4],
+"group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfa4dbc89d6daf1a52c167c66df78abe57a":[3,3,1,24,2],
+"group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfaaae060cf7942cb1a72bd6a13cf94fdef":[3,3,1,24,0],
+"group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bfab45463f9b55b75591edc67f591280ce3":[3,3,1,24,3],
 "group__group__usbfxstack__usb__common__enums.html#gga35921cf9e1a183014cfa7f5ca2e705bface9865cb144949907d2bff68d0f869d5":[3,3,1,24,1],
 "group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a4c0aea32173e6fe8fb5eb053c64929b5":[3,3,1,26,2],
 "group__group__usbfxstack__usb__common__enums.html#gga35d95ab3e11efbd15e2bbe621cd16806a5462432e90b7988e89950f68325081fe":[3,3,1,26,1],
@@ -243,11 +249,5 @@ var NAVTREEINDEX7 =
 "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a823596c0a5d7f4852d01936466438e1b":[3,3,1,1,53],
 "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a82da8660bc7b7493e5a959088d44db08":[3,3,1,1,10],
 "group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a8cac1c70124c5828f4ed9887e095703c":[3,3,1,1,47],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5":[3,3,1,1,29],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a94b5a7386277105a65f710033c9d51a2":[3,3,1,1,28],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a98eae357ce00a37728facbeceee4f068":[3,3,1,1,31],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a9ce840a862bfc523d2db80adf4fb1de9":[3,3,1,1,51],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498aa5464db949eb1874c12e8c84155124b1":[3,3,1,1,4],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498aabce8711cf3e7e57a43ad382b53a4e25":[3,3,1,1,6],
-"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498aad1c8a5760c6663821f23ddbecb8d0c9":[3,3,1,1,23]
+"group__group__usbfxstack__usb__common__enums.html#ggaa94d9a6862737a3d5fc0889e7dad1498a90292986bbce23c9979e6cb886ddebb5":[3,3,1,1,29]
 };

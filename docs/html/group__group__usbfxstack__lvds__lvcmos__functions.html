@@ -146,6 +146,15 @@ Functions</h2></td></tr>
 <tr class="memitem:gaf4e8b07ae6ba3b23f1f7315f6fc968c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaf4e8b07ae6ba3b23f1f7315f6fc968c3">Cy_LVDS_GpifReadData</a> (LVDSSS_LVDS_Type *base, uint8_t smNo, uint32_t threadIndex, bool selectThread, uint32_t numWords, uint32_t *buffer, uint32 waitOption)</td></tr>
 <tr class="memdesc:gaf4e8b07ae6ba3b23f1f7315f6fc968c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This API will receive the data into GPIF registers.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gaf4e8b07ae6ba3b23f1f7315f6fc968c3">More...</a><br /></td></tr>
 <tr class="separator:gaf4e8b07ae6ba3b23f1f7315f6fc968c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga824d8e62fa055eb1277dc4e81946c156"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga824d8e62fa055eb1277dc4e81946c156">Cy_LVDS_WriteEgressRegister</a> (LVDSSS_LVDS_Type *base, uint32_t threadIndex, uint32_t data)</td></tr>
+<tr class="memdesc:ga824d8e62fa055eb1277dc4e81946c156"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes one word of data to the GPIF_EGRESS_DATA_WORD0 register for the specified thread and sets the egress data valid flag.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga824d8e62fa055eb1277dc4e81946c156">More...</a><br /></td></tr>
+<tr class="separator:ga824d8e62fa055eb1277dc4e81946c156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7380d872bb7f813ce2a4ad86e9386163"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga7380d872bb7f813ce2a4ad86e9386163">Cy_LVDS_ReadEgressRegister</a> (LVDSSS_LVDS_Type *base, uint32_t threadIndex, uint32_t *data)</td></tr>
+<tr class="memdesc:ga7380d872bb7f813ce2a4ad86e9386163"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a word of data from the GPIF_EGRESS_DATA_WORD0 register for the specified thread.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga7380d872bb7f813ce2a4ad86e9386163">More...</a><br /></td></tr>
+<tr class="separator:ga7380d872bb7f813ce2a4ad86e9386163"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8b1cc880ee8c859d9a40bc01c3ecdc71"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga8b1cc880ee8c859d9a40bc01c3ecdc71">Cy_LVDS_ReadIngressRegister</a> (LVDSSS_LVDS_Type *base, uint32_t threadIndex, uint32_t *data)</td></tr>
+<tr class="memdesc:ga8b1cc880ee8c859d9a40bc01c3ecdc71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a word of data from the GPIF_INGRESS_DATA_WORD0 register for the specified thread.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#ga8b1cc880ee8c859d9a40bc01c3ecdc71">More...</a><br /></td></tr>
+<tr class="separator:ga8b1cc880ee8c859d9a40bc01c3ecdc71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadd1073bb46274d5173da7222e55c6a21"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__functions.html#gadd1073bb46274d5173da7222e55c6a21">Cy_LVDS_GpifInit</a> (LVDSSS_LVDS_Type *base, uint8_t smNo, const <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__gpif__config__t">cy_stc_lvds_gpif_config_t</a> *gpifConfig, <a class="el" href="group__group__usbfxstack__lvds__lvcmos__structs.html#structcy__stc__lvds__context__t">cy_stc_lvds_context_t</a> *lvdsContext)</td></tr>
 <tr class="memdesc:gadd1073bb46274d5173da7222e55c6a21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the GPIF.  <a href="group__group__usbfxstack__lvds__lvcmos__functions.html#gadd1073bb46274d5173da7222e55c6a21">More...</a><br /></td></tr>
 <tr class="separator:gadd1073bb46274d5173da7222e55c6a21"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1358,6 +1367,159 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - If the arguments are incorrect/invalid CY_LVDS_SUCCESS - If the operation is successful CY_LVDS_CONFIG_ERROR - If the sequence in which registers are configured is incorrect </dd></dl>
+
+</div>
+</div>
+<a id="ga824d8e62fa055eb1277dc4e81946c156" name="ga824d8e62fa055eb1277dc4e81946c156"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga824d8e62fa055eb1277dc4e81946c156">&#9670;&nbsp;</a></span>Cy_LVDS_WriteEgressRegister()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_WriteEgressRegister </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>threadIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes one word of data to the GPIF_EGRESS_DATA_WORD0 register for the specified thread and sets the egress data valid flag. </p>
+<dl class="section note"><dt>Note</dt><dd>The actual data driven out of the register depends on the BUS_WIDTH setting:<ul>
+<li>32-bit bus width: All 32 bits of the data word are driven out</li>
+<li>16-bit bus width: Only the lower 16 bits of the data word are driven out</li>
+<li>8-bit bus width: Only the lower 8 bits of the data word are driven out The maximum data capacity of the register is 64-bits. However, this API writes only to the first word and sets the valid flag.</li>
+</ul>
+</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address.</td></tr>
+    <tr><td class="paramname">threadIndex</td><td>Thread number to write data on.</td></tr>
+    <tr><td class="paramname">data</td><td>The 32-bit data word to write.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - Invalid arguments/function call CY_LVDS_SUCCESS - If the operation is successful </dd></dl>
+
+</div>
+</div>
+<a id="ga7380d872bb7f813ce2a4ad86e9386163" name="ga7380d872bb7f813ce2a4ad86e9386163"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7380d872bb7f813ce2a4ad86e9386163">&#9670;&nbsp;</a></span>Cy_LVDS_ReadEgressRegister()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_ReadEgressRegister </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>threadIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reads a word of data from the GPIF_EGRESS_DATA_WORD0 register for the specified thread. </p>
+<dl class="section note"><dt>Note</dt><dd>The actual data available in the register depends on the BUS_WIDTH setting:<ul>
+<li>32-bit bus width: All 32 bits of the data word are valid</li>
+<li>16-bit bus width: Only the lower 16 bits of the data word are valid</li>
+<li>8-bit bus width: Only the lower 8 bits of the data word are valid The maximum data capacity of the register is 64-bits. However, this API only reads the first word.</li>
+</ul>
+</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address.</td></tr>
+    <tr><td class="paramname">threadIndex</td><td>Thread number to read data from.</td></tr>
+    <tr><td class="paramname">data</td><td>Pointer to a 32-bit variable where the read data will be stored.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - Invalid arguments/function call CY_LVDS_SUCCESS - If the operation is successful </dd></dl>
+
+</div>
+</div>
+<a id="ga8b1cc880ee8c859d9a40bc01c3ecdc71" name="ga8b1cc880ee8c859d9a40bc01c3ecdc71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8b1cc880ee8c859d9a40bc01c3ecdc71">&#9670;&nbsp;</a></span>Cy_LVDS_ReadIngressRegister()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__enums.html#gacd3450c3497d4f3034646dfeba4bcd27">cy_en_lvds_status_t</a> Cy_LVDS_ReadIngressRegister </td>
+          <td>(</td>
+          <td class="paramtype">LVDSSS_LVDS_Type *&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>threadIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reads a word of data from the GPIF_INGRESS_DATA_WORD0 register for the specified thread. </p>
+<dl class="section note"><dt>Note</dt><dd>The actual data available in the register depends on the BUS_WIDTH setting:<ul>
+<li>32-bit bus width: All 32 bits of the data word are valid</li>
+<li>16-bit bus width: Only the lower 16 bits of the data word are valid</li>
+<li>8-bit bus width: Only the lower 8 bits of the data word are valid The maximum data capacity of the register is 128-bits. However, this API only reads the first word.</li>
+</ul>
+</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>Pointer to the LVDS register base address.</td></tr>
+    <tr><td class="paramname">threadIndex</td><td>Thread number to read data from.</td></tr>
+    <tr><td class="paramname">data</td><td>Pointer to a 32-bit variable where the read data will be stored.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>cy_en_lvds_status_t CY_LVDS_BAD_PARAMETER - Invalid arguments/function call CY_LVDS_SUCCESS - If the operation is successful </dd></dl>
 
 </div>
 </div>

@@ -537,6 +537,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
 <tr class="memitem:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9b1aeff84ade01b074aa3d5a7847b6d7">Cy_USBD_SelectHSCtleConfig</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, cy_en_hs_ctle_sel_t ctleSel)</td></tr>
 <tr class="memdesc:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects the HS CTLE configuration for USB 2.x operation.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9b1aeff84ade01b074aa3d5a7847b6d7">More...</a><br /></td></tr>
 <tr class="separator:ga9b1aeff84ade01b074aa3d5a7847b6d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab5e998bf71342e6be14aaa4096233b1c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gab5e998bf71342e6be14aaa4096233b1c">Cy_USBD_OutEp_IsAllowNakSet</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, uint8_t endpNumber)</td></tr>
+<tr class="memdesc:gab5e998bf71342e6be14aaa4096233b1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to check whether the specified USB-HS OUT endpoint has been configured to NAK incoming transfers when the corresponding DMA channel is not ready.  <a href="group__group__usbfxstack__usb__common__functions.html#gab5e998bf71342e6be14aaa4096233b1c">More...</a><br /></td></tr>
+<tr class="separator:gab5e998bf71342e6be14aaa4096233b1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac181482ee7bd3679dc8c804e9d095f06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#gac181482ee7bd3679dc8c804e9d095f06">Cy_USBD_RegisterUsbDebugCallback</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#ga161f083479b7de0481109cf73fe0df5c">cy_usbd_lnkstate_update_cb_t</a> debugCb, void *pAppCtxt)</td></tr>
+<tr class="memdesc:gac181482ee7bd3679dc8c804e9d095f06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used by debug module to register a callback which provides state information about the active USB link.  <a href="group__group__usbfxstack__usb__common__functions.html#gac181482ee7bd3679dc8c804e9d095f06">More...</a><br /></td></tr>
+<tr class="separator:gac181482ee7bd3679dc8c804e9d095f06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9bc22556f358fd830746ff3305be8226"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">Cy_USBHS_Cal_Init</a> (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__ctxt__t">cy_stc_usb_cal_ctxt_t</a> *pCalCtxt, void *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6">cy_usb_cal_msg_callback_t</a> callBackFunc)</td></tr>
 <tr class="memdesc:ga9bc22556f358fd830746ff3305be8226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the HS controller ie CAL layer and PHY.  <a href="group__group__usbfxstack__usb__common__functions.html#ga9bc22556f358fd830746ff3305be8226">More...</a><br /></td></tr>
 <tr class="separator:ga9bc22556f358fd830746ff3305be8226"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -6443,6 +6449,90 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USBD_ResetTimerTic
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_USBD_STATUS_SUCCESS: CTLE configuration selection registered successfully. CY_USBD_STATUS_CTXT_NULL: Invalid NULL pointer parameter. CY_USBD_STATUS_FAILURE: ctleSel out of range or lower-layer error. </dd></dl>
+
+</div>
+</div>
+<a id="gab5e998bf71342e6be14aaa4096233b1c" name="gab5e998bf71342e6be14aaa4096233b1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab5e998bf71342e6be14aaa4096233b1c">&#9670;&nbsp;</a></span>Cy_USBD_OutEp_IsAllowNakSet()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USBD_OutEp_IsAllowNakSet </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>endpNumber</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to check whether the specified USB-HS OUT endpoint has been configured to NAK incoming transfers when the corresponding DMA channel is not ready. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB Stack context structure. </td></tr>
+    <tr><td class="paramname">endpNumber</td><td>Endpoint index.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if endpoint NAKs transfers when DMA is not ready, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="gac181482ee7bd3679dc8c804e9d095f06" name="gac181482ee7bd3679dc8c804e9d095f06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac181482ee7bd3679dc8c804e9d095f06">&#9670;&nbsp;</a></span>Cy_USBD_RegisterUsbDebugCallback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#gae84a77ef84aee90fcb7773ad13acab34">cy_en_usbd_ret_code_t</a> Cy_USBD_RegisterUsbDebugCallback </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#ga161f083479b7de0481109cf73fe0df5c">cy_usbd_lnkstate_update_cb_t</a>&#160;</td>
+          <td class="paramname"><em>debugCb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>pAppCtxt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function used by debug module to register a callback which provides state information about the active USB link. </p>
+<p >This can be used by the debug module to enable/disable the logging function in cases where a CDC function on the primary USB link is being used for logging.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB Stack context structure. </td></tr>
+    <tr><td class="paramname">debugCb</td><td>USB link state update callback function pointer. Can be set to NULL if callback not required. </td></tr>
+    <tr><td class="paramname">pAppCtxt</td><td>Opaque data type used to get caller context information in the callback. Can be set to NULL if no context information is required in the callback.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Status of callback registration. </dd></dl>
 
 </div>
 </div>

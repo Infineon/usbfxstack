@@ -5610,6 +5610,11 @@ Cy_USBD_HandleSetConfiguration (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
         }
         pUsbdCtxt->EnumerationDone = true;
 
+        /* Use debug state update callback to notify logger module that USB link is now ready. */
+        if (pUsbdCtxt->debugUpdateCb != NULL) {
+            pUsbdCtxt->debugUpdateCb(pUsbdCtxt, true, pUsbdCtxt->pDebugCbContext);
+        }
+
         /* Trigger callback */
         if (pUsbdCtxt->setConfigCb) {
            DBG_USBD_INFO("SetCfgClb\r\n");
@@ -6069,6 +6074,11 @@ Cy_USBD_HandleSsReset (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
      * Notification is not required for connect event at present.
      */
     if (pMsg->type == CY_USBSS_CAL_MSG_LNK_RESET) {
+        /* Use debug state update callback to notify logger module that USB link is going down. */
+        if (pUsbdCtxt->debugUpdateCb != NULL) {
+            pUsbdCtxt->debugUpdateCb(pUsbdCtxt, false, pUsbdCtxt->pDebugCbContext);
+        }
+
         if (pUsbdCtxt->busResetCb) {
             /* Inform about Speed */
             pUsbdCtxt->busResetCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
@@ -6410,50 +6420,60 @@ Cy_USBD_HandleSuspend (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 {
     /* Keeping PLL enabled for HS & SS */
     bool keep_pll_enabled = true;
+    bool sendCb           = false;
 
     DBG_USBD_TRACE("HandleSuspend >>\r\n");
 
     if (NULL == pUsbdCtxt) {
         DBG_USBD_ERR("HndlSuspend:usbdCtxt Null\r\n");
-        return(CY_USBD_STATUS_CTXT_NULL);
+        return (CY_USBD_STATUS_CTXT_NULL);
     }
 
     if (pUsbdCtxt->devState <= CY_USB_DEVICE_STATE_RESET) {
         /* Before reset comes, dont do anything. */
         DBG_USBD_INFO("Suspend came when DevState < RESET\r\n");
-        return(CY_USBD_STATUS_SUCCESS);
+        return (CY_USBD_STATUS_SUCCESS);
     }
 
     /* Ignore back to back suspend interrupts. */
     if (pUsbdCtxt->devState != CY_USB_DEVICE_STATE_SUSPEND) {
-
         /* Now handle Suspend */
         DBG_USBD_INFO("L2-SUSPEND Entry\r\n");
 
-        /* In case of Full-Speed connection, a delay is required. */
-        if (pUsbdCtxt->devSpeed == CY_USBD_USB_DEV_FS) {
+        switch (pUsbdCtxt->devSpeed) {
+            case CY_USBD_USB_DEV_FS:
+/* In case of Full-Speed connection, a delay is required. */
 #if FREERTOS_ENABLE
-            vTaskDelay(5U);
+                vTaskDelay(5U);
 #else
-            Cy_SysLib_Delay(5U);
+                Cy_SysLib_Delay(5U);
 #endif /* FREERTOS_ENABLE */
+
+            /* Intentional fall-through */
+            case CY_USBD_USB_DEV_HS:
+                DBG_USBD_INFO("HSPhySuspend: PLL_EN=%d\r\n", keep_pll_enabled);
+                if (Cy_USBHS_Cal_HsHandleL2SuspendEntry(pUsbdCtxt->pCalCtxt, keep_pll_enabled)) {
+                    pUsbdCtxt->prevDevState = pUsbdCtxt->devState;
+                    pUsbdCtxt->devState     = CY_USB_DEVICE_STATE_SUSPEND;
+                    sendCb                  = true;
+                }
+                break;
+
+            default:
+                /*All USBSS cases*/
+                pUsbdCtxt->prevDevState = pUsbdCtxt->devState;
+                pUsbdCtxt->devState     = CY_USB_DEVICE_STATE_SUSPEND;
+                sendCb                  = true;
+                break;
         }
 
-        DBG_USBD_INFO("HSPhySuspend: PLL_EN=%d\r\n", keep_pll_enabled);
-        if (Cy_USBHS_Cal_HsHandleL2SuspendEntry(pUsbdCtxt->pCalCtxt, keep_pll_enabled))
-        {
-            pUsbdCtxt->prevDevState = pUsbdCtxt->devState;
-            pUsbdCtxt->devState = CY_USB_DEVICE_STATE_SUSPEND;
-            if (pUsbdCtxt->suspendCb) {
-                pUsbdCtxt->suspendCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
-            }
+        if (sendCb && (pUsbdCtxt->suspendCb)) {
+            pUsbdCtxt->suspendCb(pUsbdCtxt->pAppCtxt, pUsbdCtxt, pMsg);
         }
         DBG_USBD_INFO("HandleSuspend <<\r\n");
     }
-
     return (CY_USBD_STATUS_SUCCESS);
 }
-
 
 /*******************************************************************************
 * Function name: Cy_USBD_HandleResume
@@ -6851,6 +6871,11 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
                 if (Cy_USBSS_Cal_IsEnabled(pUsbdCtxt->pSsCalCtxt)) {
                     Cy_USBD_AddEvtToLog(pUsbdCtxt, CY_USBD_EVT_HS_RESET_SKIP);
                 } else {
+                    /* Use debug state update callback to notify logger module that USB link is going down. */
+                    if (pUsbdCtxt->debugUpdateCb != NULL) {
+                        pUsbdCtxt->debugUpdateCb(pUsbdCtxt, false, pUsbdCtxt->pDebugCbContext);
+                    }
+
 #if FREERTOS_ENABLE
                     /* Start a timer to enable the USB3 link after a delay. */
                     if (!pUsbdCtxt->usb3ConnectTimerStarted) {
@@ -7030,6 +7055,7 @@ Cy_USBD_HandleMsg (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
             break;
 
         case CY_USB_CAL_MSG_SUSP:
+        case CY_USBSS_CAL_MSG_USB3_U3_SUSPEND:
             DBG_USBD_TRACE("CY_USB_CAL_MSG_SUSP\r\n");
             /*
              * ISR takes care of PHY and controller related settings. use
@@ -7498,7 +7524,6 @@ Cy_USBD_ResetUsbdCommonDs (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     pUsbdCtxt->usbDeviceStat = 0x00;
     pUsbdCtxt->intfRemoteWakeEnabled = 0x00;
     pUsbdCtxt->numOfIntfInActiveCfg = 0x00;
-    pUsbdCtxt->EnumerationDone = false;
     pUsbdCtxt->isHsEnabled = false;
 
     for (intfNum = 0x00; intfNum < CY_USB_MAX_INTF; intfNum++) {
@@ -7653,6 +7678,11 @@ Cy_USBD_DisconnectDevice (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt)
     if (NULL == pUsbdCtxt) {
         DBG_USBD_ERR("DisConDev:usbdCtxt Null\r\n");
         return;
+    }
+
+    /* Use debug state update callback to notify logger module that USB link is going down. */
+    if (pUsbdCtxt->debugUpdateCb != NULL) {
+        pUsbdCtxt->debugUpdateCb(pUsbdCtxt, false, pUsbdCtxt->pDebugCbContext);
     }
 
     Cy_USBD_DisableConnection(pUsbdCtxt, true);
@@ -9484,7 +9514,7 @@ cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 {
     uint32_t intMask;
     cy_en_usbd_usb_powerstate_t usbPowerState = CY_USBD_STATE_UNKNOWN;
-    cy_en_usbd_ret_code_t retCode = CY_USBD_STATUS_FAILURE;
+    cy_en_usbd_ret_code_t retCode = CY_USBD_STATUS_SUCCESS;
 
     if((!pUsbdCtxt) || (!pCpuDw1Base))
     {
@@ -9496,7 +9526,6 @@ cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     {
         return CY_USBD_STATUS_FAILURE;
     }
-
 
     if(pUsbdCtxt->devSpeed > CY_USBD_USB_DEV_HS)
     {
@@ -9515,7 +9544,13 @@ cy_en_usbd_ret_code_t Cy_USBD_EnterDeepsleep(cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
 
     intMask = Cy_SysLib_EnterCriticalSection();
     Cy_USBHS_Cal_DeinitPLL(pUsbdCtxt->pCalCtxt);
-    retCode = Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+
+    /*
+     * Actual status of CPU level deep sleep entry does not matter. We need to complete
+     * the standard re-initialization of the USB blocks in any case.
+     */
+    (void)Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+
     if (Cy_USBHS_Cal_InitPLL(pUsbdCtxt->pCalCtxt) == CY_USB_CAL_STATUS_TIMEOUT)
     {
         retCode = CY_USBD_STATUS_TIMEOUT;
@@ -9560,6 +9595,76 @@ Cy_USBD_SelectHSCtleConfig (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
     if (Cy_USBHS_Cal_SetCtleSelValue(pUsbdCtxt->pCalCtxt, pUsbdCtxt->hsCtleSel) != CY_USB_CAL_STATUS_SUCCESS) {
         return CY_USBD_STATUS_FAILURE;
     }
+    return CY_USBD_STATUS_SUCCESS;
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_OutEp_IsAllowNakSet
+ ****************************************************************************//**
+ *
+ * Function to check whether the specified USB-HS OUT endpoint has been configured
+ * to NAK incoming transfers when the corresponding DMA channel is not ready.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param endpNumber
+ * Endpoint index.
+ *
+ * \return
+ * true if endpoint NAKs transfers when DMA is not ready, false otherwise.
+ *******************************************************************************/
+bool
+Cy_USBD_OutEp_IsAllowNakSet (cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        uint8_t endpNumber)
+{
+    bool retval = false;
+
+    if ((pUsbdCtxt != NULL) && (endpNumber > 0) && (endpNumber < CY_USB_MAX_ENDP_NUMBER)) {
+        retval = pUsbdCtxt->endpInfoOut[endpNumber].allowNakTillDmaRdy;
+    }
+
+    return (retval);
+}
+
+/*******************************************************************************
+ * Function Name: Cy_USBD_RegisterUsbDebugCallback
+ ****************************************************************************//**
+ *
+ * Function used by debug module to register a callback which provides state
+ * information about the active USB link. This can be used by the debug module
+ * to enable/disable the logging function in cases where a CDC function on the
+ * primary USB link is being used for logging.
+ *
+ * \param pUsbdCtxt
+ * USB Stack context structure.
+ * \param debugCb
+ * USB link state update callback function pointer. Can be set to NULL if callback
+ * not required.
+ * \param pAppCtxt
+ * Opaque data type used to get caller context information in the callback. Can
+ * be set to NULL if no context information is required in the callback.
+ *
+ * \return
+ * Status of callback registration.
+ *******************************************************************************/
+cy_en_usbd_ret_code_t
+Cy_USBD_RegisterUsbDebugCallback (
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
+        cy_usbd_lnkstate_update_cb_t debugCb,
+        void *pAppCtxt)
+{
+    if (pUsbdCtxt == NULL) {
+        return CY_USBD_STATUS_CTXT_NULL;
+    }
+
+    pUsbdCtxt->debugUpdateCb   = debugCb;
+    pUsbdCtxt->pDebugCbContext = pAppCtxt;
+
+    /* If the USB link is already up, send the link up callback now. */
+    if ((pUsbdCtxt->debugUpdateCb != NULL) && (pUsbdCtxt->devState == CY_USB_DEVICE_STATE_CONFIGURED)) {
+        pUsbdCtxt->debugUpdateCb(pUsbdCtxt, true, pUsbdCtxt->pDebugCbContext);
+    }
+
     return CY_USBD_STATUS_SUCCESS;
 }
 

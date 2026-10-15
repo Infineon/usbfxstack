@@ -229,7 +229,7 @@ extern "C" {
 
 
 /* Default LUT mask values for USB3 speeds */
-#define DEF_LUT_MASK_GEN1X1 (0x0FFF) /* LUT index 0-11 */
+#define DEF_LUT_MASK_GEN1X1 (0xFFFF) /* LUT index 0-15 */
 #define DEF_LUT_MASK_GEN2X1 (0xFFFF) /* LUT index 0-15 */
 #define DEF_LUT_MASK_GEN1X2 (0x3BA9) /* LUT index 0,3,5,7,8,9,11,12,13 */
 #define DEF_LUT_MASK_GEN2X2 (0x03FF) /* LUT index 0-9 */

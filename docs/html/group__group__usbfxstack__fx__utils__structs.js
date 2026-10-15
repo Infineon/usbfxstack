@@ -23,7 +23,6 @@ var group__group__usbfxstack__fx__utils__structs =
     ] ],
     [ "cy_stc_debug_context_t", "group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t", [
       [ "debugInit", "group__group__usbfxstack__fx__utils__structs.html#a85f64545b2370683caae34be049ca4f1", null ],
-      [ "startCdcPrint", "group__group__usbfxstack__fx__utils__structs.html#a57e1026d35a43d28c5685139db315f8c", null ],
       [ "curMsg", "group__group__usbfxstack__fx__utils__structs.html#a00a95abd96e4e3dcb401918b543ab934", null ],
       [ "pMsg", "group__group__usbfxstack__fx__utils__structs.html#a405348f6e12ed525df687b66066a32f7", null ],
       [ "bufSize", "group__group__usbfxstack__fx__utils__structs.html#ade884ddcf8a1c4b006d8805e57fdc2f2", null ],
@@ -44,14 +43,15 @@ var group__group__usbfxstack__fx__utils__structs =
       [ "cdcEpOut", "group__group__usbfxstack__fx__utils__structs.html#a83de4e8690de52c58b683150e3680219", null ],
       [ "bufCount", "group__group__usbfxstack__fx__utils__structs.html#a01ca1e3e21a3432e5d7206a831faab36", null ],
       [ "recvEnabled", "group__group__usbfxstack__fx__utils__structs.html#a409232bf8890e8283cb685f07f03f375", null ],
-      [ "rxFreeBufferCount", "group__group__usbfxstack__fx__utils__structs.html#a3f95c54c0cbe249f5312d340933d4f3f", null ],
-      [ "pCpuDw0Base", "group__group__usbfxstack__fx__utils__structs.html#ad6f51a4c5e613767a76dcc53a1d9c203", null ],
-      [ "pCpuDw1Base", "group__group__usbfxstack__fx__utils__structs.html#a7c3e877226ffb49d57b2cc7d55c1641a", null ],
-      [ "endpInDma", "group__group__usbfxstack__fx__utils__structs.html#a8f72ee73872c783040a79ea0c539009a", null ],
-      [ "endpOutDma", "group__group__usbfxstack__fx__utils__structs.html#a09b4efa4a5b399e19639ce931e8f9fc2", null ],
+      [ "endpInChannel", "group__group__usbfxstack__fx__utils__structs.html#aace43181e5184a1feda15459144f8324", null ],
+      [ "endpOutChannel", "group__group__usbfxstack__fx__utils__structs.html#ac535ab1c52c7439a3ec62d65e8cc90fc", null ],
       [ "pUsbdCtxt", "group__group__usbfxstack__fx__utils__structs.html#a0941f157df4146c4bb08e512b61a1b50", null ],
       [ "cdcSendHandle", "group__group__usbfxstack__fx__utils__structs.html#ade951f1bbd2c3ba3b40384dff9d61848", null ],
-      [ "cdcRecvHandle", "group__group__usbfxstack__fx__utils__structs.html#a51341776f5d7b5967ee88dc0d1dda42e", null ]
+      [ "cdcRecvHandle", "group__group__usbfxstack__fx__utils__structs.html#a51341776f5d7b5967ee88dc0d1dda42e", null ],
+      [ "ssCtrlIntf", "group__group__usbfxstack__fx__utils__structs.html#a5e09528d8e5e51325bd0b6b356174e4f", null ],
+      [ "hsCtrlIntf", "group__group__usbfxstack__fx__utils__structs.html#aa168cc1f6bd5ae33bb8371f4f2bfe4a9", null ],
+      [ "fsCtrlIntf", "group__group__usbfxstack__fx__utils__structs.html#adf3d41d527c9fc150065d732fb394593", null ],
+      [ "pCfgBuffer", "group__group__usbfxstack__fx__utils__structs.html#aa6d0cbffdd6e331541dbefcaa8702747", null ]
     ] ],
     [ "cy_stc_usbfs_epinfo_t", "group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usbfs__epinfo__t", [
       [ "is_out", "group__group__usbfxstack__fx__utils__structs.html#a966f9ea6b5a92fc496723d6c28664aeb", null ],

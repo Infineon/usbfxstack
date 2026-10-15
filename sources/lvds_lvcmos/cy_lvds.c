@@ -390,7 +390,7 @@ cy_en_lvds_status_t Cy_LVDS_Deinit (LVDSSS_LVDS_Type *base, uint8_t sipNo, cy_st
     }
 #if (!LVCMOS_16BIT_SDR)
     /* Save WideLink setting. */
-    isWideLink = lvdsContext->phyConfigP0->wideLink;
+    isWideLink = (lvdsContext->phyConfigP0 != NULL) && (lvdsContext->phyConfigP0->wideLink);
 #endif /* !LVCMOS_16BIT_SDR*/
 
     /* Disable GPIF state machine first. */
@@ -1891,7 +1891,7 @@ cy_en_lvds_status_t Cy_LVDS_PhyDeinit (LVDSSS_LVDS_Type *base, uint8_t portNo, c
     /* Disable loopback configuration. */
     base->LOOPBACK_CFG = 0;
 
-    if (portNo == 0) {
+    if ((portNo == 0) && (lvdsContext->phyConfigP0 != NULL)) {
         if (lvdsContext->phyConfigP0->wideLink) {
             if (lvdsContext->phyConfigP0->modeSelect == CY_LVDS_PHY_MODE_LVDS) {
                 Cy_LVDS_Phy_Lvds_Deinit(base, 1);
@@ -1912,13 +1912,15 @@ cy_en_lvds_status_t Cy_LVDS_PhyDeinit (LVDSSS_LVDS_Type *base, uint8_t portNo, c
 
         lvdsContext->phyConfigP0 = NULL;
     } else {
-        if (lvdsContext->phyConfigP1->modeSelect == CY_LVDS_PHY_MODE_LVDS) {
-            Cy_LVDS_Phy_Lvds_Deinit(base, portNo);
-        } else {
-            Cy_LVCMOS_PhyDeInit(base, portNo);
-        }
+        if (lvdsContext->phyConfigP1 != NULL) {
+            if (lvdsContext->phyConfigP1->modeSelect == CY_LVDS_PHY_MODE_LVDS) {
+                Cy_LVDS_Phy_Lvds_Deinit(base, portNo);
+            } else {
+                Cy_LVCMOS_PhyDeInit(base, portNo);
+            }
 
-        lvdsContext->phyConfigP1 = NULL;
+            lvdsContext->phyConfigP1 = NULL;
+        }
     }
 
     base->GPIF_CLK_SEL[portNo] = 0x00000614UL;
@@ -2831,6 +2833,143 @@ cy_en_lvds_status_t Cy_LVDS_GpifReadData(LVDSSS_LVDS_Type* base,
     return CY_LVDS_SUCCESS;
 }
 
+/*******************************************************************************
+* Function Name: Cy_LVDS_WriteEgressRegister
+****************************************************************************//**
+*
+* Writes one word of data to the GPIF_EGRESS_DATA_WORD0 register for the
+* specified thread and sets the egress data valid flag.
+*
+* \note The actual data driven out of the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are driven out
+*       - 16-bit bus width: Only the lower 16 bits of the data word are driven out
+*       - 8-bit bus width: Only the lower 8 bits of the data word are driven out
+*       The maximum data capacity of the register is 64-bits. However, this API
+*       writes only to the first word and sets the valid flag.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to write data on.
+*
+* \param data
+* The 32-bit data word to write.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_WriteEgressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t data)
+{
+    if (
+            (base == NULL) /* Invalid base pointer */
+        ||  (threadIndex >= CY_LVDS_MAX_THREAD_COUNT) /* Invalid thread index */
+        ||  (base->THREAD[threadIndex].GPIF_DATA_CTRL
+            & LVDSSS_LVDS_THREAD_GPIF_DATA_CTRL_EG_DATA_VALID_Msk) /* Register already holds valid data */
+    )
+    {
+        return CY_LVDS_BAD_PARAMETER;
+    }
+
+    base->THREAD[threadIndex].GPIF_EGRESS_DATA_WORD0 = (uint32_t)data;
+    base->THREAD[threadIndex].GPIF_DATA_CTRL = LVDSSS_LVDS_THREAD_GPIF_DATA_CTRL_EG_DATA_VALID_Msk;
+
+    return CY_LVDS_SUCCESS;
+}
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ReadEgressRegister
+****************************************************************************//**
+*
+* Reads a word of data from the GPIF_EGRESS_DATA_WORD0 register for the
+* specified thread.
+*
+* \note The actual data available in the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are valid
+*       - 16-bit bus width: Only the lower 16 bits of the data word are valid
+*       - 8-bit bus width: Only the lower 8 bits of the data word are valid
+*       The maximum data capacity of the register is 64-bits. However, this API
+*       only reads the first word.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to read data from.
+*
+* \param data
+* Pointer to a 32-bit variable where the read data will be stored.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_ReadEgressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t *data)
+{
+    if(
+        (base == NULL) /* Invalid base pointer */
+        ||  (threadIndex >= CY_LVDS_MAX_THREAD_COUNT) /* Invalid thread index */
+        ||  (data == NULL) /* Invalid data pointer */
+        ||  !(base->THREAD[threadIndex].GPIF_DATA_CTRL & LVDSSS_LVDS_THREAD_GPIF_DATA_CTRL_EG_DATA_VALID_Msk) /* Register doesn't hold valid data */
+    )
+    {
+        return CY_LVDS_BAD_PARAMETER;
+    }
+
+    *data = base->THREAD[threadIndex].GPIF_EGRESS_DATA_WORD0;
+
+    return CY_LVDS_SUCCESS;
+}
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ReadIngressRegister
+****************************************************************************//**
+*
+* Reads a word of data from the GPIF_INGRESS_DATA_WORD0 register for the
+* specified thread.
+*
+* \note The actual data available in the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are valid
+*       - 16-bit bus width: Only the lower 16 bits of the data word are valid
+*       - 8-bit bus width: Only the lower 8 bits of the data word are valid
+*       The maximum data capacity of the register is 128-bits. However, this API
+*       only reads the first word.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to read data from.
+*
+* \param data
+* Pointer to a 32-bit variable where the read data will be stored.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_ReadIngressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t *data)
+{
+    if (
+            (base == NULL) /* Invalid base pointer */
+        ||  (threadIndex >= CY_LVDS_MAX_THREAD_COUNT) /* Invalid thread index */
+        ||  (data == NULL) /* Invalid data pointer */
+        ||  !(base->THREAD[threadIndex].GPIF_DATA_CTRL
+            & LVDSSS_LVDS_THREAD_GPIF_DATA_CTRL_ING_DATA_VALID_Msk) /* Register doesn't hold valid data */
+    )
+    {
+        return CY_LVDS_BAD_PARAMETER;
+    }
+
+    *data = base->THREAD[threadIndex].GPIF_INGRESS_DATA_WORD0;
+    base->THREAD[threadIndex].GPIF_DATA_CTRL = LVDSSS_LVDS_THREAD_GPIF_DATA_CTRL_ING_DATA_VALID_Msk;
+
+    return CY_LVDS_SUCCESS;
+}
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_GpifThreadConfig
@@ -2945,7 +3084,7 @@ cy_en_lvds_status_t Cy_LVDS_GpifSMSwitch(LVDSSS_LVDS_Type * base, uint8_t smNo,
     base->GPIF[smNo].GPIF_WAVEFORM_CTRL_STAT = _VAL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_ALPHA_INIT, initialAlpha) |
                                                _VAL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_WAVEFORM_VALID, 1u);
 
-    switchVal = _VAL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_SWITCH_DESTINATION_STATE, toState) | (base->GPIF[smNo].GPIF_WAVEFORM_SWITCH);
+    switchVal = _VAL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_SWITCH_DESTINATION_STATE, toState);
 
     if (fromState < CY_LVDS_GPIF_MAX_NUM_STATES)
     {
@@ -2996,6 +3135,9 @@ cy_en_lvds_status_t Cy_LVDS_GpifSMSwitch(LVDSSS_LVDS_Type * base, uint8_t smNo,
         default:
             break;
     }
+
+    /* Set bit to 1 in SW, HW will clear it when state has been switched */
+    base->GPIF[smNo].GPIF_WAVEFORM_SWITCH |= _BOOL2FLD(LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_SWITCH_WAVEFORM_SWITCH, 1u);
 
     return CY_LVDS_SUCCESS;
 }
@@ -3788,7 +3930,7 @@ void Cy_LVDS_IrqHandler(LVDSSS_LVDS_Type *base, cy_stc_lvds_context_t *lvdsConte
                     {
 #if (!LVCMOS_16BIT_SDR)
                         if (gIsLvdsCharMode) {
-                            if (lvdsContext->phyConfigP0->wideLink == false) {
+                            if ((lvdsContext->phyConfigP0 == NULL) || (lvdsContext->phyConfigP0->wideLink == false)) {
                                 /* Trigger custom PHY training sequence. Callback to be generated
                                  * after custom training is complete. */
                                 Cy_LVDS_CustomTraining_Enable(base, lvdsContext, 1, false,
@@ -3930,7 +4072,7 @@ void Cy_LVDS_LowPowerIrqHandler(LVDSSS_LVDS_Type * base, cy_stc_lvds_context_t *
     uint32_t activeIntr;
 
     if ((base == NULL) || (lvdsContext == NULL) ||
-            (lvdsContext->phyConfigP0 == NULL) || (lvdsContext->intrCallback == NULL))
+            (lvdsContext->intrCallback == NULL))
     {
         DBG_LVDS_ERR("LVDS LowPwrISR: Bad context\r\n");
         return;
@@ -3947,7 +4089,7 @@ void Cy_LVDS_LowPowerIrqHandler(LVDSSS_LVDS_Type * base, cy_stc_lvds_context_t *
             {
 #if (!LVCMOS_16BIT_SDR)
                 /* For Widelink mode, only Link-0 l3 exit interrupt is received */
-                if(lvdsContext->phyConfigP0->wideLink)
+                if((lvdsContext->phyConfigP0 != NULL) && (lvdsContext->phyConfigP0->wideLink))
                 {
                     glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_0] = CY_LVDS_LVCMOS_L0_STATE;
                     glLinkPowerStateTable[CY_LVDS_LVCMOS_PORT_1] = CY_LVDS_LVCMOS_L0_STATE;
@@ -4022,6 +4164,7 @@ void Cy_LVDS_L3_Entry (LVDSSS_LVDS_Type *base,
        LICIO_VSSIO_IREF.EN = 0
        LICIO_VCCD_V1P1.EN = 0
      */
+    cy_stc_lvds_phy_config_t *pPhyConfig;
 
     /*
        a) Disables all thread's by programming
@@ -4037,6 +4180,12 @@ void Cy_LVDS_L3_Entry (LVDSSS_LVDS_Type *base,
         return;
     }
 
+    pPhyConfig = (sipNo == 1) ? lvdsContext->phyConfigP1 : lvdsContext->phyConfigP0;
+    if (pPhyConfig == NULL) {
+        DBG_LVDS_ERR("L3_Entry: Missing PHY config\r\n");
+        return;
+    }
+
     /*  Mark the GPIF state machine configuration invalid. */
     base->GPIF[sipNo].GPIF_WAVEFORM_CTRL_STAT &= ~LVDSSS_LVDS_GPIF_GPIF_WAVEFORM_CTRL_STAT_WAVEFORM_VALID_Msk;
 
@@ -4048,27 +4197,47 @@ void Cy_LVDS_L3_Entry (LVDSSS_LVDS_Type *base,
     }
 
 #if (!LVCMOS_16BIT_SDR)
-    if ((lvdsContext->phyConfigP0->wideLink == true) || (sipNo == 1))
-    {
+    if ((sipNo == 1) || (lvdsContext->phyConfigP0->wideLink == true)) {
         base->THREAD[2].GPIF_THREAD_CONFIG &= ~LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR_Msk;
         base->THREAD[3].GPIF_THREAD_CONFIG &= ~LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR_Msk;
     }
 #endif /* (!LVCMOS_16BIT_SDR) */
 
-    base->AFE[sipNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
+    if (pPhyConfig->loopbackModeEn) {
+#if (!LVCMOS_16BIT_SDR)
+        if (pPhyConfig->isPutLoopbackMode) {
+            /* If port is loopback data receiver, perform PHY and LINK level deinitialization. */
+            base->AFE[sipNo].LICIO_VCCD_V1P1     &= ~LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN_Msk;
+            base->AFE[sipNo].PHY_GENERAL_CONFIG  &= ~(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_SCANON_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_V1P25_VCCD_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_V1P1_VCCD_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_VDDIO_Msk);
+            base->AFE[sipNo].LICIO_VSSIO_IREF    &= ~LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN_Msk;
+            base->AFE[sipNo].GENERAL_RX          &= ~LVDSSS_LVDS_AFE_GENERAL_RX_DLL_BYPASS_EN_Msk;
+            base->AFE[sipNo].PLL_CONFIG          &= ~(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_BYPASS_Msk |
+                    LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_REF_SEL_Msk);
+            base->AFE[sipNo].PHY_TRAIN_CONFIG    &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
+            Cy_LVDS_DisableLoopbackMode(base);
+        } else {
+            /* Nothing to do in the case of loopback data transmitter. */
+        }
+#endif /* (!LVCMOS_16BIT_SDR) */
+    } else {
+        base->AFE[sipNo].PHY_TRAIN_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
 
-    base->AFE[sipNo].DLL_M_CONFIG &=  ~LVDSSS_LVDS_AFE_DLL_M_CONFIG_EN_Msk;
-    base->AFE[sipNo].PLL_CONFIG   &=  ~LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_EN_Msk;
-    Cy_SysLib_DelayUs(2);
-    base->AFE[sipNo].PLL_CONFIG   &=  ~LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_SUPPLY_EN_Msk;
+        base->AFE[sipNo].DLL_M_CONFIG &=  ~LVDSSS_LVDS_AFE_DLL_M_CONFIG_EN_Msk;
+        base->AFE[sipNo].PLL_CONFIG   &=  ~LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_EN_Msk;
+        Cy_SysLib_DelayUs(2);
+        base->AFE[sipNo].PLL_CONFIG   &=  ~LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_SUPPLY_EN_Msk;
 
-    base->AFE[sipNo].REG_1P25  &= ~(LVDSSS_LVDS_AFE_REG_1P25_ENABLE_Msk | LVDSSS_LVDS_AFE_REG_1P25_USE_REG_Msk);
+        base->AFE[sipNo].REG_1P25  &= ~(LVDSSS_LVDS_AFE_REG_1P25_ENABLE_Msk | LVDSSS_LVDS_AFE_REG_1P25_USE_REG_Msk);
 
-    base->AFE[sipNo].LICIO_VSSIO_IREF      &= ~LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN_Msk;
-    base->AFE[sipNo].LICIO_VCCD_V1P1       &= ~LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN_Msk;
+        base->AFE[sipNo].LICIO_VSSIO_IREF      &= ~LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN_Msk;
+        base->AFE[sipNo].LICIO_VCCD_V1P1       &= ~LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN_Msk;
+    }
 
     /* Disable the LINK and AFE blocks once L3 entry has been processed on all active ports. */
-    if (((sipNo == 0) && (lvdsContext->phyConfigP0->wideLink != true)) || (sipNo == 1))
+    if ((sipNo == 1) || (lvdsContext->phyConfigP0->wideLink != true))
     {
         base->CTL &= ~(LVDSSS_LVDS_CTL_LINK_ENABLED_Msk | LVDSSS_LVDS_CTL_PHY_ENABLED_Msk);
     }
@@ -4133,118 +4302,139 @@ cy_en_lvds_status_t Cy_LVDS_L3_Exit (LVDSSS_LVDS_Type *base,
         return CY_LVDS_BAD_PARAMETER;
     }
 
-    if (sipNo == 0)
-    {
-        pPhyConfig = lvdsContext->phyConfigP0;
-    }
-    else
-    {
-        pPhyConfig = lvdsContext->phyConfigP1;
+    pPhyConfig = (sipNo != 0) ? lvdsContext->phyConfigP1 : lvdsContext->phyConfigP0;
+    if (pPhyConfig == NULL) {
+        DBG_LVDS_ERR("L3_Exit: Missing PHY config\r\n");
+        return CY_LVDS_BAD_PARAMETER;
     }
 
     /* Enable IP block */
     base->CTL |= _BOOL2FLD(LVDSSS_LVDS_CTL_PHY_ENABLED,  1u) |
                     _BOOL2FLD(LVDSSS_LVDS_CTL_LINK_ENABLED, 1u);
 
-    base->AFE[sipNo].LICIO_VCCD_V1P1  |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN, 1u);
-    base->AFE[sipNo].LICIO_VSSIO_IREF |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN, 1u);
-    Cy_SysLib_DelayUs(2);
+    if (pPhyConfig->loopbackModeEn == true) {
+#if (!LVCMOS_16BIT_SDR)
+        if (pPhyConfig->isPutLoopbackMode) {
+            /* If port is in loopback receive mode, make sure PHY and link are initialized. */
+            base->AFE[sipNo].LICIO_VCCD_V1P1     |= LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN_Msk;
+            base->AFE[sipNo].PHY_GENERAL_CONFIG  |= (LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_SCANON_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_V1P25_VCCD_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_V1P1_VCCD_Msk |
+                    LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_ENABLE_VDDIO_Msk);
+            base->AFE[sipNo].LICIO_VSSIO_IREF    |= LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN_Msk;
+            Cy_SysLib_DelayUs(10);
+            base->AFE[sipNo].GENERAL_RX          |= LVDSSS_LVDS_AFE_GENERAL_RX_DLL_BYPASS_EN_Msk;
+            Cy_SysLib_DelayUs(10);
+            base->AFE[sipNo].PLL_CONFIG          |= (LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_BYPASS_Msk |
+                    (2U << LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_REF_SEL_Pos));
+            Cy_SysLib_DelayUs(1);
+            base->AFE[sipNo].PHY_TRAIN_CONFIG    |= LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN_Msk;
+            Cy_LVDS_EnableLoopbackMode(base, sipNo);
+        } else {
+            /* Nothing to do in case of loopback data transmitter. */
+        }
+#endif /* (!LVCMOS_16BIT_SDR) */
+    } else {
+        base->AFE[sipNo].LICIO_VCCD_V1P1  |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VCCD_V1P1_EN, 1u);
+        base->AFE[sipNo].LICIO_VSSIO_IREF |= _BOOL2FLD(LVDSSS_LVDS_AFE_LICIO_VSSIO_IREF_EN, 1u);
+        Cy_SysLib_DelayUs(2);
 
-    base->AFE[sipNo].REG_1P25         |= _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_ENABLE, 1u) |
-                                         _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_USE_REG, 1u);
-    Cy_SysLib_DelayUs(2);
+        base->AFE[sipNo].REG_1P25         |= _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_ENABLE, 1u) |
+            _BOOL2FLD(LVDSSS_LVDS_AFE_REG_1P25_USE_REG, 1u);
+        Cy_SysLib_DelayUs(2);
 
-    base->AFE[sipNo].PLL_CONFIG       |= _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_SUPPLY_EN, 1u);
-    Cy_SysLib_DelayUs(8);
-    base->AFE[sipNo].PLL_CONFIG       |= _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_EN, 1u);
+        base->AFE[sipNo].PLL_CONFIG       |= _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_SUPPLY_EN, 1u);
+        Cy_SysLib_DelayUs(8);
+        base->AFE[sipNo].PLL_CONFIG       |= _BOOL2FLD(LVDSSS_LVDS_AFE_PLL_CONFIG_PLL_EN, 1u);
 
 #if (!LVCMOS_16BIT_SDR)
-    if (pPhyConfig->modeSelect != CY_LVDS_PHY_MODE_LVCMOS)
-    {
+        if (pPhyConfig->modeSelect != CY_LVDS_PHY_MODE_LVCMOS)
+        {
+            timeoutCount = 0;
+
+            while(!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_PLL_LOCK_ACQUIRED_Msk))
+            {
+                Cy_SysLib_DelayUs(10);
+                timeoutCount++;
+                if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
+                {
+                    status = CY_LVDS_TIMEOUT_ERROR;
+                    DBG_LVDS_ERR("L3_Exit: PLL lock timed out for Port: %d\r\n", sipNo);
+                    return status;
+                }
+            }
+
+            base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_PLL_LOCK_ACQUIRED_Msk;
+            status = CY_LVDS_SUCCESS;
+        }
+#endif /* (!LVCMOS_16BIT_SDR) */
+
+        base->AFE[sipNo].DLL_M_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_AFE_DLL_M_CONFIG_EN, 1u);
         timeoutCount = 0;
 
-        while(!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_PLL_LOCK_ACQUIRED_Msk))
+        while(!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk))
         {
             Cy_SysLib_DelayUs(10);
             timeoutCount++;
             if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
             {
                 status = CY_LVDS_TIMEOUT_ERROR;
-                DBG_LVDS_ERR("L3_Exit: PLL lock timed out for Port: %d\r\n", sipNo);
+                DBG_LVDS_ERR("L3_Exit: LVDS DLL lock timed out for Port: %d\r\n", sipNo);
                 return status;
             }
         }
 
-        base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_PLL_LOCK_ACQUIRED_Msk;
-        status = CY_LVDS_SUCCESS;
-    }
-#endif /* (!LVCMOS_16BIT_SDR) */
+        base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk;
 
-    base->AFE[sipNo].DLL_M_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_AFE_DLL_M_CONFIG_EN, 1u);
-    timeoutCount = 0;
-
-    while(!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk))
-    {
-        Cy_SysLib_DelayUs(10);
-        timeoutCount++;
-        if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
+        /* In Case of LVCMOS external phyTrainingPattern not Required */
+        if (pPhyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
         {
-            status = CY_LVDS_TIMEOUT_ERROR;
-            DBG_LVDS_ERR("L3_Exit: LVDS DLL lock timed out for Port: %d\r\n", sipNo);
-            return status;
-        }
-    }
+            base->AFE[sipNo].PHY_TRAIN_CONFIG   |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1u);
+            base->AFE[sipNo].PHY_GENERAL_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ALGORITHM_Msk;
+            base->AFE[sipNo].PHY_GENERAL_CONFIG |= _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ALGORITHM, CY_LVDS_PHY_DESKEW_SLOW);
 
-    base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_MDLL_LOCK_ACQUIRED_Msk;
-
-    /* In Case of LVCMOS external phyTrainingPattern not Required */
-    if (pPhyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
-    {
-        base->AFE[sipNo].PHY_TRAIN_CONFIG   |= _BOOL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_EN, 1u);
-        base->AFE[sipNo].PHY_GENERAL_CONFIG &= ~LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ALGORITHM_Msk;
-        base->AFE[sipNo].PHY_GENERAL_CONFIG |= _VAL2FLD(LVDSSS_LVDS_AFE_PHY_GENERAL_CONFIG_DESKEW_ALGORITHM, CY_LVDS_PHY_DESKEW_SLOW);
-
-        timeoutCount = 0;
-        while (!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk))
-        {
-            Cy_SysLib_DelayUs(10);
-            timeoutCount++;
-            if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
+            timeoutCount = 0;
+            while (!(base->AFE[sipNo].PHY_INTR & LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk))
             {
-                status = CY_LVDS_TIMEOUT_ERROR;
-                DBG_LVDS_ERR("L3_Exit: DDR DESKEW timed out for Port: %d\r\n", sipNo);
-                return status;
+                Cy_SysLib_DelayUs(10);
+                timeoutCount++;
+                if (timeoutCount >= CY_LVDS_MAX_TIMEOUT_COUNT)
+                {
+                    status = CY_LVDS_TIMEOUT_ERROR;
+                    DBG_LVDS_ERR("L3_Exit: DDR DESKEW timed out for Port: %d\r\n", sipNo);
+                    return status;
+                }
             }
-        }
 
-        base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk;
-        status = CY_LVDS_SUCCESS;
-    }
-#if (!LVCMOS_16BIT_SDR)
-    else  /* In case of LVDS external phyTrainingPattern required */
-    {
-
-        base->AFE[sipNo].PHY_TRAIN_CONFIG &= ~(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk | LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO_Msk);
-        base->AFE[sipNo].PHY_TRAIN_CONFIG  = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, pPhyConfig->phyTrainingPattern) |
-                                             _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO, 127);
-    }
-#endif /* (!LVCMOS_16BIT_SDR) */
-
-    /* Enable Thread in case of LVCMOS */
-    if (pPhyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
-    {
-        if (sipNo == 0)
-        {
-            base->THREAD[0].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
-            base->THREAD[1].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+            base->AFE[sipNo].PHY_INTR = LVDSSS_LVDS_AFE_PHY_INTR_DESKEW_COMPLETED_Msk;
+            status = CY_LVDS_SUCCESS;
         }
 #if (!LVCMOS_16BIT_SDR)
-        if ((lvdsContext->phyConfigP0->wideLink == true) || (sipNo == 1))
+        else  /* In case of LVDS external phyTrainingPattern required */
         {
-            base->THREAD[2].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
-            base->THREAD[3].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+
+            base->AFE[sipNo].PHY_TRAIN_CONFIG &= ~(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ_Msk | LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO_Msk);
+            base->AFE[sipNo].PHY_TRAIN_CONFIG  = _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_SEQ, pPhyConfig->phyTrainingPattern) |
+                _VAL2FLD(LVDSSS_LVDS_AFE_PHY_TRAIN_CONFIG_TRAIN_CYCLES_NO, 127);
         }
 #endif /* (!LVCMOS_16BIT_SDR) */
+
+        /* Enable Thread in case of LVCMOS */
+        if (pPhyConfig->modeSelect == CY_LVDS_PHY_MODE_LVCMOS)
+        {
+            if (sipNo == 0)
+            {
+                base->THREAD[0].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+                base->THREAD[1].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+            }
+#if (!LVCMOS_16BIT_SDR)
+            if ((sipNo == 1) || (lvdsContext->phyConfigP0->wideLink == true))
+            {
+                base->THREAD[2].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+                base->THREAD[3].GPIF_THREAD_CONFIG |= _BOOL2FLD(LVDSSS_LVDS_THREAD_GPIF_THREAD_CONFIG_ENABLE_THREAD_CTLR, 1u);
+            }
+#endif /* (!LVCMOS_16BIT_SDR) */
+        }
     }
 
     return status;
@@ -4382,7 +4572,7 @@ cy_en_lvds_status_t Cy_LVDS_ClkOutEnable(LVDSSS_LVDS_Type * base,  cy_en_lvds_ph
 bool Cy_LVDS_IsWidelinkModeActive(LVDSSS_LVDS_Type *base,
         cy_stc_lvds_context_t *lvdsContext)
 {
-    if ((base != NULL) && (lvdsContext != NULL))
+    if ((base != NULL) && (lvdsContext != NULL) && (lvdsContext->phyConfigP0 != NULL))
     {
         return (lvdsContext->phyConfigP0->wideLink);
     }
@@ -4412,7 +4602,7 @@ cy_en_lvds_link_state_t Cy_LVDS_GetLinkState(LVDSSS_LVDS_Type *base, uint8_t sip
     cy_en_lvds_link_state_t linkState = CY_LVDS_UNKNOWN_STATE;
     if ((base != NULL) && (sipNo < CY_LVDS_MAX_PHY_INSTANCE))
     {
-        linkState = glLinkPowerStateTable[sipNo];
+        linkState = (cy_en_lvds_link_state_t)glLinkPowerStateTable[sipNo];
     }
     return linkState;
 }

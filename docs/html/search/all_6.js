@@ -4,9 +4,10 @@ var searchData=
   ['firstproddscrindex_1',['firstProdDscrIndex',['../group__group__usbfxstack__hb__dma__structs.html#a955b4a88b469ebab258207c4255c972a',1,'cy_stc_hbdma_channel_t']]],
   ['firstrqtdone_2',['firstRqtDone',['../group__group__usbfxstack__fx__utils__structs.html#adcbbfcdd3e1bef7112d0e7a160643626',1,'cy_stc_app_endp_dma_set_t']]],
   ['forcelpmaccept_3',['forceLPMAccept',['../group__group__usbfxstack__usb__common__structs.html#a54c5b412ae07063a8ecb3ed9c8b554b6',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['functioncount_4',['functionCount',['../group__group__usbfxstack__lvds__lvcmos__structs.html#aa7de942965fd9cdfbf4c5f54a1cefec3',1,'cy_stc_lvds_gpif_config_t']]],
-  ['functiondata_5',['functionData',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a5e8a2a0177751a2f52f0c06b951f396e',1,'cy_stc_lvds_gpif_config_t']]],
-  ['functions_6',['Functions',['../group__group__usbfxstack__fx__utils__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__hb__dma__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__lvds__lvcmos__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__usb__common__functions.html',1,'(Global Namespace)']]],
-  ['fx_20usb_20common_7',['FX USB common',['../group__group__usbfxstack__usb__common.html',1,'']]],
-  ['fx_20utils_8',['FX Utils',['../group__group__usbfxstack__fx__utils.html',1,'']]]
+  ['fsctrlintf_4',['fsCtrlIntf',['../group__group__usbfxstack__fx__utils__structs.html#adf3d41d527c9fc150065d732fb394593',1,'cy_stc_usb_cdc_ctxt_t']]],
+  ['functioncount_5',['functionCount',['../group__group__usbfxstack__lvds__lvcmos__structs.html#aa7de942965fd9cdfbf4c5f54a1cefec3',1,'cy_stc_lvds_gpif_config_t']]],
+  ['functiondata_6',['functionData',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a5e8a2a0177751a2f52f0c06b951f396e',1,'cy_stc_lvds_gpif_config_t']]],
+  ['functions_7',['Functions',['../group__group__usbfxstack__fx__utils__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__hb__dma__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__lvds__lvcmos__functions.html',1,'(Global Namespace)'],['../group__group__usbfxstack__usb__common__functions.html',1,'(Global Namespace)']]],
+  ['fx_20usb_20common_8',['FX USB common',['../group__group__usbfxstack__usb__common.html',1,'']]],
+  ['fx_20utils_9',['FX Utils',['../group__group__usbfxstack__fx__utils.html',1,'']]]
 ];

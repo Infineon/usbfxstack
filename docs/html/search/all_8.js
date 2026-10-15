@@ -9,5 +9,6 @@ var searchData=
   ['hbdma_5fversion_5fnum_6',['HBDMA_VERSION_NUM',['../group__group__usbfxstack__hb__dma__macros.html#ga6fccd71f140e070129fb05728d7d69e7',1,'cy_hbdma_version.h']]],
   ['hbdma_5fversion_5fpatch_7',['HBDMA_VERSION_PATCH',['../group__group__usbfxstack__hb__dma__macros.html#ga942995f3fae675de9017d6b052204437',1,'cy_hbdma_version.h']]],
   ['hbdmachannel_8',['hbDmaChannel',['../group__group__usbfxstack__fx__utils__structs.html#a4ae4e5fb4d87f9815365f04ce1cac6d2',1,'cy_stc_app_endp_dma_set_t']]],
-  ['hsctlesel_9',['hsCtleSel',['../group__group__usbfxstack__usb__common__structs.html#afcf0ac4e865931fd645f50c757552c8c',1,'cy_stc_usb_usbd_ctxt_t']]]
+  ['hsctlesel_9',['hsCtleSel',['../group__group__usbfxstack__usb__common__structs.html#afcf0ac4e865931fd645f50c757552c8c',1,'cy_stc_usb_usbd_ctxt_t']]],
+  ['hsctrlintf_10',['hsCtrlIntf',['../group__group__usbfxstack__fx__utils__structs.html#aa168cc1f6bd5ae33bb8371f4f2bfe4a9',1,'cy_stc_usb_cdc_ctxt_t']]]
 ];

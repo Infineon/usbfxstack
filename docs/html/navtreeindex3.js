@@ -1,5 +1,8 @@
 var NAVTREEINDEX3 =
 {
+"group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fa0121bd91002679500e290750629b24d8":[3,1,1,8,2],
+"group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fa109aa997c38bea9ad79fa45ecc5e2a41":[3,1,1,8,3],
+"group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fa7f3a56dc11a86159c6ff8a60f06f7e8b":[3,1,1,8,5],
 "group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fabc55924ec695e2159152beb9a5c30b0b":[3,1,1,8,4],
 "group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7fad52fa2589fcbde92ec640031d3a22dc7":[3,1,1,8,0],
 "group__group__usbfxstack__hb__dma__enums.html#gga5e9d5386a585e87f3d3a0991ff321c7faec59cfd66c2741a69c300fd0ac5af435":[3,1,1,8,1],
@@ -246,8 +249,5 @@ var NAVTREEINDEX3 =
 "group__group__usbfxstack__hb__dma__structs.html#a16d74a4caea334795a4c52ae4bf44b51":[3,1,2,0,8],
 "group__group__usbfxstack__hb__dma__structs.html#a1deabef1dc21ba798bc323442536c840":[3,1,2,4,4],
 "group__group__usbfxstack__hb__dma__structs.html#a1fa60eae06dc5502ab2e2cc3d7d21cc8":[3,1,2,10,0],
-"group__group__usbfxstack__hb__dma__structs.html#a207d1d3c33e6a2b9bd6469245e722c14":[3,1,2,6,25],
-"group__group__usbfxstack__hb__dma__structs.html#a24fc009b444c3529b2460517edc049a0":[3,1,2,4,11],
-"group__group__usbfxstack__hb__dma__structs.html#a251578ac0fe01d6ea2e5b5637507260b":[3,1,2,10,2],
-"group__group__usbfxstack__hb__dma__structs.html#a2a34cd09b1e8db0ce3f11591e6365c32":[3,1,2,6,20]
+"group__group__usbfxstack__hb__dma__structs.html#a207d1d3c33e6a2b9bd6469245e722c14":[3,1,2,6,25]
 };

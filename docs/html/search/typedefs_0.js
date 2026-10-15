@@ -5,5 +5,6 @@ var searchData=
   ['cy_5fcb_5fhbdma_5fintr_5fcallback_5ft_2',['cy_cb_hbdma_intr_callback_t',['../group__group__usbfxstack__hb__dma__typedefs.html#ga85e2868090c71b227b87e0798cd7ccd9',1,'cy_hbdma.h']]],
   ['cy_5fcb_5fhbdma_5fmgr_5fintr_5fctrl_5fcb_5ft_3',['cy_cb_hbdma_mgr_intr_ctrl_cb_t',['../group__group__usbfxstack__hb__dma__typedefs.html#gaf82cec3d6d5f7b17e52508a08794b34f',1,'cy_hbdma_mgr.h']]],
   ['cy_5fusb_5fcal_5fmsg_5fcallback_5ft_4',['cy_usb_cal_msg_callback_t',['../group__group__usbfxstack__usb__common__typedefs.html#gaeb0c3502dfb024979701c241f98ef8b6',1,'cy_usb_common.h']]],
-  ['cy_5fusb_5fusbd_5fcallback_5ft_5',['cy_usb_usbd_callback_t',['../group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376',1,'cy_usb_usbd.h']]]
+  ['cy_5fusb_5fusbd_5fcallback_5ft_5',['cy_usb_usbd_callback_t',['../group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376',1,'cy_usb_usbd.h']]],
+  ['cy_5fusbd_5flnkstate_5fupdate_5fcb_5ft_6',['cy_usbd_lnkstate_update_cb_t',['../group__group__usbfxstack__usb__common__typedefs.html#ga161f083479b7de0481109cf73fe0df5c',1,'cy_usb_usbd.h']]]
 ];

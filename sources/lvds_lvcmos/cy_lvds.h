@@ -47,7 +47,7 @@
 
 #if defined (CY_IP_MXS40LVDS2USB32SS)
 
-#include "stdint.h"
+#include <stdint.h>
 #include <stddef.h>
 #include "cy_syslib.h"
 #include "ip/cyip_lvdsss.h"
@@ -131,8 +131,8 @@ extern "C" {
 
 #endif /*LVCMOS_16BIT_SDR*/
 
-/** Timeout loop count used during PHY initialization. */
-#define CY_LVDS_MAX_TIMEOUT_COUNT           (250000u)
+/** Timeout loop count used during PHY initialization. Actual timeout duration is 1000 * 10 us = 10 ms */
+#define CY_LVDS_MAX_TIMEOUT_COUNT           (1000u)
 
 /** Number of distinct states that are possible in a GPIF state machine when DSS is enabled. */
 #define GPIF_MAX_STATE(numDss)              (0 ? 255: ((256/(numDss * 2)) - 1))
@@ -1430,6 +1430,96 @@ void Cy_LVDS_GpifInitStateCounter(LVDSSS_LVDS_Type* base, uint8_t smNo, uint16_t
 cy_en_lvds_status_t Cy_LVDS_GpifReadData(LVDSSS_LVDS_Type* base, uint8_t smNo,
                                         uint32_t threadIndex, bool selectThread,
                                         uint32_t numWords, uint32_t *buffer, uint32 waitOption);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_WriteEgressRegister
+****************************************************************************//**
+*
+* Writes one word of data to the GPIF_EGRESS_DATA_WORD0 register for the
+* specified thread and sets the egress data valid flag.
+*
+* \note The actual data driven out of the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are driven out
+*       - 16-bit bus width: Only the lower 16 bits of the data word are driven out
+*       - 8-bit bus width: Only the lower 8 bits of the data word are driven out
+*       The maximum data capacity of the register is 64-bits. However, this API
+*       writes only to the first word and sets the valid flag.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to write data on.
+*
+* \param data
+* The 32-bit data word to write.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_WriteEgressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t data);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ReadEgressRegister
+****************************************************************************//**
+*
+* Reads a word of data from the GPIF_EGRESS_DATA_WORD0 register for the
+* specified thread.
+*
+* \note The actual data available in the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are valid
+*       - 16-bit bus width: Only the lower 16 bits of the data word are valid
+*       - 8-bit bus width: Only the lower 8 bits of the data word are valid
+*       The maximum data capacity of the register is 64-bits. However, this API
+*       only reads the first word.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to read data from.
+*
+* \param data
+* Pointer to a 32-bit variable where the read data will be stored.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_ReadEgressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t *data);
+
+/*******************************************************************************
+* Function Name: Cy_LVDS_ReadIngressRegister
+****************************************************************************//**
+*
+* Reads a word of data from the GPIF_INGRESS_DATA_WORD0 register for the
+* specified thread.
+*
+* \note The actual data available in the register depends on the BUS_WIDTH setting:
+*       - 32-bit bus width: All 32 bits of the data word are valid
+*       - 16-bit bus width: Only the lower 16 bits of the data word are valid
+*       - 8-bit bus width: Only the lower 8 bits of the data word are valid
+*       The maximum data capacity of the register is 128-bits. However, this API
+*       only reads the first word.
+*
+* \param base
+* Pointer to the LVDS register base address.
+*
+* \param threadIndex
+* Thread number to read data from.
+*
+* \param data
+* Pointer to a 32-bit variable where the read data will be stored.
+*
+* \return cy_en_lvds_status_t
+* CY_LVDS_BAD_PARAMETER - Invalid arguments/function call
+* CY_LVDS_SUCCESS - If the operation is successful
+*
+*******************************************************************************/
+cy_en_lvds_status_t Cy_LVDS_ReadIngressRegister(LVDSSS_LVDS_Type* base, uint32_t threadIndex, uint32_t *data);
 
 /*******************************************************************************
 * Function Name: Cy_LVDS_GpifInit

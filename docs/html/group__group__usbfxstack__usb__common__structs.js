@@ -136,7 +136,9 @@ var group__group__usbfxstack__usb__common__structs =
       [ "underrunWarningDone", "group__group__usbfxstack__usb__common__structs.html#a9707228bb69922dddf37014bf4af3d90", null ],
       [ "usb2FallbackDisable", "group__group__usbfxstack__usb__common__structs.html#af7de51204afe8cf44ca4afa43dcb74e8", null ],
       [ "isCtrlEpStalled", "group__group__usbfxstack__usb__common__structs.html#ad49310f87559fdb32bed860a48e84491", null ],
-      [ "hsCtleSel", "group__group__usbfxstack__usb__common__structs.html#afcf0ac4e865931fd645f50c757552c8c", null ]
+      [ "hsCtleSel", "group__group__usbfxstack__usb__common__structs.html#afcf0ac4e865931fd645f50c757552c8c", null ],
+      [ "debugUpdateCb", "group__group__usbfxstack__usb__common__structs.html#ae1a79ad32cd09ae613cfac0d91c30e4f", null ],
+      [ "pDebugCbContext", "group__group__usbfxstack__usb__common__structs.html#a97f2148b13f995042f1e54f7cd435473", null ]
     ] ],
     [ "cy_stc_usbd_devstats_t", "group__group__usbfxstack__usb__common__structs.html#structcy__stc__usbd__devstats__t", [
       [ "numRecoveryEntries", "group__group__usbfxstack__usb__common__structs.html#ab9dd59af22214698ed4dadf45be25157", null ]

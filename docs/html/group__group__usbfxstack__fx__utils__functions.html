@@ -121,17 +121,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_Debug_PrintLog</b>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_Debug_HandleReadIntr</b> (void)</td></tr>
 <tr class="memdesc:ga278b70313ea5e9ed007017832b377036"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function called from USBFS ISR corresponding to CDC OUT endpoint to read the data and pass on to user callback. <br /></td></tr>
 <tr class="separator:ga278b70313ea5e9ed007017832b377036"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa3315e30e4634a50c8d3df7ae9fcab48"><td class="memItemLeft" align="right" valign="top"><a id="gaa3315e30e4634a50c8d3df7ae9fcab48" name="gaa3315e30e4634a50c8d3df7ae9fcab48"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USB_CdcEpInDmaISR</b> (void)</td></tr>
-<tr class="memdesc:gaa3315e30e4634a50c8d3df7ae9fcab48"><td class="mdescLeft">&#160;</td><td class="mdescRight">CDC IN Endpoint DMA ISR. <br /></td></tr>
-<tr class="separator:gaa3315e30e4634a50c8d3df7ae9fcab48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga794619b54345188374ef21031cefa453"><td class="memItemLeft" align="right" valign="top"><a id="ga794619b54345188374ef21031cefa453" name="ga794619b54345188374ef21031cefa453"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Cy_USB_CdcEpOutDmaISR</b> (void)</td></tr>
-<tr class="memdesc:ga794619b54345188374ef21031cefa453"><td class="mdescLeft">&#160;</td><td class="mdescRight">CDC OUT Endpoint DMA ISR. <br /></td></tr>
-<tr class="separator:ga794619b54345188374ef21031cefa453"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa0d18c64c8961a8ff51ef03a20123c25"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#gaa0d18c64c8961a8ff51ef03a20123c25">Cy_Debug_CdcPrintNow</a> (bool startPrint)</td></tr>
 <tr class="memdesc:gaa0d18c64c8961a8ff51ef03a20123c25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable Debug logs over CDC interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#gaa0d18c64c8961a8ff51ef03a20123c25">More...</a><br /></td></tr>
 <tr class="separator:gaa0d18c64c8961a8ff51ef03a20123c25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeb8f341eede6bd5a3a246a2f41a6b813"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#gaeb8f341eede6bd5a3a246a2f41a6b813">Cy_Debug_SetCdcCtrlIntfNumber</a> (<a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0355d30a754a1ef18fec29f288f59880">cy_en_usb_speed_t</a> usbSpeed, uint8_t cdcStartIntf)</td></tr>
+<tr class="memdesc:gaeb8f341eede6bd5a3a246a2f41a6b813"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store the USB CDC control interface number in the context structure for use while handling USB control requests.  <a href="group__group__usbfxstack__fx__utils__functions.html#gaeb8f341eede6bd5a3a246a2f41a6b813">More...</a><br /></td></tr>
+<tr class="separator:gaeb8f341eede6bd5a3a246a2f41a6b813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5183be647e9c06d6d94c3b524a66097c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga5183be647e9c06d6d94c3b524a66097c">Cy_Debug_HandleControlRequests</a> (void)</td></tr>
+<tr class="memdesc:ga5183be647e9c06d6d94c3b524a66097c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to be called from the setup callback to handle class specific control requests addressed to the USB CDC interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga5183be647e9c06d6d94c3b524a66097c">More...</a><br /></td></tr>
+<tr class="separator:ga5183be647e9c06d6d94c3b524a66097c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacb605509f2b742261e3627f6ff74c382"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#gacb605509f2b742261e3627f6ff74c382">Cy_Efuse_IsBitBlown</a> (uint32_t bitPos, uint32_t offset)</td></tr>
 <tr class="memdesc:gacb605509f2b742261e3627f6ff74c382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the specified CustomerData eFuse bit is blown.  <a href="group__group__usbfxstack__fx__utils__functions.html#gacb605509f2b742261e3627f6ff74c382">More...</a><br /></td></tr>
 <tr class="separator:gacb605509f2b742261e3627f6ff74c382"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,6 +154,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 <tr class="memitem:ga4831d3912d3593c289182b2d55918c2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga4831d3912d3593c289182b2d55918c2a">Cy_UsbFx_MemCpyDword</a> (uint32_t *pDst, const uint32_t *pSrc, uint32_t byteCount)</td></tr>
 <tr class="memdesc:ga4831d3912d3593c289182b2d55918c2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy data from source to destination buffer using 4-byte words.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga4831d3912d3593c289182b2d55918c2a">More...</a><br /></td></tr>
 <tr class="separator:ga4831d3912d3593c289182b2d55918c2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d60d55185218e822751c6fa65541942"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga4d60d55185218e822751c6fa65541942">Cy_USB_CdcValidateParameters</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt)</td></tr>
+<tr class="memdesc:ga4d60d55185218e822751c6fa65541942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function which checks if the various CDC function parameters received are valid.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga4d60d55185218e822751c6fa65541942">More...</a><br /></td></tr>
+<tr class="separator:ga4d60d55185218e822751c6fa65541942"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4efb8acb51bffd06f5b1fc8d6f76a173"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga4efb8acb51bffd06f5b1fc8d6f76a173">Cy_USB_CdcInit</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt)</td></tr>
 <tr class="memdesc:ga4efb8acb51bffd06f5b1fc8d6f76a173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to initialize CDC interface for debug logging.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga4efb8acb51bffd06f5b1fc8d6f76a173">More...</a><br /></td></tr>
 <tr class="separator:ga4efb8acb51bffd06f5b1fc8d6f76a173"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,21 +166,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 <tr class="memitem:ga942f6fd81f91594931c4dacf94a88157"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga942f6fd81f91594931c4dacf94a88157">Cy_Debug_LogtoUsb</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt, uint16_t rdPtr, uint16_t limit)</td></tr>
 <tr class="memdesc:ga942f6fd81f91594931c4dacf94a88157"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function used to output log data through USBFS CDC IN endpoint.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga942f6fd81f91594931c4dacf94a88157">More...</a><br /></td></tr>
 <tr class="separator:ga942f6fd81f91594931c4dacf94a88157"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6b952f85f64d04031fa2a1f0fa3dcf77"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga6b952f85f64d04031fa2a1f0fa3dcf77">Cy_USB_CdcClearDmaInterrupt</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt, uint8_t endpDirection, uint32_t endpNumber)</td></tr>
-<tr class="memdesc:ga6b952f85f64d04031fa2a1f0fa3dcf77"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function clear the DMA interrrupt associated to the endpoint.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga6b952f85f64d04031fa2a1f0fa3dcf77">More...</a><br /></td></tr>
-<tr class="separator:ga6b952f85f64d04031fa2a1f0fa3dcf77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf423654a04d298bbb6c636259de49e46"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#gaf423654a04d298bbb6c636259de49e46">Cy_USB_CdcDmaCallback</a> (struct cy_stc_hbdma_channel *pHandle, <a class="el" href="group__group__usbfxstack__hb__dma__enums.html#ga4cef08263826ae203ebb92f2686f8a39">cy_en_hbdma_cb_type_t</a> type, <a class="el" href="group__group__usbfxstack__hb__dma__structs.html#structcy__stc__hbdma__buff__status__t">cy_stc_hbdma_buff_status_t</a> *pbufStat, void *userCtx)</td></tr>
 <tr class="memdesc:gaf423654a04d298bbb6c636259de49e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">DMA channel Callback used by the USB CDC logging interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#gaf423654a04d298bbb6c636259de49e46">More...</a><br /></td></tr>
 <tr class="separator:gaf423654a04d298bbb6c636259de49e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga21acfe20c9e7d24563ff3e764661ca32"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga21acfe20c9e7d24563ff3e764661ca32">Cy_USB_CdcQueueRead</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt, uint8_t endpNumber, uint8_t *pBuffer, uint16_t dataSize)</td></tr>
-<tr class="memdesc:ga21acfe20c9e7d24563ff3e764661ca32"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function queue read on OUT endpoint.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga21acfe20c9e7d24563ff3e764661ca32">More...</a><br /></td></tr>
-<tr class="separator:ga21acfe20c9e7d24563ff3e764661ca32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabee9036fb0232812c8bd182d0a060dc9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#gabee9036fb0232812c8bd182d0a060dc9">Cy_USB_CdcSlpCallback</a> (void *pAppCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__msg__t">cy_stc_usb_cal_msg_t</a> *pMsg)</td></tr>
-<tr class="memdesc:gabee9036fb0232812c8bd182d0a060dc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The Function will be called by USBD layer when SLP message comes on the CDC OUT endpoint.  <a href="group__group__usbfxstack__fx__utils__functions.html#gabee9036fb0232812c8bd182d0a060dc9">More...</a><br /></td></tr>
-<tr class="separator:gabee9036fb0232812c8bd182d0a060dc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga478ea74c858c7bbd69e15f47257d0a19"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga478ea74c858c7bbd69e15f47257d0a19">Cy_USB_CdcChannelEnable</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *pDbgCtxt)</td></tr>
 <tr class="memdesc:ga478ea74c858c7bbd69e15f47257d0a19"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function enables the CDC Send/Receive DMA channels.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga478ea74c858c7bbd69e15f47257d0a19">More...</a><br /></td></tr>
 <tr class="separator:ga478ea74c858c7bbd69e15f47257d0a19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3482f88a96baacbfad73d517647e91a6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga3482f88a96baacbfad73d517647e91a6">Cy_USB_CdcAddConfigDescriptors</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__config__t">cy_stc_debug_config_t</a> *pDbgCfg)</td></tr>
+<tr class="memdesc:ga3482f88a96baacbfad73d517647e91a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add descriptors for the USB CDC interface into the descriptors registered with the USB stack.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga3482f88a96baacbfad73d517647e91a6">More...</a><br /></td></tr>
+<tr class="separator:ga3482f88a96baacbfad73d517647e91a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9a38a5a91e4341f7ba862c6916171fd1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga9a38a5a91e4341f7ba862c6916171fd1">Cy_USB_CdcHandleControlRequests</a> (<a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usb__cdc__ctxt__t">cy_stc_usb_cdc_ctxt_t</a> *pCdcCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt)</td></tr>
+<tr class="memdesc:ga9a38a5a91e4341f7ba862c6916171fd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to be called from the setup callback to handle class specific control requests addressed to the USB CDC interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga9a38a5a91e4341f7ba862c6916171fd1">More...</a><br /></td></tr>
+<tr class="separator:ga9a38a5a91e4341f7ba862c6916171fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5378b6dd6cdd12e65998a389f47597ed"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__fx__utils__functions.html#ga5378b6dd6cdd12e65998a389f47597ed">CyUsbFsCdc_Init</a> (void)</td></tr>
 <tr class="memdesc:ga5378b6dd6cdd12e65998a389f47597ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The API initializes the USB interface.  <a href="group__group__usbfxstack__fx__utils__functions.html#ga5378b6dd6cdd12e65998a389f47597ed">More...</a><br /></td></tr>
 <tr class="separator:ga5378b6dd6cdd12e65998a389f47597ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -515,6 +513,64 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 
 </div>
 </div>
+<a id="gaeb8f341eede6bd5a3a246a2f41a6b813" name="gaeb8f341eede6bd5a3a246a2f41a6b813"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaeb8f341eede6bd5a3a246a2f41a6b813">&#9670;&nbsp;</a></span>Cy_Debug_SetCdcCtrlIntfNumber()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Cy_Debug_SetCdcCtrlIntfNumber </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__enums.html#ga0355d30a754a1ef18fec29f288f59880">cy_en_usb_speed_t</a>&#160;</td>
+          <td class="paramname"><em>usbSpeed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>cdcStartIntf</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Store the USB CDC control interface number in the context structure for use while handling USB control requests. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">usbSpeed</td><td>USB device connection speed</td></tr>
+    <tr><td class="paramname">cdcStartIntf</td><td>Interface number for the CDC control interface </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga5183be647e9c06d6d94c3b524a66097c" name="ga5183be647e9c06d6d94c3b524a66097c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5183be647e9c06d6d94c3b524a66097c">&#9670;&nbsp;</a></span>Cy_Debug_HandleControlRequests()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_Debug_HandleControlRequests </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to be called from the setup callback to handle class specific control requests addressed to the USB CDC interface. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if a valid control request was handled locally, false otherwise. A false return would indicate that the request needs to be handled at the application level including STALL of unknown requests. </dd></dl>
+
+</div>
+</div>
 <a id="gacb605509f2b742261e3627f6ff74c382" name="gacb605509f2b742261e3627f6ff74c382"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gacb605509f2b742261e3627f6ff74c382">&#9670;&nbsp;</a></span>Cy_Efuse_IsBitBlown()</h2>
 
@@ -767,6 +823,34 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 
 </div>
 </div>
+<a id="ga4d60d55185218e822751c6fa65541942" name="ga4d60d55185218e822751c6fa65541942"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4d60d55185218e822751c6fa65541942">&#9670;&nbsp;</a></span>Cy_USB_CdcValidateParameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USB_CdcValidateParameters </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *&#160;</td>
+          <td class="paramname"><em>pDbgCtxt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function which checks if the various CDC function parameters received are valid. </p>
+<p >If all parameters are valid, a callback is registered with the USB stack which allows the CDC functionality to be enabled or disabled at appropriate times.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDbgCtxt</td><td>Debug Context</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the parameters are valid, false in case of missing or bad parameters passed to Cy_Debug_LogInit. </dd></dl>
+
+</div>
+</div>
 <a id="ga4efb8acb51bffd06f5b1fc8d6f76a173" name="ga4efb8acb51bffd06f5b1fc8d6f76a173"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga4efb8acb51bffd06f5b1fc8d6f76a173">&#9670;&nbsp;</a></span>Cy_USB_CdcInit()</h2>
 
@@ -784,13 +868,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 </div><div class="memdoc">
 
 <p>Function to initialize CDC interface for debug logging. </p>
+<p >This is triggered through callback from USBD stack when the USB device has been configured.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pDbgCtxt</td><td>Debug Context</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>True if initialization is successful, else False </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if initialization is successful, else false </dd></dl>
 
 </div>
 </div>
@@ -811,13 +896,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 </div><div class="memdoc">
 
 <p>Function to de-initialize CDC interface for debug logging. </p>
+<p >This is triggered through callback from USB stack whenever the USB device is de-initialized or reset.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pDbgCtxt</td><td>Debug Context</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>True if deinitialization is successful, else False </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if deinitialization is successful, else false </dd></dl>
 
 </div>
 </div>
@@ -863,50 +949,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>return rdPtr pointer value </dd></dl>
-
-</div>
-</div>
-<a id="ga6b952f85f64d04031fa2a1f0fa3dcf77" name="ga6b952f85f64d04031fa2a1f0fa3dcf77"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6b952f85f64d04031fa2a1f0fa3dcf77">&#9670;&nbsp;</a></span>Cy_USB_CdcClearDmaInterrupt()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cy_USB_CdcClearDmaInterrupt </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *&#160;</td>
-          <td class="paramname"><em>pDbgCtxt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>endpDirection</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>endpNumber</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The function clear the DMA interrrupt associated to the endpoint. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pDbgCtxt</td><td>Debug Context.</td></tr>
-    <tr><td class="paramname">endpDirection</td><td>IN or OUT endpoint</td></tr>
-    <tr><td class="paramname">endpNumber</td><td>Endpoint Number </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -961,101 +1003,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
 
 </div>
 </div>
-<a id="ga21acfe20c9e7d24563ff3e764661ca32" name="ga21acfe20c9e7d24563ff3e764661ca32"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga21acfe20c9e7d24563ff3e764661ca32">&#9670;&nbsp;</a></span>Cy_USB_CdcQueueRead()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cy_USB_CdcQueueRead </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__context__t">cy_stc_debug_context_t</a> *&#160;</td>
-          <td class="paramname"><em>pDbgCtxt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>endpNumber</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>pBuffer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
-          <td class="paramname"><em>dataSize</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The function queue read on OUT endpoint. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pDbgCtxt</td><td>Debug Context.</td></tr>
-    <tr><td class="paramname">endpNumber</td><td>Out Endpoint number to queue the read</td></tr>
-    <tr><td class="paramname">pBuffer</td><td>Buffer pointer to store the read data.</td></tr>
-    <tr><td class="paramname">dataSize</td><td>Bytes to read on OUT endpoint </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="gabee9036fb0232812c8bd182d0a060dc9" name="gabee9036fb0232812c8bd182d0a060dc9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabee9036fb0232812c8bd182d0a060dc9">&#9670;&nbsp;</a></span>Cy_USB_CdcSlpCallback()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Cy_USB_CdcSlpCallback </td>
-          <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>pAppCtxt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
-          <td class="paramname"><em>pUsbdCtxt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__msg__t">cy_stc_usb_cal_msg_t</a> *&#160;</td>
-          <td class="paramname"><em>pMsg</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The Function will be called by USBD layer when SLP message comes on the CDC OUT endpoint. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pAppCtxt</td><td>User context</td></tr>
-    <tr><td class="paramname">pUsbdCtxt</td><td>USBD context</td></tr>
-    <tr><td class="paramname">pMsg</td><td>Message </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="ga478ea74c858c7bbd69e15f47257d0a19" name="ga478ea74c858c7bbd69e15f47257d0a19"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga478ea74c858c7bbd69e15f47257d0a19">&#9670;&nbsp;</a></span>Cy_USB_CdcChannelEnable()</h2>
 
@@ -1080,6 +1027,72 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>KickWDT</b> (void)</t
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if channel was enabled successfully, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga3482f88a96baacbfad73d517647e91a6" name="ga3482f88a96baacbfad73d517647e91a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3482f88a96baacbfad73d517647e91a6">&#9670;&nbsp;</a></span>Cy_USB_CdcAddConfigDescriptors()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USB_CdcAddConfigDescriptors </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__debug__config__t">cy_stc_debug_config_t</a> *&#160;</td>
+          <td class="paramname"><em>pDbgCfg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add descriptors for the USB CDC interface into the descriptors registered with the USB stack. </p>
+<p >Please note that the descriptor arrays are expected to have the required space for these descriptors: 84 bytes in case of USB 3.x and 66 bytes in case of USB 2.x.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pDbgCfg</td><td>Debug configuration structure.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if descriptors are updated properly, false otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga9a38a5a91e4341f7ba862c6916171fd1" name="ga9a38a5a91e4341f7ba862c6916171fd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9a38a5a91e4341f7ba862c6916171fd1">&#9670;&nbsp;</a></span>Cy_USB_CdcHandleControlRequests()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Cy_USB_CdcHandleControlRequests </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__fx__utils__structs.html#structcy__stc__usb__cdc__ctxt__t">cy_stc_usb_cdc_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pCdcCtxt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *&#160;</td>
+          <td class="paramname"><em>pUsbdCtxt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to be called from the setup callback to handle class specific control requests addressed to the USB CDC interface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pCdcCtxt</td><td>USB CDC device context structure </td></tr>
+    <tr><td class="paramname">pUsbdCtxt</td><td>USB stack context structure</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if a valid control request was handled locally, false otherwise. </dd></dl>
 
 </div>
 </div>

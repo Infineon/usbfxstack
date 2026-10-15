@@ -174,9 +174,8 @@ Macros</h2></td></tr>
 <tr class="memitem:ga242a03fe71d84fa614dd807ab3dbb43c"><td class="memItemLeft" align="right" valign="top"><a id="ga242a03fe71d84fa614dd807ab3dbb43c" name="ga242a03fe71d84fa614dd807ab3dbb43c"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>LVDS_PHY_TRAIN_MAX_COUNT</b>&#160;&#160;&#160;(10)</td></tr>
 <tr class="separator:ga242a03fe71d84fa614dd807ab3dbb43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab55ef459d4638eb0fd7330aab24a2ffd"><td class="memItemLeft" align="right" valign="top"><a id="gab55ef459d4638eb0fd7330aab24a2ffd" name="gab55ef459d4638eb0fd7330aab24a2ffd"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>CY_LVDS_MAX_TIMEOUT_COUNT</b>&#160;&#160;&#160;(250000u)</td></tr>
-<tr class="memdesc:gab55ef459d4638eb0fd7330aab24a2ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timeout loop count used during PHY initialization. <br /></td></tr>
+<tr class="memitem:gab55ef459d4638eb0fd7330aab24a2ffd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__lvds__lvcmos__macros.html#gab55ef459d4638eb0fd7330aab24a2ffd">CY_LVDS_MAX_TIMEOUT_COUNT</a>&#160;&#160;&#160;(1000u)</td></tr>
+<tr class="memdesc:gab55ef459d4638eb0fd7330aab24a2ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timeout loop count used during PHY initialization.  <a href="group__group__usbfxstack__lvds__lvcmos__macros.html#gab55ef459d4638eb0fd7330aab24a2ffd">More...</a><br /></td></tr>
 <tr class="separator:gab55ef459d4638eb0fd7330aab24a2ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7aff6fa10d678650c84b58664d395772"><td class="memItemLeft" align="right" valign="top"><a id="ga7aff6fa10d678650c84b58664d395772" name="ga7aff6fa10d678650c84b58664d395772"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>GPIF_MAX_STATE</b>(numDss)&#160;&#160;&#160;(0 ? 255: ((256/(numDss * 2)) - 1))</td></tr>
@@ -283,6 +282,24 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga1287508aeff085d5879d258d3b859932"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max LVDS Lane Data Bit Rate 1.2 Gbps. <br /></td></tr>
 <tr class="separator:ga1287508aeff085d5879d258d3b859932"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="gab55ef459d4638eb0fd7330aab24a2ffd" name="gab55ef459d4638eb0fd7330aab24a2ffd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab55ef459d4638eb0fd7330aab24a2ffd">&#9670;&nbsp;</a></span>CY_LVDS_MAX_TIMEOUT_COUNT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_LVDS_MAX_TIMEOUT_COUNT&#160;&#160;&#160;(1000u)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Timeout loop count used during PHY initialization. </p>
+<p >Actual timeout duration is 1000 * 10 us = 10 ms </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part

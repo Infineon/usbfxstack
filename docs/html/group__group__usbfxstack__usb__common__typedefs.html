@@ -98,6 +98,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaf2703fc2b5baa958deb275bf19852376"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">cy_usb_usbd_callback_t</a>) (void *pAppCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, <a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__cal__msg__t">cy_stc_usb_cal_msg_t</a> *pMsg)</td></tr>
 <tr class="memdesc:gaf2703fc2b5baa958deb275bf19852376"><td class="mdescLeft">&#160;</td><td class="mdescRight">USB stack to application callback prototype.  <a href="group__group__usbfxstack__usb__common__typedefs.html#gaf2703fc2b5baa958deb275bf19852376">More...</a><br /></td></tr>
 <tr class="separator:gaf2703fc2b5baa958deb275bf19852376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga161f083479b7de0481109cf73fe0df5c"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__usbfxstack__usb__common__typedefs.html#ga161f083479b7de0481109cf73fe0df5c">cy_usbd_lnkstate_update_cb_t</a>) (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, bool isLinkUp, void *pAppCtxt)</td></tr>
+<tr class="memdesc:ga161f083479b7de0481109cf73fe0df5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">USB stack callback to debug logger module to enable/disable logging function through CDC function implemented through the active USB link.  <a href="group__group__usbfxstack__usb__common__typedefs.html#ga161f083479b7de0481109cf73fe0df5c">More...</a><br /></td></tr>
+<tr class="separator:ga161f083479b7de0481109cf73fe0df5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="gaeb0c3502dfb024979701c241f98ef8b6" name="gaeb0c3502dfb024979701c241f98ef8b6"></a>
@@ -144,6 +147,30 @@ Typedefs</h2></td></tr>
     <tr><td class="paramname">pAppCtxt</td><td>Application context pointer. </td></tr>
     <tr><td class="paramname">pUsbdCtxt</td><td>USBD stack context pointer. </td></tr>
     <tr><td class="paramname">pMsg</td><td>Message pointer. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga161f083479b7de0481109cf73fe0df5c" name="ga161f083479b7de0481109cf73fe0df5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga161f083479b7de0481109cf73fe0df5c">&#9670;&nbsp;</a></span>cy_usbd_lnkstate_update_cb_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* cy_usbd_lnkstate_update_cb_t) (<a class="el" href="group__group__usbfxstack__usb__common__structs.html#structcy__stc__usb__usbd__ctxt__t">cy_stc_usb_usbd_ctxt_t</a> *pUsbdCtxt, bool isLinkUp, void *pAppCtxt)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>USB stack callback to debug logger module to enable/disable logging function through CDC function implemented through the active USB link. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUsbdCtxt</td><td>USBD stack context pointer. </td></tr>
+    <tr><td class="paramname">isLinkUp</td><td>Whether USB link is up and logging function can be enabled. </td></tr>
+    <tr><td class="paramname">pAppCtxt</td><td>Opaque variable providing the caller context. </td></tr>
   </table>
   </dd>
 </dl>

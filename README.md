@@ -1,4 +1,4 @@
-# USBFXStack Middleware Library 1.3.3
+# USBFXStack Middleware Library 1.3.4
 
 The USBFXStack Middleware Library provides a powerful and versatile solution designed to support the EZ-USB&trade; FX devices with a variety of integrated modules. This library includes essential drivers and utilities to help developers efficiently manage and optimize their applications.
 

@@ -41,14 +41,20 @@
 /** Indicates the use of cy_usb_cdc */
 #define CY_USB_CDC_H
 
-#include "stdint.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "cy_debug.h"
 #include "cy_usbhs_dw_wrapper.h"
+#include "cy_hbdma.h"
+#include "cy_hbdma_mgr.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+#define CY_CDC_BULK_EP_SIZE_FS          (64u)           /**< Maximum packet size of CDC bulk endpoint in FS mode */
+#define CY_CDC_BULK_EP_SIZE_HS          (512u)          /**< Maximum packet size of CDC bulk endpoint in HS mode */
+#define CY_CDC_BULK_EP_SIZE_SS          (1024u)         /**< Maximum packet size of CDC bulk endpoint in SS mode */
 
 /** \} group_usbfxstack_fx_utils_macros */
 
@@ -66,14 +72,17 @@ typedef struct cy_stc_usb_cdc_ctxt_
     uint8_t                  cdcEpOut;                  /**< OUT endpoint used for CDC interface. */
     uint8_t                  bufCount;                  /**< Number of RAM buffers to be used for logging. */
     uint8_t                  recvEnabled;               /**< Whether data receive through OUT endpoint is enabled. */
-    uint8_t                  rxFreeBufferCount;         /**< Count of free data receive buffers available. */
-    DW_Type                  *pCpuDw0Base;              /**< Pointer to DataWire-0 IP registers. */
-    DW_Type                  *pCpuDw1Base;              /**< Pointer to DataWire-1 IP registers. */
-    cy_stc_app_endp_dma_set_t endpInDma;                /**< DMA status information for IN endpoints. */
-    cy_stc_app_endp_dma_set_t endpOutDma;               /**< DMA status information for OUT endpoints. */
-    void                      *pUsbdCtxt;               /**< USBD stack context pointer. */
+    cy_stc_hbdma_channel_t   endpInChannel;             /**< DMA channel for CDC Bulk-IN endpoint. */
+    cy_stc_hbdma_channel_t   endpOutChannel;            /**< DMA channel for CDC Bulk-OUT endpoint. */
+    void                     *pUsbdCtxt;                /**< USBD stack context pointer. */
     void                     *cdcSendHandle;            /**< Pointer to DMA channel used for data logging. */
     void                     *cdcRecvHandle;            /**< Pointer to DMA channel used to receive CDC data. */
+    uint8_t                  ssCtrlIntf;                /**< Control interface index for USB-SS */
+    uint8_t                  hsCtrlIntf;                /**< Control interface index for USB-HS */
+    uint8_t                  fsCtrlIntf;                /**< Control interface index for USB-FS */
+    uint8_t                  *pCfgBuffer;               /**< Buffer used to handle CDC control requests. 64 byte buffer
+                                                             is allocated internally when the CDC interface is enabled
+                                                             and freed when it is disabled. */
 } cy_stc_usb_cdc_ctxt_t;
 
 /** \} group_usbfxstack_fx_utils_structs */
@@ -84,16 +93,35 @@ typedef struct cy_stc_usb_cdc_ctxt_
  */
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcInit
+ * Function name: Cy_USB_CdcValidateParameters
  ****************************************************************************//**
  *
- * Function to initialize CDC interface for debug logging.
+ * Function which checks if the various CDC function parameters received are valid.
+ * If all parameters are valid, a callback is registered with the USB stack which
+ * allows the CDC functionality to be enabled or disabled at appropriate times.
  *
  * \param pDbgCtxt
  * Debug Context
  *
  * \return
- * True if initialization is successful, else False
+ * true if the parameters are valid, false in case of missing or bad parameters
+ * passed to Cy_Debug_LogInit.
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcValidateParameters(cy_stc_debug_context_t *pDbgCtxt);
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcInit
+ ****************************************************************************//**
+ *
+ * Function to initialize CDC interface for debug logging. This is triggered
+ * through callback from USBD stack when the USB device has been configured.
+ *
+ * \param pDbgCtxt
+ * Debug Context
+ *
+ * \return
+ * true if initialization is successful, else false
  *
  *******************************************************************************/
 bool Cy_USB_CdcInit(cy_stc_debug_context_t *pDbgCtxt);
@@ -102,13 +130,15 @@ bool Cy_USB_CdcInit(cy_stc_debug_context_t *pDbgCtxt);
  * Function name: Cy_USB_CdcDeInit
  ****************************************************************************//**
  *
- * Function to de-initialize CDC interface for debug logging.
+ * Function to de-initialize CDC interface for debug logging. This is triggered
+ * through callback from USB stack whenever the USB device is de-initialized or
+ * reset.
  *
  * \param pDbgCtxt
  * Debug Context
  *
  * \return
- * True if deinitialization is successful, else False
+ * true if deinitialization is successful, else false
  *
  *******************************************************************************/
 bool Cy_USB_CdcDeInit(cy_stc_debug_context_t *pDbgCtxt);
@@ -135,25 +165,6 @@ bool Cy_USB_CdcDeInit(cy_stc_debug_context_t *pDbgCtxt);
 uint16_t Cy_Debug_LogtoUsb(cy_stc_debug_context_t *pDbgCtxt, uint16_t rdPtr, uint16_t limit);
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcClearDmaInterrupt
- ****************************************************************************//**
- *
- * The function clear the DMA interrrupt associated to the endpoint
- *
- * \param pDbgCtxt
- * Debug Context.
- *
- * \param endpDirection
- * IN or OUT endpoint
- *
- * \param endpNumber
- * Endpoint Number
- *
- *******************************************************************************/
-void Cy_USB_CdcClearDmaInterrupt(cy_stc_debug_context_t* pDbgCtxt, uint8_t endpDirection, uint32_t endpNumber);
-
-
-/*******************************************************************************
  * Function name: Cy_USB_CdcDmaCallback
  ****************************************************************************//**
  *
@@ -177,48 +188,6 @@ void Cy_USB_CdcDmaCallback(struct cy_stc_hbdma_channel *pHandle,
                            cy_stc_hbdma_buff_status_t* pbufStat, void *userCtx);
 
 /*******************************************************************************
- * Function name: Cy_USB_CdcQueueRead
- ****************************************************************************//**
- *
- * The function queue read on OUT endpoint.
- *
- * \param pDbgCtxt
- * Debug Context.
- *
- * \param endpNumber
- * Out Endpoint number to queue the read
- *
- * \param pBuffer
- * Buffer pointer to store the read data.
- *
- * \param dataSize
- * Bytes to read on OUT endpoint
- *
- *******************************************************************************/
-void Cy_USB_CdcQueueRead(cy_stc_debug_context_t *pDbgCtxt, uint8_t endpNumber,
-                         uint8_t *pBuffer, uint16_t dataSize);
-
-/*******************************************************************************
- * Function name: Cy_USB_CdcSlpCallback
- ****************************************************************************//**
- *
- * The Function will be called by USBD layer when SLP message comes on the
- * CDC OUT endpoint.
- *
- * \param pAppCtxt
- * User context
- *
- * \param pUsbdCtxt
- * USBD context
- *
- * \param pMsg
- * Message
- *
- *******************************************************************************/
-void Cy_USB_CdcSlpCallback(void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
-                           cy_stc_usb_cal_msg_t *pMsg);
-
-/*******************************************************************************
  * Function name: Cy_USB_CdcChannelEnable
  ****************************************************************************//**
  *
@@ -231,6 +200,44 @@ void Cy_USB_CdcSlpCallback(void *pAppCtxt, cy_stc_usb_usbd_ctxt_t *pUsbdCtxt,
  * true if channel was enabled successfully, false otherwise.
  *******************************************************************************/
 bool Cy_USB_CdcChannelEnable(cy_stc_debug_context_t *pDbgCtxt);
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcAddConfigDescriptors
+ ****************************************************************************//**
+ *
+ * Add descriptors for the USB CDC interface into the descriptors registered with the
+ * USB stack. Please note that the descriptor arrays are expected to have the required
+ * space for these descriptors: 84 bytes in case of USB 3.x and 66 bytes in case of
+ * USB 2.x.
+ *
+ * \param pDbgCfg
+ * Debug configuration structure.
+ *
+ * \return
+ * true if descriptors are updated properly, false otherwise.
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcAddConfigDescriptors(cy_stc_debug_config_t *pDbgCfg);
+
+/*******************************************************************************
+ * Function name: Cy_USB_CdcHandleControlRequests
+ ****************************************************************************//**
+ *
+ * Function to be called from the setup callback to handle class specific control
+ * requests addressed to the USB CDC interface.
+ *
+ * \param pCdcCtxt
+ * USB CDC device context structure
+ * \param pUsbdCtxt
+ * USB stack context structure
+ *
+ * \return
+ * true if a valid control request was handled locally, false otherwise.
+ *
+ *******************************************************************************/
+bool Cy_USB_CdcHandleControlRequests(
+        cy_stc_usb_cdc_ctxt_t  *pCdcCtxt,
+        cy_stc_usb_usbd_ctxt_t *pUsbdCtxt);
 
 /** \} group_usbfxstack_fx_utils_functions */
 

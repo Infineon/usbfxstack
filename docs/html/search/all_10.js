@@ -17,6 +17,5 @@ var searchData=
   ['resumecb_14',['resumeCb',['../group__group__usbfxstack__usb__common__structs.html#aedfda7eb17b8d3e9eefbebc8553aa3a9',1,'cy_stc_usb_usbd_ctxt_t']]],
   ['retrybufoffset_15',['retryBufOffset',['../group__group__usbfxstack__usb__common__structs.html#a9eb08031fba0e9a7153d1ed1650f416f',1,'cy_stc_usb_endp_info_t']]],
   ['rightdata_16',['rightData',['../group__group__usbfxstack__lvds__lvcmos__structs.html#a75a47682b97027e36d10822459aaf4cd',1,'cy_stc_lvds_gpif_wavedata_t']]],
-  ['rxadaptationdone_17',['rxAdaptationDone',['../group__group__usbfxstack__usb__common__structs.html#a0a406fb2735fdc3a8fbbef0ddc73b567',1,'cy_stc_usbss_cal_ctxt_t']]],
-  ['rxfreebuffercount_18',['rxFreeBufferCount',['../group__group__usbfxstack__fx__utils__structs.html#a3f95c54c0cbe249f5312d340933d4f3f',1,'cy_stc_usb_cdc_ctxt_t']]]
+  ['rxadaptationdone_17',['rxAdaptationDone',['../group__group__usbfxstack__usb__common__structs.html#a0a406fb2735fdc3a8fbbef0ddc73b567',1,'cy_stc_usbss_cal_ctxt_t']]]
 ];
