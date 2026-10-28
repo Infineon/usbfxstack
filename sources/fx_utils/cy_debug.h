@@ -56,10 +56,10 @@ extern "C" {
 #ifndef DOXYGEN
 
 #if DEBUG_INFRA_EN
-#define DBG_BLOAD_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:BLOAD:"str, ##__VA_ARGS__)
-#define DBG_BLOAD_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:BLOAD:"str, ##__VA_ARGS__)
-#define DBG_BLOAD_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:BLOAD:"str, ##__VA_ARGS__)
-#define DBG_BLOAD_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:BLOAD:"str, ##__VA_ARGS__)
+#define DBG_BLOAD_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:BLOAD:" str, ##__VA_ARGS__)
+#define DBG_BLOAD_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:BLOAD:" str, ##__VA_ARGS__)
+#define DBG_BLOAD_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:BLOAD:" str, ##__VA_ARGS__)
+#define DBG_BLOAD_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:BLOAD:" str, ##__VA_ARGS__)
 #else
 #define DBG_BLOAD_ERR(str, ...)
 #define DBG_BLOAD_WARN(str, ...)
@@ -68,10 +68,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_HSCAL_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:HSCAL:"str, ##__VA_ARGS__)
-#define DBG_HSCAL_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:HSCAL:"str, ##__VA_ARGS__)
-#define DBG_HSCAL_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:HSCAL:"str, ##__VA_ARGS__)
-#define DBG_HSCAL_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:HSCAL:"str, ##__VA_ARGS__)
+#define DBG_HSCAL_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:HSCAL:" str, ##__VA_ARGS__)
+#define DBG_HSCAL_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:HSCAL:" str, ##__VA_ARGS__)
+#define DBG_HSCAL_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:HSCAL:" str, ##__VA_ARGS__)
+#define DBG_HSCAL_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:HSCAL:" str, ##__VA_ARGS__)
 #else
 #define DBG_HSCAL_ERR(str, ...)
 #define DBG_HSCAL_WARN(str, ...)
@@ -80,10 +80,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_SSCAL_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:SSCAL:"str, ##__VA_ARGS__)
-#define DBG_SSCAL_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:SSCAL:"str, ##__VA_ARGS__)
-#define DBG_SSCAL_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:SSCAL:"str, ##__VA_ARGS__)
-#define DBG_SSCAL_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:SSCAL:"str, ##__VA_ARGS__)
+#define DBG_SSCAL_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:SSCAL:" str, ##__VA_ARGS__)
+#define DBG_SSCAL_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:SSCAL:" str, ##__VA_ARGS__)
+#define DBG_SSCAL_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:SSCAL:" str, ##__VA_ARGS__)
+#define DBG_SSCAL_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:SSCAL:" str, ##__VA_ARGS__)
 #else
 #define DBG_SSCAL_ERR(str, ...)
 #define DBG_SSCAL_WARN(str, ...)
@@ -92,10 +92,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_USBD_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:USBD:"str, ##__VA_ARGS__)
-#define DBG_USBD_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:USBD:"str, ##__VA_ARGS__)
-#define DBG_USBD_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:USBD:"str, ##__VA_ARGS__)
-#define DBG_USBD_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:USBD:"str, ##__VA_ARGS__)
+#define DBG_USBD_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:USBD:" str, ##__VA_ARGS__)
+#define DBG_USBD_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:USBD:" str, ##__VA_ARGS__)
+#define DBG_USBD_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:USBD:" str, ##__VA_ARGS__)
+#define DBG_USBD_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:USBD:" str, ##__VA_ARGS__)
 #else
 #define DBG_USBD_ERR(str, ...)
 #define DBG_USBD_WARN(str, ...)
@@ -104,10 +104,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_APP_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:APP:"str, ##__VA_ARGS__)
-#define DBG_APP_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:APP:"str, ##__VA_ARGS__)
-#define DBG_APP_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:APP:"str, ##__VA_ARGS__)
-#define DBG_APP_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:APP:"str, ##__VA_ARGS__)
+#define DBG_APP_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:APP:" str, ##__VA_ARGS__)
+#define DBG_APP_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:APP:" str, ##__VA_ARGS__)
+#define DBG_APP_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:APP:" str, ##__VA_ARGS__)
+#define DBG_APP_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:APP:" str, ##__VA_ARGS__)
 #else
 #define DBG_APP_ERR(str, ...)
 #define DBG_APP_WARN(str, ...)
@@ -116,10 +116,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_vHOST_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:vHost:"str, ##__VA_ARGS__)
-#define DBG_vHOST_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:vHost:"str, ##__VA_ARGS__)
-#define DBG_vHOST_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:vHost:"str, ##__VA_ARGS__)
-#define DBG_vHOST_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:vHost:"str, ##__VA_ARGS__)
+#define DBG_vHOST_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:vHost:" str, ##__VA_ARGS__)
+#define DBG_vHOST_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:vHost:" str, ##__VA_ARGS__)
+#define DBG_vHOST_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:vHost:" str, ##__VA_ARGS__)
+#define DBG_vHOST_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:vHost:" str, ##__VA_ARGS__)
 #else
 #define DBG_vHOST_ERR(str, ...)
 #define DBG_vHOST_WARN(str, ...)
@@ -128,10 +128,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_HBDMA_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:HbDma:"str, ##__VA_ARGS__)
-#define DBG_HBDMA_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:HbDma:"str, ##__VA_ARGS__)
-#define DBG_HBDMA_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:HbDma:"str, ##__VA_ARGS__)
-#define DBG_HBDMA_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:HbDma:"str, ##__VA_ARGS__)
+#define DBG_HBDMA_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:HbDma:" str, ##__VA_ARGS__)
+#define DBG_HBDMA_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:HbDma:" str, ##__VA_ARGS__)
+#define DBG_HBDMA_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:HbDma:" str, ##__VA_ARGS__)
+#define DBG_HBDMA_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:HbDma:" str, ##__VA_ARGS__)
 #else
 #define DBG_HBDMA_ERR(str, ...)
 #define DBG_HBDMA_WARN(str, ...)
@@ -140,10 +140,10 @@ extern "C" {
 #endif
 
 #if DEBUG_INFRA_EN
-#define DBG_LVDS_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:LVDS:"str, ##__VA_ARGS__)
-#define DBG_LVDS_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:LVDS:"str, ##__VA_ARGS__)
-#define DBG_LVDS_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:LVDS:"str, ##__VA_ARGS__)
-#define DBG_LVDS_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:LVDS:"str, ##__VA_ARGS__)
+#define DBG_LVDS_ERR(str, ...)   Cy_Debug_AddToLog(1, "Err:LVDS:" str, ##__VA_ARGS__)
+#define DBG_LVDS_WARN(str, ...)  Cy_Debug_AddToLog(2, "W:LVDS:" str, ##__VA_ARGS__)
+#define DBG_LVDS_INFO(str, ...)  Cy_Debug_AddToLog(3, "Info:LVDS:" str, ##__VA_ARGS__)
+#define DBG_LVDS_TRACE(str, ...) Cy_Debug_AddToLog(4, "T:LVDS:" str, ##__VA_ARGS__)
 #else
 #define DBG_LVDS_ERR(str, ...)
 #define DBG_LVDS_WARN(str, ...)
@@ -239,11 +239,11 @@ typedef enum
 {
     CY_DEBUG_INTFCE_UART_SCB0,                  /**< Prints through SCB0-UART interface. */
     CY_DEBUG_INTFCE_UART_SCB1,                  /**< Prints through SCB1-UART interface. */
-    CY_DEBUG_INTFCE_UART_SCB2,                  /**< Prints through SCB1-UART interface. */
-    CY_DEBUG_INTFCE_UART_SCB3,                  /**< Prints through SCB1-UART interface. */
-    CY_DEBUG_INTFCE_UART_SCB4,                  /**< Prints through SCB1-UART interface. */
-    CY_DEBUG_INTFCE_UART_SCB5,                  /**< Prints through SCB1-UART interface. */
-    CY_DEBUG_INTFCE_UART_SCB6,                  /**< Prints through SCB1-UART interface. */
+    CY_DEBUG_INTFCE_UART_SCB2,                  /**< Prints through SCB2-UART interface. */
+    CY_DEBUG_INTFCE_UART_SCB3,                  /**< Prints through SCB3-UART interface. */
+    CY_DEBUG_INTFCE_UART_SCB4,                  /**< Prints through SCB4-UART interface. */
+    CY_DEBUG_INTFCE_UART_SCB5,                  /**< Prints through SCB5-UART interface. */
+    CY_DEBUG_INTFCE_UART_SCB6,                  /**< Prints through SCB6-UART interface. */
     CY_DEBUG_INTFCE_USBFS_CDC,                  /**< Prints through USBFS interface using CDC class. */
     CY_DEBUG_INTFCE_USB_CDC,                    /**< Prints through USBHS/USBSS interface using CDC class. */
     CY_DEBUG_INTFCE_RAM,                        /**< Keeps stored in a circular buffer in RAM */
@@ -400,7 +400,7 @@ cy_en_debug_status_t Cy_Debug_LogDeInit(void);
  * Success/Failure return code.
  *******************************************************************************/
 cy_en_debug_status_t Cy_Debug_AddToLog (uint8_t dbgLevel,
-                                          char *message, ...);
+                                          const char *message, ...);
 
 /*******************************************************************************
  * Function name: Cy_Debug_PrintLog

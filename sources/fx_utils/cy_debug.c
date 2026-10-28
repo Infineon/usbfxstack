@@ -364,7 +364,7 @@ static uint8_t *Cy_Debug_IntToStr(uint8_t *convertedString,
 }
 
 /* Internal function used to add a formatted message to the circular log buffer. */
-static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
+static cy_en_debug_status_t Cy_Debug_AddToBuffer (const char *message, va_list argp)
 {
     uint8_t  *string_p;
     uint8_t  *argStr = NULL;
@@ -503,7 +503,7 @@ static cy_en_debug_status_t Cy_Debug_AddToBuffer (char *message, va_list argp)
  * Success/Failure return code.
  *******************************************************************************/
 cy_en_debug_status_t Cy_Debug_AddToLog (uint8_t dbgLevel,
-                                          char *message, ...)
+                                          const char *message, ...)
 {
     cy_en_debug_status_t status;
     va_list   argp;
